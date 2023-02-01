@@ -1,7 +1,38 @@
+/*
+This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
+*/
+
 param sites_redcapwebwinrxnwnphyrehrs_name string = 'redcapwebwinrxnwnphyrehrs'
 param serverfarms_ASP_rgitsdessredcapdev_01_name string = 'ASP-rgitsdessredcapdev-01'
 param storageAccounts_stcdphessredcapdev01_name string = 'stcdphessredcapdev01'
 param flexibleServers_flexdb_itsd_ess_dev_01_name string = 'flexdb-itsd-ess-dev-01'
+
+@description('CDPH Owner')
+@allowed('ITSD', 'CDPH')
+param cdphOwner string = 'ITSD'
+
+@description('CDPH Business Unit (numbers & digits only)')
+@maxLength(5)
+@minLength(2)
+param cdphBusinessUnit string = 'ESS'
+
+@description('CDPH Business Unit Program (numbers & digits only)')
+@maxLength(5)
+@minLength(2)
+param cdphBusinessUnitProgram string = 'RedCap'
+
+@description('Targeted deployment environment')
+@allowed('Dev', 'Test', 'Prod')
+param cdphEnvironment string = 'Dev'
+
+@description('Instance number (when deploying multiple instances into one environment)')
+@minValue(1)
+@maxValue(99)
+param cdphTargetInstance int = 1
+
+@description('Location where resources will be deployed')
+@allowed('westus2', 'westus3')
+param azureRegion = 'westus2'
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   name: flexibleServers_flexdb_itsd_ess_dev_01_name
