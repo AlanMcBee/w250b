@@ -30,9 +30,14 @@ param cdphEnvironment string = 'Dev'
 @maxValue(99)
 param cdphTargetInstance int = 1
 
-@description('Location where resources will be deployed')
-@allowed('westus2', 'westus3')
-param azureRegion = 'westus2'
+@description('Location where most resources will be deployed')
+@allowed('westus')
+param azureRegionPrimary = 'westus'
+
+var regionLocationMap = {
+  'westus': 'West US'
+}
+var locationNamePrimary = regionLocationMap[azureRegionPrimary]
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   name: flexibleServers_flexdb_itsd_ess_dev_01_name
