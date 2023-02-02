@@ -181,21 +181,22 @@ param smtpPort int = 587
 */
 
 // CDPH-specific variables
+
 var commonTags = {
   'ACCOUNTABILITY-Business Unit': CdphBusinessUnit
-  'ACCOUNTABILITY-Cherwell Change Control': ''
-  'ACCOUNTABILITY-Cost Center': ''
+  'ACCOUNTABILITY-Cherwell Change Control': '' // TODO: parameterize or remove?
+  'ACCOUNTABILITY-Cost Center': '' // TODO: parameterize or remove?
   'ACCOUNTABILITY-Date Created': DeploymentCreationDateTime
   'ACCOUNTABILITY-Owner': CdphBusinessUnit
   'ACCOUNTABILITY-Program': CdphBusinessUnitProgram
   ENVIRONMENT: CdphEnvironment
-  'SECURITY-Criticality': ''
-  'SECURITY-Facing': ''
+  'SECURITY-Criticality': '' // TODO: parameterize or remove?
+  'SECURITY-Facing': '' // TODO: parameterize or remove?
 }
 
+// ARM variables
 
-// ARM: Map region ID to location name
-
+//    Map region ID to location name
 var regionIdLocationNameMap = {
   westus: 'West US'
 }
@@ -227,35 +228,25 @@ var storageAccountResourceName = 'st${toLower(CdphOrganization)}${toLower(CdphBu
 resource storageAccountResource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccountResourceName
   location: AzureRegionIdPrimary
-  tags: {
-    'ACCOUNTABILITY-Business Unit': ''
-    'ACCOUNTABILITY-Cherwell Change Control': ''
-    'ACCOUNTABILITY-Cost Center': ''
-    'ACCOUNTABILITY-Date Created': '2023-01-05T20:08:56.0344729Z'
-    'ACCOUNTABILITY-Owner': ''
-    'ACCOUNTABILITY-Program': ''
-    ENVIRONMENT: ''
-    'SECURITY-Criticality': ''
-    'SECURITY-Facing': ''
-  }
   sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
+    name: storageAccountRedundancy
+    tier: 'Standard' // TODO: parameterize or remove?
   }
   kind: 'StorageV2'
+  tags: commonTags
   properties: {
     dnsEndpointType: 'Standard'
     allowedCopyScope: 'AAD'
     defaultToOAuthAuthentication: true
-    publicNetworkAccess: 'Enabled'
-    allowCrossTenantReplication: true
+    publicNetworkAccess: 'Enabled' // TODO: parameterize or remove?
+    allowCrossTenantReplication: true // TODO: parameterize or remove or change?
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
     allowSharedKeyAccess: true
     largeFileSharesState: 'Enabled'
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: []
+      virtualNetworkRules: [] // TODO: might want to lock this down?
       ipRules: []
       defaultAction: 'Deny'
     }
@@ -272,12 +263,11 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2022-05-01' =
           enabled: true
         }
       }
-      keySource: 'Microsoft.Storage'
+      keySource: 'Microsoft.Storage' // TODO: Use Key Vault instead?
     }
     accessTier: 'Hot'
   }
 }
-
 
 /* ******************************************************************************************* */
 /* END OF MIGRATION WORK ********************************************************************* */
