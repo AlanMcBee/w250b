@@ -2,10 +2,14 @@
 This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
 */
 
+// TODO: remove as I stop using them
 param sites_redcapwebwinrxnwnphyrehrs_name string = 'redcapwebwinrxnwnphyrehrs'
 param serverfarms_ASP_rgitsdessredcapdev_01_name string = 'ASP-rgitsdessredcapdev-01'
 param storageAccounts_stcdphessredcapdev01_name string = 'stcdphessredcapdev01'
-param flexibleServers_flexdb_itsd_ess_dev_01_name string = 'flexdb-itsd-ess-dev-01'
+
+
+
+// CDPH-specific parameters
 
 @description('CDPH Owner')
 @allowed('ITSD', 'CDPH')
@@ -30,19 +34,142 @@ param CdphEnvironment string = 'Dev'
 @maxValue(99)
 param CdphTargetInstance int = 1
 
+// General Azure Resource Manager parameters
+
 @description('Location where most resources will be deployed')
 @allowed('westus')
 param AzureRegionIdPrimary = 'westus'
 
-// Map region ID to location name
-var regionIdLocationNameMap = {
-  'westus': 'West US'
-}
-var locationNamePrimary = regionIdLocationNameMap[AzureRegionIdPrimary]
+// Azure App Service Plan parameters
 
-// Make instance number into zero-prefixed string
-var targetInstanceZeroPadded = padLeft(CdphTargetInstance, 2, '0')
+@description('PHP Version')
+// Web server with PHP 7.2.5 or higher (including support for PHP 8). 
+param linuxFxVersion string = 'php|7.4'
 
+@description('App Service Plan\'s pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/. Default = S1')
+@allowed([
+  'F1'
+  'D1'
+  'B1'
+  'B2'
+  'B3'
+  'S1'
+  'S2'
+  'S3'
+  'P1v2'
+  'P2v2'
+  'P3v2'
+  'P1v3'
+  'P2v3'
+  'P3v3'
+])
+param appServicePlanSkuName string = 'S1'
+
+@description('App Service Plan\'s instance count. How many running, distinct web servers will be deployed in the farm? This can be changed after deployment. Default = 1')
+@minValue(1)
+param appServicePlanCapacity int = 1
+
+// Azure Database for MySQL parameters
+
+@description('Database administrator login name. Default = redcap_app')
+@minLength(1)
+param administratorDatabaseForMySqlLoginName string = 'redcap_app'
+
+@description('Database administrator password')
+@minLength(8)
+@secure()
+param administratorDatabaseForMySqlLoginPassword string
+
+@description('Azure database for MySQL SKU Size (MB). Default = 5120')
+param databaseForMySqlSkuSizeMB int = 5120
+
+@description('Database for MySql server performance tier. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = GeneralPurpose')
+@allowed([
+  'Basic'
+  'GeneralPurpose'
+  'MemoryOptimized'
+])
+param databaseForMySqlTier string = 'GeneralPurpose'
+
+@description('Database for MySql compute generation. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = Gen5')
+@allowed([
+  'Gen4'
+  'Gen5'
+])
+param databaseForMySqlFamily string = 'Gen5'
+
+@description('Database for MySql vCore count. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = 2')
+@allowed([
+  1
+  2
+  4
+  8
+  16
+  32
+])
+param databaseForMySqlCores int = 2
+
+@description('Database for MySQL version. Default = 5.7')
+@allowed([
+  '5.6'
+  '5.7'
+])
+param databaseForMySqlVersion string = '5.7'
+
+// Azure Storage Account parameters
+
+@description('Azure Storage Account redundancy. See https://docs.microsoft.com/en-us/azure/storage/common/storage-redundancy for more information. Default = Standard_LRS (minimum; 3 copies in one region)')
+@allowed([
+  'Standard_LRS'
+  'Standard_ZRS'
+  'Standard_GRS'
+  'Standard_RAGRS'
+  'Premium_LRS'
+])
+param storageAccountRedundancy string = 'Standard_LRS'
+
+
+
+// REDCap community and download parameters
+
+@description('REDCap zip file URI')
+param redcapDownloadAppZipUri string
+
+@description('REDCap Community site username for downloading the REDCap zip file')
+param redcapCommunityUsername string
+
+@description('REDCap Community site password for downloading the REDCap zip file')
+@secure()
+param redcapCommunityPassword string
+
+@description('REDCap zip file version to be downloaded from the REDCap Community site. Default = latest')
+param redcapDownloadAppZipVersion string = 'latest'
+
+// SMTP configuration parameters
+
+@description('Email address configured as the sending address in REDCap')
+param smtpFromEmailAddress string
+
+@description('Fully-qualified domain name of your SMTP relay endpoint')
+param smtpFQDN string
+
+@description('Login name for your SMTP relay')
+param smtpUserLogin string
+
+@description('Login password for your SMTP relay')
+@secure()
+param smtpUserPassword string
+
+@description('Port for your SMTP relay. Default = 587')
+@minValue(0)
+@maxValue(65535)
+param smtpPort int = 587
+
+/*
+  VARIABLES
+*/
+
+// CDPH-specific variables
 var commonTags = {
   'ACCOUNTABILITY-Business Unit': CdphBusinessUnit
   'ACCOUNTABILITY-Cherwell Change Control': ''
@@ -55,9 +182,38 @@ var commonTags = {
   'SECURITY-Facing': ''
 }
 
+
+// ARM: Map region ID to location name
+
+var regionIdLocationNameMap = {
+  'westus': 'West US'
+}
+var locationNamePrimary = regionIdLocationNameMap[AzureRegionIdPrimary]
+
+//    Make instance number into a zero-prefixed string exactly 2 digits long
+var targetInstanceZeroPadded = padLeft(CdphTargetInstance, 2, '0')
+
+// Database for MySQL variables
+
+var databaseForMySqlTierMap = {
+  Basic: 'B'
+  GeneralPurpose: 'GP'
+  MemoryOptimized: 'MO'
+}
+
+var databaseForMySqlSku = '${databaseForMySqlTierMap[databaseForMySqlTier]}_${databaseForMySqlFamily}_${databaseForMySqlCores}'
+
+// Azure Storage Account variables
+
+var storageAccountResourceName = 'st${toLower(CdphOwner)}${toLower(CdphBusinessUnit)}${toLower(CdphBusinessUnitProgram)}${toLower(CdphEnvironment)}${targetInstanceZeroPadded}'
+
 /*
   RESOURCES
 */
+
+/* ******************************************************************************************* */
+/* END OF MIGRATION WORK ********************************************************************* */
+/* ******************************************************************************************* */
 
 // Template for MySQL Flexible Server
 

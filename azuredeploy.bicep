@@ -6,15 +6,15 @@ param linuxFxVersion string = 'php|7.4'
 
 @description('Database administrator login name')
 @minLength(1)
-param administratorLogin string = 'redcap_app'
+param administratorDatabaseForMySqlLoginName string = 'redcap_app'
 
 @description('Database administrator password')
 @minLength(8)
 @secure()
-param administratorLoginPassword string
+param administratorDatabaseForMySqlLoginPassword string
 
 @description('REDCap zip file URI.')
-param redcapAppZip string = ''
+param redcapDownloadAppZipUri string = ''
 
 @description('REDCap Community site username for downloading the REDCap zip file.')
 param redcapCommunityUsername string
@@ -24,20 +24,20 @@ param redcapCommunityUsername string
 param redcapCommunityPassword string
 
 @description('REDCap zip file version to be downloaded from the REDCap Community site.')
-param redcapAppZipVersion string = 'latest'
+param redcapDownloadAppZipVersion string = 'latest'
 
 @description('Email address configured as the sending address in REDCap')
-param fromEmailAddress string
+param smtpFromEmailAddress string
 
 @description('Fully-qualified domain name of your SMTP relay endpoint')
 param smtpFQDN string
 
 @description('Login name for your SMTP relay')
-param smtpUser string
+param smtpUserLoginName string
 
 @description('Login password for your SMTP relay')
 @secure()
-param smtpPassword string
+param smtpUserPassword string
 
 @description('Port for your SMTP relay')
 param smtpPort string = '587'
@@ -59,14 +59,14 @@ param smtpPort string = '587'
   'P2v3'
   'P3v3'
 ])
-param skuName string = 'S1'
+param appServicePlanSkuName string = 'S1'
 
 @description('Describes plan\'s instance count (how many distinct web servers will be deployed in the farm) - this can be changed after deployment')
 @minValue(1)
-param skuCapacity int = 1
+param appServicePlanCapacity int = 1
 
 @description('Azure database for MySQL sku Size ')
-param databaseSkuSizeMB int = 5120
+param databaseForMySqlSkuSizeMB int = 5120
 
 @description('Select MySql server performance tier. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region.')
 @allowed([
@@ -99,7 +99,7 @@ param databaseForMySqlCores int = 2
   '5.6'
   '5.7'
 ])
-param mysqlVersion string = '5.7'
+param databaseForMySqlVersion string = '5.7'
 
 @description('The default selected is \'Locally Redundant Storage\' (3 copies in one region). See https://docs.microsoft.com/en-us/azure/storage/common/storage-redundancy for more information.')
 @allowed([
@@ -109,23 +109,23 @@ param mysqlVersion string = '5.7'
   'Standard_RAGRS'
   'Premium_LRS'
 ])
-param storageType string = 'Standard_LRS'
+param storageAccountRedundancy string = 'Standard_LRS'
 
 @description('Name of the container used to store backing files in the new storage account. This container is created automatically during deployment.')
-param storageContainerName string = 'redcap'
+param XstorageContainerName string = 'redcap'
 
 @description('The path to the deployment source files on GitHub')
-param repoURL string = 'https://github.com/microsoft/azure-redcap-paas.git'
+param XrepoURL string = 'https://github.com/microsoft/azure-redcap-paas.git'
 
 @description('The main branch of the application repo')
-param branch string = 'main'
+param Xbranch string = 'main'
 
-var siteName_var = replace(siteName, ' ', '')
-var databaseName = '${siteName_var}_db'
-var serverName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
-var hostingPlanName_var_var = '${siteName_var}_serviceplan'
-var webSiteName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
-var tierSymbol = {
+var XsiteName_var = replace(siteName, ' ', '')
+var XdatabaseName = '${siteName_var}_db'
+var XserverName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
+var XhostingPlanName_var_var = '${siteName_var}_serviceplan'
+var XwebSiteName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
+var XtierSymbol = {
   Basic: 'B'
   GeneralPurpose: 'GP'
   MemoryOptimized: 'MO'
@@ -138,7 +138,7 @@ resource storageName_var 'Microsoft.Storage/storageAccounts@2016-01-01' = {
   name: storageName_var_var
   location: resourceGroup().location
   sku: {
-    name: storageType
+    name: storageAccountRedundancy
   }
   tags: {
     displayName: 'BackingStorage'
@@ -163,8 +163,8 @@ resource hostingPlanName_var 'Microsoft.Web/serverfarms@2016-09-01' = {
     displayName: 'HostingPlan'
   }
   sku: {
-    name: skuName
-    capacity: skuCapacity
+    name: appServicePlanSkuName
+    capacity: appServicePlanCapacity
   }
   kind: 'linux'
   properties: {
@@ -188,7 +188,7 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
       connectionStrings: [
         {
           name: 'defaultConnection'
-          connectionString: 'Database=${databaseName};Data Source=${serverName_var_var}.mysql.database.azure.com;User Id=${administratorLogin}@${serverName_var_var};Password=${administratorLoginPassword}'
+          connectionString: 'Database=${databaseName};Data Source=${serverName_var_var}.mysql.database.azure.com;User Id=${administratorDatabaseForMySqlLoginName}@${serverName_var_var};Password=${administratorDatabaseForMySqlLoginPassword}'
           type: 'MySql'
         }
       ]
@@ -208,7 +208,7 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
         }
         {
           name: 'redcapAppZip'
-          value: redcapAppZip
+          value: redcapDownloadAppZipUri
         }
         {
           name: 'redcapCommunityUsername'
@@ -220,7 +220,7 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
         }
         {
           name: 'redcapAppZipVersion'
-          value: redcapAppZipVersion
+          value: redcapDownloadAppZipVersion
         }
         {
           name: 'DBHostName'
@@ -232,11 +232,11 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
         }
         {
           name: 'DBUserName'
-          value: '${administratorLogin}@${serverName_var_var}'
+          value: '${administratorDatabaseForMySqlLoginName}@${serverName_var_var}'
         }
         {
           name: 'DBPassword'
-          value: administratorLoginPassword
+          value: administratorDatabaseForMySqlLoginPassword
         }
         {
           name: 'PHP_INI_SCAN_DIR'
@@ -244,7 +244,7 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
         }
         {
           name: 'from_email_address'
-          value: fromEmailAddress
+          value: smtpFromEmailAddress
         }
         {
           name: 'smtp_fqdn_name'
@@ -256,11 +256,11 @@ resource webSiteName_var 'Microsoft.Web/sites@2016-08-01' = {
         }
         {
           name: 'smtp_user_name'
-          value: smtpUser
+          value: smtpUserLoginName
         }
         {
           name: 'smtp_password'
-          value: smtpPassword
+          value: smtpUserPassword
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
@@ -300,11 +300,11 @@ resource serverName_var 'Microsoft.DBforMySQL/servers@2017-12-01-preview' = {
     displayName: 'MySQLAzure'
   }
   properties: {
-    version: mysqlVersion
-    administratorLogin: administratorLogin
-    administratorLoginPassword: administratorLoginPassword
+    version: databaseForMySqlVersion
+    administratorLogin: administratorDatabaseForMySqlLoginName
+    administratorLoginPassword: administratorDatabaseForMySqlLoginPassword
     storageProfile: {
-      storageMB: databaseSkuSizeMB
+      storageMB: databaseForMySqlSkuSizeMB
       backupRetentionDays: '7'
       geoRedundantBackup: 'Disabled'
     }
@@ -342,7 +342,7 @@ resource serverName_var_database 'Microsoft.DBforMySQL/servers/databases@2017-12
 }
 
 output MySQLHostName string = '${serverName_var_var}.mysql.database.azure.com'
-output MySqlUserName string = '${administratorLogin}@${serverName_var_var}'
+output MySqlUserName string = '${administratorDatabaseForMySqlLoginName}@${serverName_var_var}'
 output webSiteFQDN string = '${webSiteName_var_var}.azurewebsites.net'
 output storageAccountKey string = concat(listKeys(storageAccountId, '2015-05-01-preview').key1)
 output storageAccountName string = storageName_var_var
