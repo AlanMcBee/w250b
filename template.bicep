@@ -5,15 +5,17 @@ This Sample Code is provided for the purpose of illustration only and is not int
 // TODO: remove as I stop using them
 param sites_redcapwebwinrxnwnphyrehrs_name string = 'redcapwebwinrxnwnphyrehrs'
 param serverfarms_ASP_rgitsdessredcapdev_01_name string = 'ASP-rgitsdessredcapdev-01'
-param storageAccounts_stcdphessredcapdev01_name string = 'stcdphessredcapdev01'
 
 
 
 // CDPH-specific parameters
 
 @description('CDPH Owner')
-@allowed('ITSD', 'CDPH')
-param CdphOwner string = 'ITSD'
+@allowed([
+  'ITSD' 
+  'CDPH'
+])
+param CdphOrganization string = 'ITSD'
 
 @description('CDPH Business Unit (numbers & digits only)')
 @maxLength(5)
@@ -26,10 +28,14 @@ param CdphBusinessUnit string = 'ESS'
 param CdphBusinessUnitProgram string = 'RedCap'
 
 @description('Targeted deployment environment')
-@allowed('Dev', 'Test', 'Prod')
+@allowed([
+  'Dev'
+  'Test'
+  'Prod'
+])
 param CdphEnvironment string = 'Dev'
 
-@description('Instance number (when deploying multiple instances into one environment)')
+@description('Instance number (when deploying multiple instances of this template into one environment)')
 @minValue(1)
 @maxValue(99)
 param CdphTargetInstance int = 1
@@ -37,8 +43,13 @@ param CdphTargetInstance int = 1
 // General Azure Resource Manager parameters
 
 @description('Location where most resources will be deployed')
-@allowed('westus')
-param AzureRegionIdPrimary = 'westus'
+@allowed([
+  'westus'
+])
+param AzureRegionIdPrimary string = 'westus'
+
+@description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
+param DeploymentCreationDateTime string = utcNow()
 
 // Azure App Service Plan parameters
 
@@ -174,8 +185,8 @@ var commonTags = {
   'ACCOUNTABILITY-Business Unit': CdphBusinessUnit
   'ACCOUNTABILITY-Cherwell Change Control': ''
   'ACCOUNTABILITY-Cost Center': ''
-  'ACCOUNTABILITY-Date Created': utcNow()
-  'ACCOUNTABILITY-Owner': CdphOwner
+  'ACCOUNTABILITY-Date Created': DeploymentCreationDateTime
+  'ACCOUNTABILITY-Owner': CdphBusinessUnit
   'ACCOUNTABILITY-Program': CdphBusinessUnitProgram
   ENVIRONMENT: CdphEnvironment
   'SECURITY-Criticality': ''
@@ -186,7 +197,7 @@ var commonTags = {
 // ARM: Map region ID to location name
 
 var regionIdLocationNameMap = {
-  'westus': 'West US'
+  westus: 'West US'
 }
 var locationNamePrimary = regionIdLocationNameMap[AzureRegionIdPrimary]
 
@@ -205,11 +216,68 @@ var databaseForMySqlSku = '${databaseForMySqlTierMap[databaseForMySqlTier]}_${da
 
 // Azure Storage Account variables
 
-var storageAccountResourceName = 'st${toLower(CdphOwner)}${toLower(CdphBusinessUnit)}${toLower(CdphBusinessUnitProgram)}${toLower(CdphEnvironment)}${targetInstanceZeroPadded}'
+var storageAccountResourceName = 'st${toLower(CdphOrganization)}${toLower(CdphBusinessUnit)}${toLower(CdphBusinessUnitProgram)}${toLower(CdphEnvironment)}${targetInstanceZeroPadded}'
 
 /*
   RESOURCES
 */
+
+/* Azure Storage Account */
+
+resource storageAccountResource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+  name: storageAccountResourceName
+  location: AzureRegionIdPrimary
+  tags: {
+    'ACCOUNTABILITY-Business Unit': ''
+    'ACCOUNTABILITY-Cherwell Change Control': ''
+    'ACCOUNTABILITY-Cost Center': ''
+    'ACCOUNTABILITY-Date Created': '2023-01-05T20:08:56.0344729Z'
+    'ACCOUNTABILITY-Owner': ''
+    'ACCOUNTABILITY-Program': ''
+    ENVIRONMENT: ''
+    'SECURITY-Criticality': ''
+    'SECURITY-Facing': ''
+  }
+  sku: {
+    name: 'Standard_LRS'
+    tier: 'Standard'
+  }
+  kind: 'StorageV2'
+  properties: {
+    dnsEndpointType: 'Standard'
+    allowedCopyScope: 'AAD'
+    defaultToOAuthAuthentication: true
+    publicNetworkAccess: 'Enabled'
+    allowCrossTenantReplication: true
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    allowSharedKeyAccess: true
+    largeFileSharesState: 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      virtualNetworkRules: []
+      ipRules: []
+      defaultAction: 'Deny'
+    }
+    supportsHttpsTrafficOnly: true
+    encryption: {
+      requireInfrastructureEncryption: false
+      services: {
+        file: {
+          keyType: 'Account'
+          enabled: true
+        }
+        blob: {
+          keyType: 'Account'
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
+    }
+    accessTier: 'Hot'
+  }
+}
+
 
 /* ******************************************************************************************* */
 /* END OF MIGRATION WORK ********************************************************************* */
@@ -265,59 +333,6 @@ resource mySqlFlexibleServerResource 'Microsoft.DBforMySQL/flexibleServers@2021-
   }
 }
 
-resource storageAccounts_stcdphessredcapdev01_name_resource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
-  name: storageAccounts_stcdphessredcapdev01_name
-  location: 'westus2'
-  tags: {
-    'ACCOUNTABILITY-Business Unit': ''
-    'ACCOUNTABILITY-Cherwell Change Control': ''
-    'ACCOUNTABILITY-Cost Center': ''
-    'ACCOUNTABILITY-Date Created': '2023-01-05T20:08:56.0344729Z'
-    'ACCOUNTABILITY-Owner': ''
-    'ACCOUNTABILITY-Program': ''
-    ENVIRONMENT: ''
-    'SECURITY-Criticality': ''
-    'SECURITY-Facing': ''
-  }
-  sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
-  }
-  kind: 'StorageV2'
-  properties: {
-    dnsEndpointType: 'Standard'
-    allowedCopyScope: 'AAD'
-    defaultToOAuthAuthentication: true
-    publicNetworkAccess: 'Enabled'
-    allowCrossTenantReplication: true
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    allowSharedKeyAccess: true
-    largeFileSharesState: 'Enabled'
-    networkAcls: {
-      bypass: 'AzureServices'
-      virtualNetworkRules: []
-      ipRules: []
-      defaultAction: 'Deny'
-    }
-    supportsHttpsTrafficOnly: true
-    encryption: {
-      requireInfrastructureEncryption: false
-      services: {
-        file: {
-          keyType: 'Account'
-          enabled: true
-        }
-        blob: {
-          keyType: 'Account'
-          enabled: true
-        }
-      }
-      keySource: 'Microsoft.Storage'
-    }
-    accessTier: 'Hot'
-  }
-}
 
 resource serverfarms_ASP_rgitsdessredcapdev_01_name_resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: serverfarms_ASP_rgitsdessredcapdev_01_name
@@ -454,7 +469,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_ClientIPAddress_2022_12_21_
 }
 
 resource storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
-  parent: storageAccounts_stcdphessredcapdev01_name_resource
+  parent: storageAccountResource
   name: 'default'
   sku: {
     name: 'Standard_LRS'
@@ -484,7 +499,7 @@ resource storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/st
 }
 
 resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/fileServices@2022-05-01' = {
-  parent: storageAccounts_stcdphessredcapdev01_name_resource
+  parent: storageAccountResource
   name: 'default'
   sku: {
     name: 'Standard_LRS'
@@ -506,7 +521,7 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_stcdphes
 }
 
 resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/queueServices@2022-05-01' = {
-  parent: storageAccounts_stcdphessredcapdev01_name_resource
+  parent: storageAccountResource
   name: 'default'
   properties: {
     cors: {
@@ -516,7 +531,7 @@ resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_stcdphe
 }
 
 resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/tableServices@2022-05-01' = {
-  parent: storageAccounts_stcdphessredcapdev01_name_resource
+  parent: storageAccountResource
   name: 'default'
   properties: {
     cors: {
@@ -1829,6 +1844,6 @@ resource storageAccounts_stcdphessredcapdev01_name_default_redcap 'Microsoft.Sto
   }
   dependsOn: [
 
-    storageAccounts_stcdphessredcapdev01_name_resource
+    storageAccountResource
   ]
 }
