@@ -9,39 +9,63 @@ param flexibleServers_flexdb_itsd_ess_dev_01_name string = 'flexdb-itsd-ess-dev-
 
 @description('CDPH Owner')
 @allowed('ITSD', 'CDPH')
-param cdphOwner string = 'ITSD'
+param CdphOwner string = 'ITSD'
 
 @description('CDPH Business Unit (numbers & digits only)')
 @maxLength(5)
 @minLength(2)
-param cdphBusinessUnit string = 'ESS'
+param CdphBusinessUnit string = 'ESS'
 
 @description('CDPH Business Unit Program (numbers & digits only)')
 @maxLength(5)
 @minLength(2)
-param cdphBusinessUnitProgram string = 'RedCap'
+param CdphBusinessUnitProgram string = 'RedCap'
 
 @description('Targeted deployment environment')
 @allowed('Dev', 'Test', 'Prod')
-param cdphEnvironment string = 'Dev'
+param CdphEnvironment string = 'Dev'
 
 @description('Instance number (when deploying multiple instances into one environment)')
 @minValue(1)
 @maxValue(99)
-param cdphTargetInstance int = 1
+param CdphTargetInstance int = 1
 
 @description('Location where most resources will be deployed')
 @allowed('westus')
-param azureRegionPrimary = 'westus'
+param AzureRegionIdPrimary = 'westus'
 
-var regionLocationMap = {
+// Map region ID to location name
+var regionIdLocationNameMap = {
   'westus': 'West US'
 }
-var locationNamePrimary = regionLocationMap[azureRegionPrimary]
+var locationNamePrimary = regionIdLocationNameMap[AzureRegionIdPrimary]
 
-resource flexibleServers_flexdb_itsd_ess_dev_01_name_resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
-  name: flexibleServers_flexdb_itsd_ess_dev_01_name
-  location: 'East US'
+// Make instance number into zero-prefixed string
+var targetInstanceZeroPadded = padLeft(CdphTargetInstance, 2, '0')
+
+var commonTags = {
+  'ACCOUNTABILITY-Business Unit': CdphBusinessUnit
+  'ACCOUNTABILITY-Cherwell Change Control': ''
+  'ACCOUNTABILITY-Cost Center': ''
+  'ACCOUNTABILITY-Date Created': utcNow()
+  'ACCOUNTABILITY-Owner': CdphOwner
+  'ACCOUNTABILITY-Program': CdphBusinessUnitProgram
+  ENVIRONMENT: CdphEnvironment
+  'SECURITY-Criticality': ''
+  'SECURITY-Facing': ''
+}
+
+/*
+  RESOURCES
+*/
+
+// Template for MySQL Flexible Server
+
+var mySqlFlexibleServerResourceName = 'mysql-${CdphBusinessUnit}-${CdphBusinessUnitProgram}-${CdphEnvironment}-${CdphTargetInstance}'
+
+resource mySqlFlexibleServerResource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
+  name: mySqlFlexibleServerResourceName
+  location: locationNamePrimary
   tags: {
     'ACCOUNTABILITY-Business Unit': ''
     'ACCOUNTABILITY-Cherwell Change Control': ''
@@ -176,42 +200,42 @@ resource serverfarms_ASP_rgitsdessredcapdev_01_name_resource 'Microsoft.Web/serv
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230112t014111_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230112t014111-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230113t014113_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230113t014113-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230113t182123_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230113t182123-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230115t190125_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230115t190125-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230116t110142_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230116t110142-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230117t110215_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230117t110215-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_daily_20230118t110246_0874f561_cad3_44bd_b8e6_191f85b769e1 'Microsoft.DBforMySQL/flexibleServers/backups@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'daily-20230118t110246-0874f561-cad3-44bd-b8e6-191f85b769e1'
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_information_schema 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'information_schema'
   properties: {
     charset: 'utf8'
@@ -220,7 +244,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_information_schema 'Microso
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_mysql 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'mysql'
   properties: {
     charset: 'utf8mb4'
@@ -229,7 +253,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_mysql 'Microsoft.DBforMySQL
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_performance_schema 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'performance_schema'
   properties: {
     charset: 'utf8mb4'
@@ -238,7 +262,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_performance_schema 'Microso
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_redcapwebwin_db 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'redcapwebwin_db'
   properties: {
     charset: 'utf8'
@@ -247,7 +271,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_redcapwebwin_db 'Microsoft.
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_sys 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'sys'
   properties: {
     charset: 'utf8mb4'
@@ -256,7 +280,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_sys 'Microsoft.DBforMySQL/f
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_AllowAllAzureServicesAndResourcesWithinAzureIps_2022_12_21_1_39_49 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'AllowAllAzureServicesAndResourcesWithinAzureIps_2022-12-21_1-39-49'
   properties: {
     startIpAddress: '0.0.0.0'
@@ -265,7 +289,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_AllowAllAzureServicesAndRes
 }
 
 resource flexibleServers_flexdb_itsd_ess_dev_01_name_ClientIPAddress_2022_12_21_0_35_9 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = {
-  parent: flexibleServers_flexdb_itsd_ess_dev_01_name_resource
+  parent: mySqlFlexibleServerResource
   name: 'ClientIPAddress_2022-12-21_0-35-9'
   properties: {
     startIpAddress: '108.251.136.202'
