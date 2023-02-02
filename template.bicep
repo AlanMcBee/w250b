@@ -325,7 +325,7 @@ resource appServicePlanResource 'Microsoft.Web/serverfarms@2022-03-01' = {
     name: appServicePlanSkuName
     capacity: appServicePlanCapacity
   }
-  kind: 'app'
+  kind: 'app,linux'
   properties: {
     // name: appServicePlanResourceName
     // perSiteScaling: false
