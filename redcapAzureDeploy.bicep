@@ -57,15 +57,14 @@ param DeploymentCreationDateTime string = utcNow()
 
 // Azure App Service Plan parameters
 
-@description('PHP Version. Default = php|7.4')
+@description('PHP Version. Default = php|8.2')
 @allowed([
-  'php|7.4'
   'php|8.0'
   'php|8.1'
   'php|8.2'
 ])
 // Web server with PHP 7.2.5 or higher (including support for PHP 8). 
-param linuxFxVersion string = 'php|7.4'
+param linuxFxVersion string = 'php|8.2'
 
 @description('App Service Plan\'s pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/. Default = S1')
 @allowed([
