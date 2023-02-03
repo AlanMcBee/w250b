@@ -68,11 +68,6 @@ param linuxFxVersion string = 'php|8.2'
 
 @description('App Service Plan\'s pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/. Default = S1')
 @allowed([
-  'F1'
-  'D1'
-  'B1'
-  'B2'
-  'B3'
   'S1'
   'S2'
   'S3'
