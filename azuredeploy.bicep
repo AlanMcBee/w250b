@@ -1,3 +1,6 @@
+// Converted from azuredeploy.json in https://github.com/microsoft/azure-redcap-paas
+// Names renamed for refactoring
+
 @description('Name of azure web app')
 param siteName string
 
@@ -120,11 +123,11 @@ param XrepoURL string = 'https://github.com/microsoft/azure-redcap-paas.git'
 @description('The main branch of the application repo')
 param Xbranch string = 'main'
 
-var XsiteName_var = replace(siteName, ' ', '')
+var siteName_var = replace(siteName, ' ', '')
 var XdatabaseName = '${siteName_var}_db'
 var XserverName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
 var XhostingPlanName_var_var = '${siteName_var}_serviceplan'
-var XwebSiteName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
+var webSiteName_var_var = '${siteName_var}${uniqueString(resourceGroup().id)}'
 var XtierSymbol = {
   Basic: 'B'
   GeneralPurpose: 'GP'
