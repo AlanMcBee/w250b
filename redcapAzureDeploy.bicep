@@ -1,33 +1,34 @@
-/*
-This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
-*/
+// *****************************************************************************************************************************
+// This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
+// *****************************************************************************************************************************
 
-// Original resource definitions from exported template.json
+// ==========
+// PARAMETERS
+// ==========
 
 // TODO: remove as I stop using them
 param sites_redcapwebwinrxnwnphyrehrs_name string = 'redcapwebwinrxnwnphyrehrs'
 param serverfarms_ASP_rgitsdessredcapdev_01_name string = 'ASP-rgitsdessredcapdev-01'
 
-
-
 // CDPH-specific parameters
+// ------------------------
 
 @description('CDPH Owner')
 @allowed([
   'ITSD' 
   'CDPH'
 ])
-param CdphOrganization string = 'ITSD'
+param Cdph_Organization string = 'ITSD'
 
 @description('CDPH Business Unit (numbers & digits only)')
 @maxLength(5)
 @minLength(2)
-param CdphBusinessUnit string = 'ESS'
+param Cdph_BusinessUnit string = 'ESS'
 
 @description('CDPH Business Unit Program (numbers & digits only)')
 @maxLength(5)
 @minLength(2)
-param CdphBusinessUnitProgram string = 'RedCap'
+param Cdph_BusinessUnitProgram string = 'RedCap'
 
 @description('Targeted deployment environment')
 @allowed([
@@ -35,28 +36,34 @@ param CdphBusinessUnitProgram string = 'RedCap'
   'Test'
   'Prod'
 ])
-param CdphEnvironment string = 'Dev'
+param Cdph_Environment string = 'Dev'
 
 @description('Instance number (when deploying multiple instances of this template into one environment)')
 @minValue(1)
 @maxValue(99)
-param CdphTargetInstance int = 1
+param Cdph_ResourceInstance int = 1
 
-@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = ')
+@description('Thumbprint for SSL SNI server certificate.')
+@minLength(40)
+@maxLength(40)
+param Cdph_SslCertificateThumbprint string
 
 // General Azure Resource Manager parameters
+// -----------------------------------------
 
+// TODO: Add more if planning to use alternate regions for failover or redundancy
 @description('Location where most resources will be deployed')
 @allowed([
   'westus'
 ])
-param AzureRegionIdPrimary string = 'westus'
+param Arm_ResourceGroupRegionId string = 'westus'
 
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
-param DeploymentCreationDateTime string = utcNow()
+param Arm_DeploymentCreationDateTime string = utcNow()
 
 // Azure App Service Plan parameters
-
+// ---------------------------------
+ 
 @description('PHP Version. Default = php|8.2')
 @allowed([
   'php|8.0'
@@ -64,7 +71,7 @@ param DeploymentCreationDateTime string = utcNow()
   'php|8.2'
 ])
 // Web server with PHP 7.2.5 or higher (including support for PHP 8). 
-param linuxFxVersion string = 'php|8.2'
+param AppService_LinuxFxVersion string = 'php|8.2'
 
 @description('App Service Plan\'s pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/. Default = S1')
 @allowed([
@@ -78,27 +85,41 @@ param linuxFxVersion string = 'php|8.2'
   'P2v3'
   'P3v3'
 ])
-param appServicePlanSkuName string = 'S1'
+param AppServicePlan_SkuName string = 'S1'
 
 @description('App Service Plan\'s instance count. How many running, distinct web servers will be deployed in the farm? This can be changed after deployment. Default = 1')
 @minValue(1)
-param appServicePlanCapacity int = 1
+param AppServicePlan_Capacity int = 1
+
+@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{targetInstancePadded} will be used. NOTE: This needs to be unique to the root domain.')
+param AppService_WebAppSubdomain string = ''
+// See variable appService_WebApp_SubdomainFinal for the final value
+
+@description('Custom domain TXT DNS record verification value. Default = \'\' (empty string); If empty, a random value will be generated. This value will be used to verify ownership of the custom domain. See https://learn.microsoft.com/azure/app-service/app-service-web-tutorial-custom-domain for more information.')
+param AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue string = ''
+// See variable appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal for the final value
 
 // Azure Database for MySQL parameters
+// -----------------------------------
 
-@description('Database name. Default = ${}')
-
-@description('Database administrator login name. Default = redcap_app')
+@description('Database for MySQL: Database name. Default = redcap. The suffix \'_db\' will be added to this name')
 @minLength(1)
-param administratorDatabaseForMySqlLoginName string = 'redcap_app'
+param DatabaseForMySql_DbName string = 'redcap'
 
-@description('Database administrator password')
+@description('Database for MySQL: Server name. Default = \'\' (empty string); If empty, a name like REDCap-{CdphEnvironment}-{targetInstancePadded} will be used. NOTE: This needs to be unique to the Azure Cloud to which you are deploying.')
+param DatabaseForMySql_ServerName string = ''
+
+@description('Database for MySQL: Administrator login name. Default = redcap_app')
+@minLength(1)
+param DatabaseForMySql_AdministratorLoginName string = 'redcap_app'
+
+@description('Database for MySQL: Administrator password')
 @minLength(8)
 @secure()
-param administratorDatabaseForMySqlLoginPassword string
+param DatabaseForMySql_AdministratorLoginPassword string
 
-@description('Azure database for MySQL SKU Size (MB). Default = 5120')
-param databaseForMySqlSkuSizeMB int = 5120
+@description('Azure database for MySQL SKU Size (MB). Default = 10240 (MB) = 10 GB') // Recommended: https://projectredcap.org/software/requirements/
+param DatabaseForMySql_SkuSizeMB int = 10240
 
 @description('Database for MySql server performance tier. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = GeneralPurpose')
 @allowed([
@@ -106,14 +127,14 @@ param databaseForMySqlSkuSizeMB int = 5120
   'GeneralPurpose'
   'MemoryOptimized'
 ])
-param databaseForMySqlTier string = 'GeneralPurpose'
+param DatabaseForMySql_Tier string = 'GeneralPurpose'
 
 @description('Database for MySql compute generation. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = Gen5')
 @allowed([
   'Gen4'
   'Gen5'
 ])
-param databaseForMySqlFamily string = 'Gen5'
+param DatabaseForMySql_Family string = 'Gen5'
 
 @description('Database for MySql vCore count. Please review https://docs.microsoft.com/en-us/azure/mysql/concepts-pricing-tiers and ensure your choices are available in the selected region. Default = 2')
 @allowed([
@@ -124,16 +145,17 @@ param databaseForMySqlFamily string = 'Gen5'
   16
   32
 ])
-param databaseForMySqlCores int = 2
+param DatabaseForMySql_Cores int = 2
 
 @description('Database for MySQL version. Default = 5.7')
 @allowed([
   '5.6'
   '5.7'
 ])
-param databaseForMySqlVersion string = '5.7'
+param DatabaseForMySql_Version string = '5.7'
 
 // Azure Storage Account parameters
+// --------------------------------
 
 @description('Azure Storage Account redundancy. See https://docs.microsoft.com/en-us/azure/storage/common/storage-redundancy for more information. Default = Standard_LRS (minimum; 3 copies in one region)')
 @allowed([
@@ -143,102 +165,149 @@ param databaseForMySqlVersion string = '5.7'
   'Standard_RAGRS'
   'Premium_LRS'
 ])
-param storageAccountRedundancy string = 'Standard_LRS'
-
-
+param StorageAccount_Redundancy string = 'Standard_LRS'
 
 // REDCap community and download parameters
+// ----------------------------------------
 
 @description('REDCap zip file URI')
-param redcapDownloadAppZipUri string
+param ProjectRedcap_DownloadAppZipUri string
 
 @description('REDCap Community site username for downloading the REDCap zip file')
-param redcapCommunityUsername string
+param ProjectRedcap_CommunityUsername string
 
 @description('REDCap Community site password for downloading the REDCap zip file')
 @secure()
-param redcapCommunityPassword string
+param ProjectRedcap_CommunityPassword string
 
 @description('REDCap zip file version to be downloaded from the REDCap Community site. Default = latest')
-param redcapDownloadAppZipVersion string = 'latest'
+param ProjectRedcap_DownloadAppZipVersion string = 'latest'
 
 // SMTP configuration parameters
+// -----------------------------
 
 @description('Email address configured as the sending address in REDCap')
-param smtpFromEmailAddress string
+param Smtp_FromEmailAddress string
 
 @description('Fully-qualified domain name of your SMTP relay endpoint')
-param smtpFQDN string
+param Smtp_FQDN string
 
 @description('Login name for your SMTP relay')
-param smtpUserLogin string
+param Smtp_UserLogin string
 
 @description('Login password for your SMTP relay')
 @secure()
-param smtpUserPassword string
+param Smtp_UserPassword string
 
 @description('Port for your SMTP relay. Default = 587')
 @minValue(0)
 @maxValue(65535)
-param smtpPort int = 587
+param Smtp_Port int = 587
 
-/*
-  VARIABLES
-*/
+// =========
+// VARIABLES
+// =========
 
 // CDPH-specific variables
+// -----------------------
 
-var cdphCommonTags = {
-  'ACCOUNTABILITY-Business Unit': CdphBusinessUnit
+var cdph_CommonTags = {
+  'ACCOUNTABILITY-Business Unit': Cdph_BusinessUnit
   'ACCOUNTABILITY-Cherwell Change Control': '' // TODO: parameterize or remove?
   'ACCOUNTABILITY-Cost Center': '' // TODO: parameterize or remove?
-  'ACCOUNTABILITY-Date Created': DeploymentCreationDateTime
-  'ACCOUNTABILITY-Owner': CdphBusinessUnit
-  'ACCOUNTABILITY-Program': CdphBusinessUnitProgram
-  ENVIRONMENT: CdphEnvironment
+  'ACCOUNTABILITY-Date Created': Arm_DeploymentCreationDateTime
+  'ACCOUNTABILITY-Owner': Cdph_BusinessUnit
+  'ACCOUNTABILITY-Program': Cdph_BusinessUnitProgram
   'SECURITY-Criticality': '' // TODO: parameterize or remove?
   'SECURITY-Facing': '' // TODO: parameterize or remove?
+  ENVIRONMENT: Cdph_Environment
 }
 
 // ARM variables
+// -------------
 
-//    Map region ID to location name
-var regionIdLocationNameMap = {
+// Use to map region IDs to location names (if supporting more than one region)
+var arm_RegionId_LocationName_map = {
   westus: 'West US'
 }
-var locationNamePrimary = regionIdLocationNameMap[AzureRegionIdPrimary]
+var arm_ResourceGroup_LocationName = arm_RegionId_LocationName_map[Arm_ResourceGroupRegionId]
 
-//    Make instance number into a zero-prefixed string exactly 2 digits long
-var targetInstanceZeroPadded = padLeft(CdphTargetInstance, 2, '0')
+// Make instance number into a zero-prefixed string exactly 2 digits long
+var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 
 // Database for MySQL variables
+// ----------------------------
 
-var databaseForMySqlTierMap = {
+var databaseForMySql_Tier_Code_Map = {
   Basic: 'B'
   GeneralPurpose: 'GP'
   MemoryOptimized: 'MO'
 }
 
-var databaseForMySqlSku = '${databaseForMySqlTierMap[databaseForMySqlTier]}_${databaseForMySqlFamily}_${databaseForMySqlCores}'
+var databaseForMySql_Sku = '${databaseForMySql_Tier_Code_Map[DatabaseForMySql_Tier]}_${DatabaseForMySql_Family}_${DatabaseForMySql_Cores}'
 
-/*
-  RESOURCES
-*/
-
-/* Azure Storage Account */
+var databaseForMySql_HostName = '${DatabaseForMySql_ServerName}.mysql.database.azure.com'
 
 // Azure Storage Account variables
-var storageAccountResourceName = 'st${toLower(CdphOrganization)}${toLower(CdphBusinessUnit)}${toLower(CdphBusinessUnitProgram)}${toLower(CdphEnvironment)}${targetInstanceZeroPadded}'
+// -------------------------------
 
+var storageAccount_ResourceName = 'st${toLower(Cdph_Organization)}${toLower(Cdph_BusinessUnit)}${toLower(Cdph_BusinessUnitProgram)}${toLower(Cdph_Environment)}${arm_ResourceInstance_ZeroPadded}'
 
-resource storageAccountResource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
-  name: storageAccountResourceName
-  location: AzureRegionIdPrimary
+var storageAccount_ContainerName
+
+// var storageAccount_Keys = concat(listKeys(storageAccount_ResourceName, '2015-05-01-preview').key1)
+var storageAccount_Key = storageAccount_Resource.listKeys().keys[0].value
+
+// App Service variables
+// ---------------------
+
+var appServicePlan_ResourceName = 'asp-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_ResourceName = 'app-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+
+var appService_Tags = union(
+  {
+    displayName: 'REDCap Web App'
+  },
+  cdph_CommonTags
+)
+
+var appService_UniqueDefaultSubdomain = '${AppService_WebAppSubdomain}-${uniqueString(resourceGroup().id)}'
+var appService_WebApp_SubdomainFinal = empty(AppService_WebAppSubdomain) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : AppService_WebAppSubdomain
+
+// This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
+var appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
+var appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal - empty(AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue) ? appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault : AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue
+
+// App Service App Configuration
+// -----------------------------
+
+var appService_Config_ConnectionString_Database = 'Database=${DatabaseForMySql_DbName}'
+var appService_Config_ConnectionString_DataSource = 'Data Source=${DatabaseForMySql_ServerName}.mysql.database.azure.com'
+var appService_Config_ConnectionString_UserId = 'User Id=${DatabaseForMySql_AdministratorLoginName}@${DatabaseForMySql_ServerName}'
+var appService_Config_ConnectionString_Password = 'Password=${DatabaseForMySql_AdministratorLoginPassword}'
+var appService_Config_ConnectionString_items = [
+  appService_Config_ConnectionString_Database
+  appService_Config_ConnectionString_DataSource
+  appService_Config_ConnectionString_UserId
+  appService_Config_ConnectionString_Password 
+]
+var appService_Config_ConnectionString = join(appService_Config_ConnectionString_items, '; ')
+
+// =========
+// RESOURCES
+// =========
+
+// Azure Storage Account
+// ---------------------
+
+resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+  name: storageAccount_ResourceName
+  location: Arm_ResourceGroupRegionId
   sku: {
-    name: storageAccountRedundancy
+    name: StorageAccount_Redundancy
   }
   kind: 'StorageV2'
-  tags: cdphCommonTags
+  tags: cdph_CommonTags
   // properties: {
   //   dnsEndpointType: 'Standard'
   //   allowedCopyScope: 'AAD'
@@ -274,8 +343,8 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2022-05-01' =
   // }
 }
 
-resource storageAccountBlobResource 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
-  parent: storageAccountResource
+resource storageAccount_Blob_Resource 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
+  parent: storageAccount_Resource
   name: 'default'
   // properties: {
   //   changeFeed: {
@@ -300,8 +369,8 @@ resource storageAccountBlobResource 'Microsoft.Storage/storageAccounts/blobServi
   // }
 }
 
-resource storageAccountBlobContainerResource 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
-  parent: storageAccountBlobResource
+resource storageAccount_Blob_Container_Resource 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
+  parent: storageAccount_Blob_Resource
   name: 'redcap' // fixed container name
   // properties: {
   //   immutableStorageWithVersioning: {
@@ -317,21 +386,18 @@ resource storageAccountBlobContainerResource 'Microsoft.Storage/storageAccounts/
   // ]
 }
 
-/* Azure App Services */
+// Azure App Services
+// ------------------
 
-// App Service variables
-var appServicePlanResourceName = 'asp-${CdphOrganization}-${CdphBusinessUnit}-${CdphBusinessUnitProgram}-${CdphEnvironment}-${targetInstanceZeroPadded}'
-var webSiteAppServiceResourceName = 'app-${CdphOrganization}-${CdphBusinessUnit}-${CdphBusinessUnitProgram}-${CdphEnvironment}-${targetInstanceZeroPadded}'
-
-resource appServicePlanResource 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: appServicePlanResourceName
-  location: AzureRegionIdPrimary
-  tags: cdphCommonTags
+resource appServicePlan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: appServicePlan_ResourceName
+  location: Arm_ResourceGroupRegionId
+  tags: cdph_CommonTags
   sku: {
-    name: appServicePlanSkuName
-    capacity: appServicePlanCapacity
+    name: AppServicePlan_SkuName
+    capacity: AppServicePlan_Capacity
   }
-  kind: 'app,linux' // see https://stackoverflow.com/a/62400396/100596
+  kind: 'app,linux' // see https://stackoverflow.com/a/62400396/100596 for acceptable values
   properties: {
     // name: appServicePlanResourceName
     // perSiteScaling: false
@@ -347,21 +413,12 @@ resource appServicePlanResource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-var webSiteAppServiceTags = union(
-  {
-    displayName: 'REDCap Web App'
-  },
-  cdphCommonTags
-)
-
-var defaultUniqueWebSiteSubDomain = '${webSiteAppServiceResourceName}${uniqueString(resourceGroup().id)}'
-
 resource webSiteAppServiceResource 'Microsoft.Web/sites@2022-03-01' = {
-  name: webSiteAppServiceResourceName
-  location: AzureRegionIdPrimary
-  tags: webSiteAppServiceTags
+  name: appService_ResourceName
+  location: Arm_ResourceGroupRegionId
+  tags: appService_Tags
   dependsOn: [
-    storageAccountResource
+    storageAccount_Resource
   ]
   identity: {
     type: 'SystemAssigned'
@@ -373,23 +430,23 @@ resource webSiteAppServiceResource 'Microsoft.Web/sites@2022-03-01' = {
     // clientCertEnabled: false
     // clientCertMode: 'Required'
     // containerSize: 0
-    customDomainVerificationId: '654ADF9A05C9F6447595B66E7B1EE20B8E7BE014DB36E8491811F7E37F7F1AFE'
+    customDomainVerificationId: appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault
     // dailyMemoryTimeQuota: 0
     hostNamesDisabled: false
     hostNameSslStates: [
       {
-        name: 'redcap-dev.cdph.ca.gov'
+        name: '${AppService_WebAppSubdomain}.cdph.ca.gov'
         sslState: 'SniEnabled'
-        thumbprint: '203B6E0EBD2987B0F0DF532B6838D00BA68C1E3E'
+        thumbprint: Cdph_SslCertificateThumbprint
         hostType: 'Standard'
       }
       {
-        name: '${defaultUniqueWebSiteSubDomain}.azurewebsites.net'
+        name: '${appService_UniqueDefaultSubdomain}.azurewebsites.net'
         sslState: 'Disabled'
         hostType: 'Standard'
       }
       {
-        name: '${defaultUniqueWebSiteSubDomain}.scm.azurewebsites.net'
+        name: '${appService_UniqueDefaultSubdomain}.scm.azurewebsites.net'
         sslState: 'Disabled'
         hostType: 'Repository'
       }
@@ -401,13 +458,13 @@ resource webSiteAppServiceResource 'Microsoft.Web/sites@2022-03-01' = {
     // redundancyMode: 'None'
     // reserved: false
     // scmSiteAlsoStopped: false
-    serverFarmId: appServicePlanResource.id
+    serverFarmId: appServicePlan_Resource.id
     siteConfig: {
       // acrUseManagedIdentityCreds: false
       alwaysOn: true
       // functionAppScaleLimit: 0
       // http20Enabled: false
-      linuxFxVersion: linuxFxVersion
+      linuxFxVersion: AppService_LinuxFxVersion
       // minimumElasticInstanceCount: 0
       // numberOfWorkers: 1
     }
@@ -496,13 +553,89 @@ resource webSiteAppServiceConfigResource 'Microsoft.Web/sites/config@2022-03-01'
     connectionStrings: [
       {
         name: 'defaultConnection'
-        connectionString: 'Database=${databaseName};Data Source=${serverName_var_var}.mysql.database.azure.com;User Id=${administratorDatabaseForMySqlLoginName}@${serverName_var_var};Password=${administratorDatabaseForMySqlLoginPassword}'
+        connectionString: appService_Config_ConnectionString
         type: 'MySql'
       }
     ]
-
+    appCommandLine: '/home/startup.sh'
+    appSettings: [
+      {
+        name: 'StorageContainerName'
+        value: storageAccount_ContainerName
+      }
+      {
+        name: 'StorageAccount'
+        value: storageAccount_ResourceName
+      }
+      {
+        name: 'StorageKey'
+        value: storageAccount_Key
+      }
+      {
+        name: 'redcapAppZip'
+        value: ProjectRedcap_DownloadAppZipUri
+      }
+      {
+        name: 'redcapCommunityUsername'
+        value: ProjectRedcap_CommunityUsername
+      }
+      {
+        name: 'redcapCommunityPassword'
+        value: ProjectRedcap_CommunityPassword
+      }
+      {
+        name: 'redcapAppZipVersion'
+        value: ProjectRedcap_DownloadAppZipVersion
+      }
+      {
+        name: 'DBHostName'
+        value: databaseForMySql_HostName
+      }
+      {
+        name: 'DBName'
+        value: DatabaseForMySql_DbName
+      }
+      {
+        name: 'DBUserName'
+        value:  '${administratorDatabaseForMySqlLoginName}@${serverName_var_var}'
+      }
+      {
+        name: 'DBPassword'
+        value: administratorDatabaseForMySqlLoginPassword
+      }
+      {
+        name: 'PHP_INI_SCAN_DIR'
+        value: '/usr/local/etc/php/conf.d:/home/site'
+      }
+      {
+        name: 'from_email_address'
+        value: smtpFromEmailAddress
+      }
+      {
+        name: 'smtp_fqdn_name'
+        value: smtpFQDN
+      }
+      {
+        name: 'smtp_port'
+        value: smtpPort
+      }
+      {
+        name: 'smtp_user_name'
+        value: smtpUserLoginName
+      }
+      {
+        name: 'smtp_password'
+        value: smtpUserPassword
+      }
+      {
+        name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+        value: '1'
+      }
+  ]
   }
 }
+
+output CustomDomainVerification string = appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault
 
 /* ******************************************************************************************* */
 /* END OF MIGRATION WORK ********************************************************************* */
@@ -510,11 +643,11 @@ resource webSiteAppServiceConfigResource 'Microsoft.Web/sites/config@2022-03-01'
 
 // Template for MySQL Flexible Server
 
-var mySqlFlexibleServerResourceName = 'mysql-${CdphBusinessUnit}-${CdphBusinessUnitProgram}-${CdphEnvironment}-${CdphTargetInstance}'
+var mySqlFlexibleServerResourceName = 'mysql-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${Cdph_ResourceInstance}'
 
 resource mySqlFlexibleServerResource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   name: mySqlFlexibleServerResourceName
-  location: locationNamePrimary
+  location: arm_ResourceGroup_LocationName
   tags: {
     'ACCOUNTABILITY-Business Unit': ''
     'ACCOUNTABILITY-Cherwell Change Control': ''
@@ -657,38 +790,8 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_ClientIPAddress_2022_12_21_
   }
 }
 
-resource storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
-  parent: storageAccountResource
-  name: 'default'
-  sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
-  }
-  properties: {
-    changeFeed: {
-      enabled: false
-    }
-    restorePolicy: {
-      enabled: false
-    }
-    containerDeleteRetentionPolicy: {
-      enabled: true
-      days: 7
-    }
-    cors: {
-      corsRules: []
-    }
-    deleteRetentionPolicy: {
-      allowPermanentDelete: false
-      enabled: true
-      days: 7
-    }
-    isVersioningEnabled: false
-  }
-}
-
 resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/fileServices@2022-05-01' = {
-  parent: storageAccountResource
+  parent: storageAccount_Resource
   name: 'default'
   sku: {
     name: 'Standard_LRS'
@@ -710,7 +813,7 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_stcdphes
 }
 
 resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/queueServices@2022-05-01' = {
-  parent: storageAccountResource
+  parent: storageAccount_Resource
   name: 'default'
   properties: {
     cors: {
@@ -720,7 +823,7 @@ resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_stcdphe
 }
 
 resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_stcdphessredcapdev01_name_default 'Microsoft.Storage/storageAccounts/tableServices@2022-05-01' = {
-  parent: storageAccountResource
+  parent: storageAccount_Resource
   name: 'default'
   properties: {
     cors: {
