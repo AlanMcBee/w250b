@@ -19,6 +19,87 @@
     },
     "Smtp_UserLogin": {
       "value": ""
+    },
+
+    // Parameters for passwords - should supply these values ONLY from the command line, not this parameters file
+/*
+    "DatabaseForMySql_AdministratorLoginPassword": {
+        "value": "" // TODO: Fill in parameter value
+    },
+    "ProjectRedcap_CommunityPassword": {
+        "value": "" // TODO: Fill in parameter value
+    },
+    "Smtp_UserPassword": {
+        "value": "" // TODO: Fill in parameter value
+    },
+ */
+ 
+    // Parameters with default values
+    "Cdph_Organization": {
+        "value": "ITSD"
+    },
+    "Cdph_BusinessUnit": {
+        "value": "ESS"
+    },
+    "Cdph_BusinessUnitProgram": {
+        "value": "RedCap"
+    },
+    "Cdph_Environment": {
+        "value": "Dev"
+    },
+    "Cdph_ResourceInstance": {
+        "value": 1
+    },
+    "Arm_ResourceLocation": {
+        "value": "westus2"
+    },
+    "Arm_DeploymentCreationDateTime": {
+        "value": "" // TODO: Fill in parameter value
+    },
+    "AppService_LinuxFxVersion": {
+        "value": "php|8.2"
+    },
+    "AppServicePlan_SkuName": {
+        "value": "S1"
+    },
+    "AppServicePlan_Capacity": {
+        "value": 1
+    },
+    "AppService_WebAppSubdomain": {
+        "value": ""
+    },
+    "AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue": {
+        "value": ""
+    },
+    "DatabaseForMySql_DbName": {
+        "value": "redcap"
+    },
+    "DatabaseForMySql_ServerName": {
+        "value": ""
+    },
+    "DatabaseForMySql_AdministratorLoginName": {
+        "value": "redcap_app"
+    },
+    "DatabaseForMySql_Tier": {
+        "value": "GeneralPurpose"
+    },
+    "DatabaseForMySql_Sku": {
+        "value": "Standard_D4ads_v5"
+    },
+    "DatabaseForMySql_StorageGB": {
+        "value": 10
+    },
+    "DatabaseForMySql_BackupRetentionDays": {
+        "value": 7
+    },
+    "StorageAccount_Redundancy": {
+        "value": "Standard_LRS"
+    },
+    "ProjectRedcap_DownloadAppZipVersion": {
+        "value": "latest"
+    },
+    "Smtp_Port": {
+        "value": 587
     }
   }
 }       

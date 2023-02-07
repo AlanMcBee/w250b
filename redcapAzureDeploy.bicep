@@ -823,6 +823,15 @@ resource appService_WebSite_HostNameBinding_Resource 'Microsoft.Web/sites/hostNa
   }
 }
 
+resource appService_WebSite_SourceControl_Resource 'Microsoft.Web/sites/sourcecontrols@2022-03-01' = {
+  parent: appService_WebSite_Resource
+  name: 'web'
+  properties: {
+    branch: 'main'
+    isManualIntegration: true
+    repoUrl: 'https://github.com/AlanMcBee/w250b.git'
+  }
+}
 
 output AzAppService_CustomDomainVerification string = appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal
 
