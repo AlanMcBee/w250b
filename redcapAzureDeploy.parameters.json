@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Cdph_SslCertificateThumbprint": {
+      "value": ""
+    },
+    "DatabaseForMySql_AdministratorLoginPassword": {
+      "value": ""
+    },
+    "ProjectRedcap_DownloadAppZipUri": {
+      "value": ""
+    },
+    "ProjectRedcap_CommunityUsername": {
+      "value": ""
+    },
+    "ProjectRedcap_CommunityPassword": {
+      "value": ""
+    },
+    "Smtp_FromEmailAddress": {
+      "value": ""
+    },
+    "Smtp_FQDN": {
+      "value": ""
+    },
+    "Smtp_UserLogin": {
+      "value": ""
+    },
+    "Smtp_UserPassword": {
+      "value": ""
+    }
+  }
+}       
