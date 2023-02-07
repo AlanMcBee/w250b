@@ -327,7 +327,6 @@ resource serverName_var_AllowAzureIPs 'Microsoft.DBforMySQL/servers/firewallRule
     endIpAddress: '0.0.0.0'
   }
   dependsOn: [
-
     serverName_var_database
   ]
 }
