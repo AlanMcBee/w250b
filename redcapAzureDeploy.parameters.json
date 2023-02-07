@@ -5,16 +5,10 @@
     "Cdph_SslCertificateThumbprint": {
       "value": ""
     },
-    "DatabaseForMySql_AdministratorLoginPassword": {
-      "value": ""
-    },
     "ProjectRedcap_DownloadAppZipUri": {
       "value": ""
     },
     "ProjectRedcap_CommunityUsername": {
-      "value": ""
-    },
-    "ProjectRedcap_CommunityPassword": {
       "value": ""
     },
     "Smtp_FromEmailAddress": {
@@ -24,9 +18,6 @@
       "value": ""
     },
     "Smtp_UserLogin": {
-      "value": ""
-    },
-    "Smtp_UserPassword": {
       "value": ""
     }
   }

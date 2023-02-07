@@ -6,10 +6,6 @@
 // PARAMETERS
 // ==========
 
-// TODO: remove as I stop using them
-param sites_redcapwebwinrxnwnphyrehrs_name string = 'redcapwebwinrxnwnphyrehrs'
-param serverfarms_ASP_rgitsdessredcapdev_01_name string = 'ASP-rgitsdessredcapdev-01'
-
 // CDPH-specific parameters
 // ------------------------
 
@@ -43,7 +39,7 @@ param Cdph_Environment string = 'Dev'
 @maxValue(99)
 param Cdph_ResourceInstance int = 1
 
-@description('Thumbprint for SSL SNI server certificate.')
+@description('Thumbprint for SSL SNI server certificate. A custom domain name is a required part of this template.')
 @minLength(40)
 @maxLength(40)
 param Cdph_SslCertificateThumbprint string
@@ -121,7 +117,7 @@ Get current list of all possible SKUs for a specific resource type in a specific
   // 'westeurope'
   // 'westindia'
 ])
-param Arm_ResourceLocation string = 'westus'
+param Arm_ResourceLocation string = 'westus2'
 
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
@@ -156,7 +152,7 @@ param AppServicePlan_SkuName string = 'S1'
 @minValue(1)
 param AppServicePlan_Capacity int = 1
 
-@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{targetInstancePadded} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov.')
+@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov.')
 param AppService_WebAppSubdomain string = ''
 // See variable appService_WebApp_SubdomainFinal for the final value
 
@@ -325,12 +321,6 @@ var cdph_CommonTags = {
 // ARM variables
 // -------------
 
-// Use to map region IDs to location names (if supporting more than one region)
-var arm_RegionId_LocationName_map = {
-  westus: 'West US'
-}
-var arm_ResourceGroup_LocationName = arm_RegionId_LocationName_map[Arm_ResourceLocation]
-
 // Make instance number into a zero-prefixed string exactly 2 digits long
 var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 
@@ -339,7 +329,9 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 
 var databaseForMySql_ResourceName = 'mysql-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${Cdph_ResourceInstance}'
 
-var databaseForMySql_HostName = '${DatabaseForMySql_ServerName}.mysql.database.azure.com'
+var databaseForMySql_HostNameFinal = empty(DatabaseForMySql_ServerName) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : DatabaseForMySql_ServerName
+
+var databaseForMySql_HostName = '${databaseForMySql_HostNameFinal}.mysql.database.azure.com'
 
 var databaseForMySql_AdministratorAccountName = '${DatabaseForMySql_AdministratorLoginName}@${DatabaseForMySql_ServerName}'
 
@@ -368,7 +360,9 @@ var appService_Tags = union(
   cdph_CommonTags
 )
 
-var appService_WebApp_UniqueDefaultSubdomain = '${AppService_WebAppSubdomain}-${uniqueString(resourceGroup().id)}'
+var appService_WebApp_UniqueSubdomainFinal = empty(AppService_WebAppSubdomain) ? 'REDCap' : AppService_WebAppSubdomain
+
+var appService_WebApp_UniqueDefaultSubdomain = '${appService_WebApp_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
 var appService_WebApp_UniqueDefaultFullDomain = '${appService_WebApp_UniqueDefaultSubdomain}.azurewebsites.net'
 var appService_WebApp_UniqueDefaultKuduFullDomain = '${appService_WebApp_UniqueDefaultSubdomain}.scm.azurewebsites.net'
 
@@ -472,7 +466,7 @@ resource storageAccount_Blob_Resource 'Microsoft.Storage/storageAccounts/blobSer
 
 resource storageAccount_Blob_Container_Resource 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
   parent: storageAccount_Blob_Resource
-  name: 'redcap' // fixed container name
+  name: storageAccount_ContainerName // fixed container name
   // properties: {
   //   immutableStorageWithVersioning: {
   //     enabled: false
@@ -534,16 +528,6 @@ resource databaseForMySql_FlexibleServer_FirewallRule_AllowAllAzure_Resource 'Mi
   properties: {
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
-  }
-}
-
-// TODO: Check if this is needed, and parameterize if it is
-resource databaseForMySql_FlexibleServer_FirewallRule_AllowClientIp_0_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'ClientIPAddress_0'
-  properties: {
-    startIpAddress: '108.251.136.202'
-    endIpAddress: '108.251.136.202'
   }
 }
 
