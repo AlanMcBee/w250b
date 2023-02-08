@@ -614,6 +614,7 @@ resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
   tags: appService_Tags
   dependsOn: [
     storageAccount_Resource
+    databaseForMySql_FlexibleServer_Resource
   ]
   identity: {
     type: 'SystemAssigned'
