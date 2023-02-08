@@ -33,7 +33,14 @@
         "value": "" // TODO: Fill in parameter value
     },
  */
- 
+
+    // Location could be needed at resource group deployment:
+/* 
+    "Arm_ResourceLocation": {
+        "value": "westus2"
+    },
+ */
+
     // Parameters with default values
     "Cdph_Organization": {
         "value": "ITSD"
@@ -49,9 +56,6 @@
     },
     "Cdph_ResourceInstance": {
         "value": 1
-    },
-    "Arm_ResourceLocation": {
-        "value": "westus2"
     },
     "Arm_DeploymentCreationDateTime": {
         "value": "" // TODO: Fill in parameter value
