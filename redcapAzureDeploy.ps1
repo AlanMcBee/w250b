@@ -14,7 +14,7 @@ param (
     $ResourceGroupName,
 
     # Geographic location for all resources in this deployment. 
-    # This script will deploy resources into the following regions: 
+    # This script can deploy resources into the following regions: 
     #   centralus
     #   eastus
     #   eastus2
@@ -24,6 +24,7 @@ param (
     #   westus
     #   westus2
     #   westus3
+
     [Parameter(Mandatory = $true)]
     [ValidateSet(
         'centralus',
@@ -37,7 +38,22 @@ param (
         'westus3'
     )]
     [string]
-    $Arm_ResourceLocation,
+    $Arm_MainSiteResourceLocation,
+
+    [Parameter(Mandatory = $true)]
+    [ValidateSet(
+        'centralus',
+        'eastus',
+        'eastus2',
+        'northcentralus',
+        'southcentralus',
+        'westcentralus',
+        'westus',
+        'westus2',
+        'westus3'
+    )]
+    [string]
+    $Arm_StorageResourceLocation,
 
     # Password for the MySQL administrator account
     [Parameter(Mandatory = $true)]
@@ -116,7 +132,7 @@ try
 }
 catch
 {
-    $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Arm_ResourceLocation
+    $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Arm_MainSiteResourceLocation
     Write-Output "Created new resource group $ResourceGroupName."
 }
 

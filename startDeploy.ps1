@@ -10,10 +10,27 @@ param (
     [string]
     $ResourceGroupName,
 
-    # Parameter help description
+    [Parameter()]
+    [int]
+    $ResourceInstance,
+
     [Parameter()]
     [string]
-    $ResourceLocation = 'westus2'
+    $MainSiteResourceLocation = 'eastus',
+    # Options:
+    #   centralus
+    #   eastus
+    #   eastus2
+    #   northcentralus
+    #   southcentralus
+    #   westcentralus
+    #   westus
+    #   westus2
+    #   westus3
+    
+    [Parameter()]
+    [string]
+    $StorageResourceLocation = 'westus'
     # Options:
     #   centralus
     #   eastus
@@ -44,7 +61,8 @@ else
 
 $deployArgs = @{
     ResourceGroupName                           = $rgName
-    Arm_ResourceLocation                        = $ResourceLocation
+    Arm_MainSiteResourceLocation                = $MainSiteResourceLocation
+    Arm_StorageResourceLocation                 = $StorageResourceLocation
     DatabaseForMySql_AdministratorLoginPassword = $mySqlAdminPassword
     ProjectRedcap_CommunityPassword             = $redcapCommunityPassword
     Smtp_UserPassword                           = $smtpPassword

@@ -52,20 +52,72 @@ param Cdph_SslCertificateThumbprint string
 /*
 Get current list of all possible locations for your subscription:
   PowerShell: 
-    Get-AzLocation
+    $locations = Get-AzLocation -ExtendedLocation:$true
+    $locations | ? RegionType -eq 'Physical' | ? PhysicalLocation | ft
   AZ CLI: 
     az account list-locations
 
 Get current list of all possible SKUs for a specific resource type in a specific location:
   PowerShell:
     Storage Account
-      Get-AzS
     App Service Plan
-      
     Database for MySQL Flexible Server
       
+Locations list for public cloud, non-US locations reference:
+  'australiacentral'
+  'australiacentral2'
+  'australiaeast'
+  'australiasoutheast'
+  'brazilsouth'
+  'brazilsoutheast'
+  'canadacentral'
+  'canadaeast'
+  'centralindia'
+  'eastasia'
+  'francecentral'
+  'francesouth'
+  'germanynorth'
+  'germanywestcentral'
+  'japaneast'
+  'japanwest'
+  'jioindiacentral'
+  'jioindiawest'
+  'koreacentral'
+  'koreasouth'
+  'northeurope'
+  'norwayeast'
+  'norwaywest'
+  'qatarcentral'
+  'southafricanorth'
+  'southafricawest'
+  'southeastasia'
+  'southindia'
+  'swedencentral'
+  'switzerlandnorth'
+  'switzerlandwest'
+  'uaecentral'
+  'uaenorth'
+  'uksouth'
+  'ukwest'
+  'westeurope'
+  'westindia'
 
 */
+
+@description('Location where most resources (website, database) will be deployed')
+@allowed([
+  // values for US in public cloud
+  'centralus'
+  'eastus'
+  'eastus2'
+  'northcentralus'
+  'southcentralus'
+  'westcentralus'
+  'westus'
+  'westus2'
+  'westus3'
+])
+param Arm_MainSiteResourceLocation string = 'eastus'
 
 @description('Location where resources will be deployed')
 @allowed([
@@ -79,47 +131,9 @@ Get current list of all possible SKUs for a specific resource type in a specific
   'westus'
   'westus2'
   'westus3'
-
-  // values for non-US in public cloud
-  // 'australiacentral'
-  // 'australiacentral2'
-  // 'australiaeast'
-  // 'australiasoutheast'
-  // 'brazilsouth'
-  // 'brazilsoutheast'
-  // 'canadacentral'
-  // 'canadaeast'
-  // 'centralindia'
-  // 'eastasia'
-  // 'francecentral'
-  // 'francesouth'
-  // 'germanynorth'
-  // 'germanywestcentral'
-  // 'japaneast'
-  // 'japanwest'
-  // 'jioindiacentral'
-  // 'jioindiawest'
-  // 'koreacentral'
-  // 'koreasouth'
-  // 'northeurope'
-  // 'norwayeast'
-  // 'norwaywest'
-  // 'qatarcentral'
-  // 'southafricanorth'
-  // 'southafricawest'
-  // 'southeastasia'
-  // 'southindia'
-  // 'swedencentral'
-  // 'switzerlandnorth'
-  // 'switzerlandwest'
-  // 'uaecentral'
-  // 'uaenorth'
-  // 'uksouth'
-  // 'ukwest'
-  // 'westeurope'
-  // 'westindia'
 ])
-param Arm_ResourceLocation string = 'westus2'
+param Arm_StorageResourceLocation string = 'westus'
+
 
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
@@ -400,7 +414,7 @@ var appService_Config_ConnectionString = join(appService_Config_ConnectionString
 
 resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccount_ResourceName
-  location: Arm_ResourceLocation
+  location: Arm_StorageResourceLocation
   sku: {
     name: StorageAccount_Redundancy
   }
@@ -489,7 +503,7 @@ resource storageAccount_Blob_Container_Resource 'Microsoft.Storage/storageAccoun
 
 resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   name: databaseForMySql_ResourceName
-  location: Arm_ResourceLocation
+  location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   sku: {
     name: DatabaseForMySql_Sku
@@ -589,7 +603,7 @@ resource flexibleServers_flexdb_itsd_ess_dev_01_name_sys 'Microsoft.DBforMySQL/f
 
 resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appService_Plan_ResourceName
-  location: Arm_ResourceLocation
+  location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   sku: {
     name: AppServicePlan_SkuName
@@ -613,7 +627,7 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
 
 resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
   name: appService_WebSite_ResourceName
-  location: Arm_ResourceLocation
+  location: Arm_MainSiteResourceLocation
   tags: appService_Tags
   dependsOn: [
     storageAccount_Resource
