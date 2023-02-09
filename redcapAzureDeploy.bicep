@@ -329,10 +329,10 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 // Database for MySQL variables
 // ----------------------------
 
-var databaseForMySql_ResourceName = 'mysql-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
-
 // lowercase required: https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql
-var databaseForMySql_HostNameFinal = toLower(empty(DatabaseForMySql_ServerName) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : DatabaseForMySql_ServerName) 
+var databaseForMySql_ResourceName = toLower('mysql-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
+
+var databaseForMySql_HostNameFinal = empty(DatabaseForMySql_ServerName) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : DatabaseForMySql_ServerName
 
 var databaseForMySql_HostName = '${databaseForMySql_HostNameFinal}.mysql.database.azure.com'
 
