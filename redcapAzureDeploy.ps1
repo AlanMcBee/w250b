@@ -5,6 +5,7 @@
 
  #>
 #requires -Modules Az.Resources
+#requires -Version 7.1
 
 param (
     # Name of the resource group to deploy resources into
@@ -88,12 +89,18 @@ foreach ($requiredParameter in $requiredParameters)
     }
 }
 
+# Merge parameters
+$templateParameters = $deployParameters + @{
+    DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+    ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
+    Smtp_UserPassword                           = $Smtp_UserPassword
+}
+
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
 
-#deploy
+# Start deployment
 $bicepPath = 'redcapAzureDeploy.bicep'
-$parametersPath = 'redcapAzureDeploy.parameters.json'
 
 try
 {
@@ -113,16 +120,11 @@ $deployArgs = @{
     ResourceGroupName       = $ResourceGroupName
     TemplateFile            = $bicepPath
     Name                    = $deploymentName
-    TemplateParameterFile   = $parametersPath
-    TemplateParameterObject = @{
-        DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-        ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
-        Smtp_UserPassword                           = $Smtp_UserPassword
-    }
+    TemplateParameterObject = $templateParameters
 }
 $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose
 
-if ($armDeployment.ProvisioningState -eq 'Succeeded')
+if ($armDeployment?.ProvisioningState -eq 'Succeeded') # PowerShell 7
 {
     $siteName = $armDeployment.Outputs.webSiteFQDN.Value
     Start-Process "https://$($siteName)/AzDeployStatus.php"
