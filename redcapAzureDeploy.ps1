@@ -131,7 +131,7 @@ $deployArgs = @{
 }
 $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose
 
-if ($armDeployment?.ProvisioningState -eq 'Succeeded') # PowerShell 7
+if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded') # PowerShell 7
 {
     $siteName = $armDeployment.Outputs.webSiteFQDN.Value
     Start-Process "https://$($siteName)/AzDeployStatus.php"
