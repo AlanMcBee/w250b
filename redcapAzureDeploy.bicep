@@ -11,7 +11,7 @@
 
 @description('CDPH Owner')
 @allowed([
-  'ITSD' 
+  'ITSD'
   'CDPH'
 ])
 param Cdph_Organization string = 'ITSD'
@@ -134,13 +134,12 @@ param Arm_MainSiteResourceLocation string = 'eastus'
 ])
 param Arm_StorageResourceLocation string = 'westus'
 
-
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
 
 // Azure App Service Plan parameters
 // ---------------------------------
- 
+
 @description('PHP Version. Default = php|8.2')
 @allowed([
   'php|8.0'
@@ -206,56 +205,56 @@ param DatabaseForMySql_Tier string = 'GeneralPurpose'
 @description('Database for MySql Flexible Server: SKU. Default = Standard_D4ads_v5 = vCores: 4, RAM GiB: 16, IOPS Max: 16, Max connections: 16. Please review https://learn.microsoft.com/azure/mysql/flexible-server/concepts-service-tiers-storage, and also ensure your choices are available in the selected region. General recommendation from REDCap is 10GB initially')
 @allowed([
   // Burstable SKUs
-  'Standard_B1s'       // vCores: 1,  RAM GiB: 1,   IOPS Max: 320,   Max connections: 171
-  'Standard_B1ms'      // vCores: 1,  RAM GiB: 2,   IOPS Max: 640,   Max connections: 341
-  'Standard_B2s'       // vCores: 2,  RAM GiB: 4,   IOPS Max: 1280,  Max connections: 683
-  'Standard_B2ms'      // vCores: 2,  RAM GiB: 8,   IOPS Max: 1700,  Max connections: 1365
-  'Standard_B4ms'      // vCores: 4,  RAM GiB: 16,  IOPS Max: 2400,  Max connections: 2731
-  'Standard_B8ms'      // vCores: 8,  RAM GiB: 32,  IOPS Max: 3100,  Max connections: 5461
-  'Standard_B12ms'     // vCores: 12, RAM GiB: 48,  IOPS Max: 3800,  Max connections: 8193
-  'Standard_B16ms'     // vCores: 16, RAM GiB: 64,  IOPS Max: 4300,  Max connections: 10923
-  'Standard_B20ms'     // vCores: 20, RAM GiB: 80,  IOPS Max: 5000,  Max connections: 13653
-  
+  'Standard_B1s' // vCores: 1,  RAM GiB: 1,   IOPS Max: 320,   Max connections: 171
+  'Standard_B1ms' // vCores: 1,  RAM GiB: 2,   IOPS Max: 640,   Max connections: 341
+  'Standard_B2s' // vCores: 2,  RAM GiB: 4,   IOPS Max: 1280,  Max connections: 683
+  'Standard_B2ms' // vCores: 2,  RAM GiB: 8,   IOPS Max: 1700,  Max connections: 1365
+  'Standard_B4ms' // vCores: 4,  RAM GiB: 16,  IOPS Max: 2400,  Max connections: 2731
+  'Standard_B8ms' // vCores: 8,  RAM GiB: 32,  IOPS Max: 3100,  Max connections: 5461
+  'Standard_B12ms' // vCores: 12, RAM GiB: 48,  IOPS Max: 3800,  Max connections: 8193
+  'Standard_B16ms' // vCores: 16, RAM GiB: 64,  IOPS Max: 4300,  Max connections: 10923
+  'Standard_B20ms' // vCores: 20, RAM GiB: 80,  IOPS Max: 5000,  Max connections: 13653
+
   // GeneralPurpose SKUs
-  'Standard_D2ads_v5'  // vCores: 2,  RAM GiB: 8,   IOPS Max: 3200,  Max connections: 1365
-  'Standard_D2ds_v4'   // vCores: 2,  RAM GiB: 8,   IOPS Max: 3200,  Max connections: 1365
-  'Standard_D4ads_v5'  // vCores: 4,  RAM GiB: 16,  IOPS Max: 6400,  Max connections: 2731
-  'Standard_D4ds_v4'   // vCores: 4,  RAM GiB: 16,  IOPS Max: 6400,  Max connections: 2731
-  'Standard_D8ads_v5'  // vCores: 8,  RAM GiB: 32,  IOPS Max: 12800, Max connections: 5461
-  'Standard_D8ds_v4'   // vCores: 8,  RAM GiB: 32,  IOPS Max: 12800, Max connections: 5461
+  'Standard_D2ads_v5' // vCores: 2,  RAM GiB: 8,   IOPS Max: 3200,  Max connections: 1365
+  'Standard_D2ds_v4' // vCores: 2,  RAM GiB: 8,   IOPS Max: 3200,  Max connections: 1365
+  'Standard_D4ads_v5' // vCores: 4,  RAM GiB: 16,  IOPS Max: 6400,  Max connections: 2731
+  'Standard_D4ds_v4' // vCores: 4,  RAM GiB: 16,  IOPS Max: 6400,  Max connections: 2731
+  'Standard_D8ads_v5' // vCores: 8,  RAM GiB: 32,  IOPS Max: 12800, Max connections: 5461
+  'Standard_D8ds_v4' // vCores: 8,  RAM GiB: 32,  IOPS Max: 12800, Max connections: 5461
   'Standard_D16ads_v5' // vCores: 16, RAM GiB: 64,  IOPS Max: 20000, Max connections: 10923
-  'Standard_D16ds_v4'  // vCores: 16, RAM GiB: 64,  IOPS Max: 20000, Max connections: 10923
+  'Standard_D16ds_v4' // vCores: 16, RAM GiB: 64,  IOPS Max: 20000, Max connections: 10923
   'Standard_D32ads_v5' // vCores: 32, RAM GiB: 128, IOPS Max: 20000, Max connections: 21845
-  'Standard_D32ds_v4'  // vCores: 32, RAM GiB: 128, IOPS Max: 20000, Max connections: 21845
+  'Standard_D32ds_v4' // vCores: 32, RAM GiB: 128, IOPS Max: 20000, Max connections: 21845
   'Standard_D48ads_v5' // vCores: 48, RAM GiB: 192, IOPS Max: 20000, Max connections: 32768
-  'Standard_D48ds_v4'  // vCores: 48, RAM GiB: 192, IOPS Max: 20000, Max connections: 32768
+  'Standard_D48ds_v4' // vCores: 48, RAM GiB: 192, IOPS Max: 20000, Max connections: 32768
   'Standard_D64ads_v5' // vCores: 64, RAM GiB: 256, IOPS Max: 20000, Max connections: 43691
-  'Standard_D64ds_v4'  // vCores: 64, RAM GiB: 256, IOPS Max: 20000, Max connections: 43691
-  
+  'Standard_D64ds_v4' // vCores: 64, RAM GiB: 256, IOPS Max: 20000, Max connections: 43691
+
   // BusinessCritical SKUs
-  'Standard_E2ds_v4'   // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
-  'Standard_E2ads_v5'  // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
-  'Standard_E4ds_v4'   // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
-  'Standard_E4ads_v5'  // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
-  'Standard_E8ds_v4'   // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
-  'Standard_E8ads_v5'  // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
-  'Standard_E16ds_v4'  // vCores: 16, RAM GiB: 128, IOPS Max: 28000, Max connections: 21845
+  'Standard_E2ds_v4' // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
+  'Standard_E2ads_v5' // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
+  'Standard_E4ds_v4' // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
+  'Standard_E4ads_v5' // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
+  'Standard_E8ds_v4' // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
+  'Standard_E8ads_v5' // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
+  'Standard_E16ds_v4' // vCores: 16, RAM GiB: 128, IOPS Max: 28000, Max connections: 21845
   'Standard_E16ads_v5' // vCores: 16, RAM GiB: 128, IOPS Max: 28000, Max connections: 21845
-  'Standard_E32ds_v4'  // vCores: 32, RAM GiB: 256, IOPS Max: 38000, Max connections: 43691
+  'Standard_E32ds_v4' // vCores: 32, RAM GiB: 256, IOPS Max: 38000, Max connections: 43691
   'Standard_E32ads_v5' // vCores: 32, RAM GiB: 256, IOPS Max: 38000, Max connections: 43691
-  'Standard_E48ds_v4'  // vCores: 48, RAM GiB: 384, IOPS Max: 48000, Max connections: 65536
+  'Standard_E48ds_v4' // vCores: 48, RAM GiB: 384, IOPS Max: 48000, Max connections: 65536
   'Standard_E48ads_v5' // vCores: 48, RAM GiB: 384, IOPS Max: 48000, Max connections: 65536
-  'Standard_E64ds_v4'  // vCores: 64, RAM GiB: 504, IOPS Max: 48000, Max connections: 86016
+  'Standard_E64ds_v4' // vCores: 64, RAM GiB: 504, IOPS Max: 48000, Max connections: 86016
   'Standard_E64ads_v5' // vCores: 64, RAM GiB: 504, IOPS Max: 48000, Max connections: 86016
   'Standard_E80ids_v4' // vCores: 80, RAM GiB: 504, IOPS Max: 48000, Max connections: 86016
-  'Standard_E2ds_v5'   // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
-  'Standard_E4ds_v5'   // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
-  'Standard_E8ds_v5'   // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
-  'Standard_E16ds_v5'  // vCores: 16, RAM GiB: 128, IOPS Max: 28000, Max connections: 21845
-  'Standard_E32ds_v5'  // vCores: 32, RAM GiB: 256, IOPS Max: 38000, Max connections: 43691
-  'Standard_E48ds_v5'  // vCores: 48, RAM GiB: 384, IOPS Max: 48000, Max connections: 65536
-  'Standard_E64ds_v5'  // vCores: 64, RAM GiB: 512, IOPS Max: 48000, Max connections: 87383
-  'Standard_E96ds_v5'  // vCores: 96, RAM GiB: 672, IOPS Max: 48000, Max connections: 100000
+  'Standard_E2ds_v5' // vCores: 2,  RAM GiB: 16,  IOPS Max: 5000,  Max connections: 2731
+  'Standard_E4ds_v5' // vCores: 4,  RAM GiB: 32,  IOPS Max: 10000, Max connections: 5461
+  'Standard_E8ds_v5' // vCores: 8,  RAM GiB: 64,  IOPS Max: 18000, Max connections: 10923
+  'Standard_E16ds_v5' // vCores: 16, RAM GiB: 128, IOPS Max: 28000, Max connections: 21845
+  'Standard_E32ds_v5' // vCores: 32, RAM GiB: 256, IOPS Max: 38000, Max connections: 43691
+  'Standard_E48ds_v5' // vCores: 48, RAM GiB: 384, IOPS Max: 48000, Max connections: 65536
+  'Standard_E64ds_v5' // vCores: 64, RAM GiB: 512, IOPS Max: 48000, Max connections: 87383
+  'Standard_E96ds_v5' // vCores: 96, RAM GiB: 672, IOPS Max: 48000, Max connections: 100000
 ])
 param DatabaseForMySql_Sku string = 'Standard_D4ads_v5'
 
@@ -354,6 +353,13 @@ var databaseForMySql_AdministratorAccountName = '${DatabaseForMySql_Administrato
 
 var databaseForMySql_PrimaryDbName = '${DatabaseForMySql_DbName}_db'
 
+var databaseForMySql_FirewallRules = {
+  AllowAllAzureServicesAndResourcesWithinAzureIps: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
+}
+
 // Azure Storage Account variables
 // -------------------------------
 
@@ -401,7 +407,7 @@ var appService_Config_ConnectionString_settings = [
   appService_Config_ConnectionString_Database
   appService_Config_ConnectionString_DataSource
   appService_Config_ConnectionString_UserId
-  appService_Config_ConnectionString_Password 
+  appService_Config_ConnectionString_Password
 ]
 var appService_Config_ConnectionString = join(appService_Config_ConnectionString_settings, '; ')
 
@@ -509,42 +515,31 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     name: DatabaseForMySql_Sku
     tier: DatabaseForMySql_Tier
   }
+  identity: json('null')
   properties: {
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
+    availabilityZone: ''
     backup: {
       backupRetentionDays: DatabaseForMySql_BackupRetentionDays
       geoRedundantBackup: 'Disabled'
     }
-    createMode: 'Default'
+    // createMode: 'Default'
+    dataEncryption: json('null')
     highAvailability: {
       mode: 'Disabled'
     }
     maintenanceWindow: {
       customWindow: 'Disabled'
-      // dayOfWeek: 0
-      // startHour: 0
-      // startMinute: 0
     }
-    // network: {
-    //   delegatedSubnetResourceId: 'string'
-    //   privateDnsZoneResourceId: 'string'
-    // }
+    network: json('null')
     replicationRole: 'None'
     storage: {
       storageSizeGB: DatabaseForMySql_StorageGB
+      iops: 360
       autoGrow: 'Enabled'
     }
     version: '8.0.21'
-  }
-}
-
-resource databaseForMySql_FlexibleServer_FirewallRule_AllowAllAzure_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'AllowAllAzureServicesAndResourcesWithinAzureIps'
-  properties: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
   }
 }
 
@@ -557,46 +552,15 @@ resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL
   }
 }
 
-
-// TODO: Not sure if we'll need these
-
-/* 
-resource flexibleServers_flexdb_itsd_ess_dev_01_name_information_schema 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'information_schema'
-  properties: {
-    charset: 'utf8'
-    collation: 'utf8_general_ci'
+@batchSize(1)
+module firewallRules_resource './mySql_flexibleServers_firewallRules_resource.bicep' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
+  name: '${databaseForMySql_FlexibleServer_Resource.name}/firewallRules-${index}'
+  params: {
+    name: firewallRule.key
+    startIPAddress: firewallRule.value.startIpAddress
+    endIPAddress: firewallRule.value.endIpAddress
   }
-}
-
-resource flexibleServers_flexdb_itsd_ess_dev_01_name_mysql 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'mysql'
-  properties: {
-    charset: 'utf8mb4'
-    collation: 'utf8mb4_0900_ai_ci'
-  }
-}
-
-resource flexibleServers_flexdb_itsd_ess_dev_01_name_performance_schema 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'performance_schema'
-  properties: {
-    charset: 'utf8mb4'
-    collation: 'utf8mb4_0900_ai_ci'
-  }
-}
-
-resource flexibleServers_flexdb_itsd_ess_dev_01_name_sys 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: 'sys'
-  properties: {
-    charset: 'utf8mb4'
-    collation: 'utf8mb4_0900_ai_ci'
-  }
-}
-*/
+}]
 
 // Azure App Services
 // ------------------
@@ -691,101 +655,16 @@ resource appService_WebSite_Config_Resource 'Microsoft.Web/sites/config@2022-03-
     // acrUseManagedIdentityCreds: false
     alwaysOn: true
     appCommandLine: '/home/startup.sh'
-    appSettings: [
-      // SCM (Kudu)
-      {
-        name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
-        value: '1'
-      }
-
-      // PHP
-      {
-        name: 'PHP_INI_SCAN_DIR'
-        value: '/usr/local/etc/php/conf.d:/home/site'
-      }
-
-      // REDCap
-      {
-        name: 'redcapAppZip'
-        value: ProjectRedcap_DownloadAppZipUri
-      }
-      {
-        name: 'redcapCommunityUsername'
-        value: ProjectRedcap_CommunityUsername
-      }
-      {
-        name: 'redcapCommunityPassword'
-        value: ProjectRedcap_CommunityPassword
-      }
-      {
-        name: 'redcapAppZipVersion'
-        value: ProjectRedcap_DownloadAppZipVersion
-      }
-
-      // Azure Storage
-      {
-        name: 'StorageContainerName'
-        value: storageAccount_ContainerName
-      }
-      {
-        name: 'StorageAccount'
-        value: storageAccount_ResourceName
-      }
-      {
-        name: 'StorageKey'
-        value: storageAccount_Key
-      }
-
-      // MySQL
-      {
-        name: 'DBHostName'
-        value: databaseForMySql_HostName
-      }
-      {
-        name: 'DBName'
-        value: DatabaseForMySql_DbName
-      }
-      {
-        name: 'DBUserName'
-        value: databaseForMySql_AdministratorAccountName
-      }
-      {
-        name: 'DBPassword'
-        value: DatabaseForMySql_AdministratorLoginPassword
-      }
-
-      // SMTP
-      {
-        name: 'from_email_address'
-        value: Smtp_FromEmailAddress
-      }
-      {
-        name: 'smtp_fqdn_name'
-        value: Smtp_FQDN
-      }
-      {
-        name: 'smtp_port'
-        value: '${Smtp_Port}'
-      }
-      {
-        name: 'smtp_user_name'
-        value: Smtp_UserLogin
-      }
-      {
-        name: 'smtp_password'
-        value: Smtp_UserPassword
-      }
-  ]
     // autoHealEnabled: false
     // azureStorageAccounts: {}
-      connectionStrings: [
-        {
-          name: 'defaultConnection'
-          connectionString: appService_Config_ConnectionString
-          type: 'MySql'
-        }
-      ]
-      // detailedErrorLoggingEnabled: false
+    connectionStrings: [
+      {
+        name: 'defaultConnection'
+        connectionString: appService_Config_ConnectionString
+        type: 'MySql'
+      }
+    ]
+    // detailedErrorLoggingEnabled: false
     ftpsState: 'Disabled'
     // functionsRuntimeScaleMonitoringEnabled: false
     // http20Enabled: false
@@ -831,6 +710,42 @@ resource appService_WebSite_Config_Resource 'Microsoft.Web/sites/config@2022-03-
   }
 }
 
+resource appService_WebSite_Config_AppSettings_Resource 'Microsoft.Web/sites/config@2022-03-01' = {
+  parent: appService_WebSite_Resource
+  name: 'appsettings'
+  properties: {
+    // SCM (Kudu)
+    SCM_DO_BUILD_DURING_DEPLOYMENT: '1'
+
+    // PHP
+    PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
+
+    // REDCap
+    redcapAppZip: ProjectRedcap_DownloadAppZipUri
+    redcapCommunityUsername: ProjectRedcap_CommunityUsername
+    redcapCommunityPassword: ProjectRedcap_CommunityPassword
+    redcapAppZipVersion: ProjectRedcap_DownloadAppZipVersion
+
+    // Azure Storage
+    StorageContainerName: storageAccount_ContainerName
+    StorageAccount: storageAccount_ResourceName
+    StorageKey: storageAccount_Key
+
+    // MySQL
+    DBHostName: databaseForMySql_HostName
+    DBName: DatabaseForMySql_DbName
+    DBUserName: databaseForMySql_AdministratorAccountName
+    DBPassword: DatabaseForMySql_AdministratorLoginPassword
+
+    // SMTP
+    from_email_address: Smtp_FromEmailAddress
+    smtp_fqdn_name: Smtp_FQDN
+    smtp_port: '${Smtp_Port}'
+    smtp_user_name: Smtp_UserLogin
+    smtp_password: Smtp_UserPassword
+  }
+}
+
 resource appService_WebSite_HostNameBinding_Resource 'Microsoft.Web/sites/hostNameBindings@2022-03-01' = {
   parent: appService_WebSite_Resource
   name: appService_WebApp_FullDomainName
@@ -856,7 +771,7 @@ output AzAppService_CustomDomainVerification string = appService_WebApp_CustomDo
 // Keep these output variables named the same as original until dependencies are identified and refactored
 output MySQLHostName string = databaseForMySql_HostName
 output MySqlUserName string = databaseForMySql_AdministratorAccountName
-output webSiteFQDN string =  appService_WebApp_UniqueDefaultFullDomain
+output webSiteFQDN string = appService_WebApp_UniqueDefaultFullDomain
 output storageAccountKey string = storageAccount_Key
 output storageAccountName string = storageAccount_ResourceName
 output storageContainerName string = storageAccount_ContainerName
