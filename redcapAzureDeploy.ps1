@@ -89,8 +89,15 @@ foreach ($requiredParameter in $requiredParameters)
     }
 }
 
+# Create hashtable from parametersEntry moving the value sub-property to the top level
+$flattenedParameters = @{}
+foreach ($parameterName in $parametersEntry.Keys)
+{
+    $flattenedParameters[$parameterName] = $parametersEntry[$parameterName].value
+}
+
 # Merge parameters
-$templateParameters = $deployParameters + @{
+$templateParameters = $flattenedParameters + @{
     DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
     ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
     Smtp_UserPassword                           = $Smtp_UserPassword
