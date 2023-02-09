@@ -28,6 +28,8 @@ param (
 
 Set-StrictMode -Version Latest 
 
+$env:NO_COLOR = '_' # used during testing in Windows Server 2012; remove for all others
+
 if ($PSBoundParameters.ContainsKey('ResourceGroupName'))
 {
     $rgName = $ResourceGroupName
