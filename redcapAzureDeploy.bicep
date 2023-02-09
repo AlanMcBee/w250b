@@ -355,8 +355,8 @@ var databaseForMySql_PrimaryDbName = '${DatabaseForMySql_DbName}_db'
 
 var databaseForMySql_FirewallRules = {
   AllowAllAzureServicesAndResourcesWithinAzureIps: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
+    StartIpAddress: '0.0.0.0'
+    EndIpAddress: '0.0.0.0'
   }
 }
 
@@ -543,6 +543,15 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
   }
 }
 
+resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
+  parent: databaseForMySql_FlexibleServer_Resource
+  name: firewallRule.key
+  properties: {
+    startIpAddress: firewallRule.value.StartIpAddress
+    endIpAddress: firewallRule.value.EndIpAddress
+  }
+}]
+
 resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
   parent: databaseForMySql_FlexibleServer_Resource
   name: databaseForMySql_PrimaryDbName
@@ -551,16 +560,6 @@ resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL
     collation: 'utf8_general_ci'
   }
 }
-
-@batchSize(1)
-module firewallRules_resource './mySql_flexibleServers_firewallRules_resource.bicep' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
-  name: '${databaseForMySql_FlexibleServer_Resource.name}/firewallRules-${index}'
-  params: {
-    name: firewallRule.key
-    startIPAddress: firewallRule.value.startIpAddress
-    endIPAddress: firewallRule.value.endIpAddress
-  }
-}]
 
 // Azure App Services
 // ------------------
