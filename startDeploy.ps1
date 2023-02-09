@@ -12,7 +12,7 @@ param (
 
     [Parameter()]
     [int]
-    $ResourceInstance,
+    $CdphResourceInstance = 1,
 
     [Parameter()]
     [string]
@@ -61,6 +61,7 @@ else
 
 $deployArgs = @{
     ResourceGroupName                           = $rgName
+    Cdph_ResourceInstance                       = $CdphResourceInstance
     Arm_MainSiteResourceLocation                = $MainSiteResourceLocation
     Arm_StorageResourceLocation                 = $StorageResourceLocation
     DatabaseForMySql_AdministratorLoginPassword = $mySqlAdminPassword

@@ -11,7 +11,7 @@ param (
     # Name of the resource group to deploy resources into
     [Parameter(Mandatory = $true)]
     [string]
-    $ResourceGroupName,
+    $Arm_ResourceGroupName,
 
     # Geographic location for all resources in this deployment. 
     # This script can deploy resources into the following regions: 
@@ -24,6 +24,11 @@ param (
     #   westus
     #   westus2
     #   westus3
+
+    # Resource instance number to use for naming resources
+    [Parameter()]
+    [int]
+    $Cdph_ResourceInstance = 1,
 
     [Parameter(Mandatory = $true)]
     [ValidateSet(
@@ -112,6 +117,11 @@ foreach ($parameterName in $parametersEntry.Keys)
     $flattenedParameters[$parameterName] = $parametersEntry[$parameterName].value
 }
 
+# Override parameters with values from the command line
+$flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
+$flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
+$flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+
 # Merge parameters
 $templateParameters = $flattenedParameters + @{
     DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
@@ -127,20 +137,20 @@ $bicepPath = 'redcapAzureDeploy.bicep'
 
 try
 {
-    Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction Stop
-    Write-Output "Resource group $ResourceGroupName exists. Updating deployment"
+    Get-AzResourceGroup -Name $Arm_ResourceGroupName -ErrorAction Stop
+    Write-Output "Resource group $Arm_ResourceGroupName exists. Updating deployment"
 }
 catch
 {
-    $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Arm_MainSiteResourceLocation
-    Write-Output "Created new resource group $ResourceGroupName."
+    $resourceGroup = New-AzResourceGroup -Name $Arm_ResourceGroupName -Location $Arm_MainSiteResourceLocation
+    Write-Output "Created new resource group $Arm_ResourceGroupName."
 }
 
 $version = (Get-Date).ToString('yyyyMMddHHmmss')
 $deploymentName = "RedCAPDeploy.$version"
 # $deployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $RGName -TemplateParameterObject $parms -TemplateFile $TemplateFile -Name "RedCAPDeploy$version"  -Force -Verbose
 $deployArgs = @{
-    ResourceGroupName       = $ResourceGroupName
+    ResourceGroupName       = $Arm_ResourceGroupName
     TemplateFile            = $bicepPath
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
@@ -155,7 +165,7 @@ if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded'
 }
 else
 {
-    $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $ResourceGroupName
+    $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $Arm_ResourceGroupName
     $deploymentErrors | ConvertTo-Json -Depth 8
 }
 
