@@ -88,54 +88,12 @@ foreach ($requiredParameter in $requiredParameters)
     }
 }
 
-<#
-$parms = @{
-
-    #Alternative to the zip file above, you can use REDCap Community credentials to download the zip file.
-    "redcapCommunityUsername"     = "<REDCap Community site username>";
-    "redcapCommunityPassword"     = "<REDCap Community site password>";
-    "redcapAppZipVersion"         = "<REDCap version";
-
-    #Mail settings
-    "fromEmailAddress"            = "<email address listed as sender for outbound emails>";
-    "smtpFQDN"                    = "<what it says>"
-    "smtpUser"                    = "<login name for smtp auth>"
-    "smtpPassword"                = "<password for smtp auth>"
-
-    #Azure Web App
-    "siteName"                    = "<WEB SITE NAME, like 'redcap'>";
-    "skuName"                     = "S1";
-    "skuCapacity"                 = 1;
-
-    #MySQL
-    "administratorLogin"          = "<MySQL admin account name>";
-    "administratorLoginPassword"  = "<MySQL admin login password>";
-
-    "databaseForMySqlCores"       = 2;
-    "databaseForMySqlFamily"      = "Gen5";
-    "databaseSkuSizeMB"           = 5120;
-    "databaseForMySqlTier"        = "GeneralPurpose";
-    "mysqlVersion"                = "5.7";
-
-    #Azure Storage
-    "storageType"                 = "Standard_LRS";
-    "storageContainerName"        = "redcap";
-
-    #GitHub
-    "repoURL"                     = "https://github.com/vanderbilt-redcap/redcap-azure.git";
-    "branch"                      = "master";
-}
- #>
-#END DEPLOYMENT OPTIONS
-
-#Dot-sourced variable override (optional, comment out if not using)
-
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
 
 #deploy
-# $TemplateFile = "$($AssetLocation)?x=$version"
 $bicepPath = 'redcapAzureDeploy.bicep'
+$parametersPath = 'redcapAzureDeploy.parameters.json'
 
 try
 {
@@ -155,6 +113,7 @@ $deployArgs = @{
     ResourceGroupName       = $ResourceGroupName
     TemplateFile            = $bicepPath
     Name                    = $deploymentName
+    TemplateParameterFile   = $parametersPath
     TemplateParameterObject = @{
         DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
         ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
