@@ -60,10 +60,10 @@ else
 [securestring] $smtpPassword = Read-Host -Prompt 'SMTP Password' -AsSecureString
 
 $deployArgs = @{
-    ResourceGroupName                           = $rgName
-    Cdph_ResourceInstance                       = $CdphResourceInstance
+    Arm_ResourceGroupName                       = $rgName
     Arm_MainSiteResourceLocation                = $MainSiteResourceLocation
     Arm_StorageResourceLocation                 = $StorageResourceLocation
+    Cdph_ResourceInstance                       = $CdphResourceInstance
     DatabaseForMySql_AdministratorLoginPassword = $mySqlAdminPassword
     ProjectRedcap_CommunityPassword             = $redcapCommunityPassword
     Smtp_UserPassword                           = $smtpPassword
