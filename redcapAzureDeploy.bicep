@@ -22,11 +22,13 @@ param Cdph_Organization string = 'ITSD'
 param Cdph_BusinessUnit string = 'ESS'
 
 @description('CDPH Business Unit Program (numbers & digits only)')
-@maxLength(5)
+@maxLength(7)
 @minLength(2)
 param Cdph_BusinessUnitProgram string = 'RedCap'
 
 @description('Targeted deployment environment')
+@maxLength(4)
+@minLength(1)
 @allowed([
   'Dev'
   'Test'
