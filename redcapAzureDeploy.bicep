@@ -399,8 +399,8 @@ var appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal = empty(AppServi
 // App Service App Configuration
 // -----------------------------
 
-var appService_Config_ConnectionString_Database = 'Database=${DatabaseForMySql_DbName}'
-var appService_Config_ConnectionString_DataSource = 'Data Source=${DatabaseForMySql_ServerName}.mysql.database.azure.com'
+var appService_Config_ConnectionString_Database = 'Database=${databaseForMySql_PrimaryDbName}'
+var appService_Config_ConnectionString_DataSource = 'Data Source=${databaseForMySql_HostNameFinal}'
 var appService_Config_ConnectionString_UserId = 'User Id=${databaseForMySql_AdministratorAccountName}'
 var appService_Config_ConnectionString_Password = 'Password=${DatabaseForMySql_AdministratorLoginPassword}'
 var appService_Config_ConnectionString_settings = [
@@ -610,12 +610,12 @@ resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // dailyMemoryTimeQuota: 0
     hostNamesDisabled: false
     hostNameSslStates: [
-      {
-        name: appService_WebApp_FullDomainName
-        sslState: 'SniEnabled'
-        thumbprint: Cdph_SslCertificateThumbprint
-        hostType: 'Standard'
-      }
+      // {
+      //   name: appService_WebApp_FullDomainName
+      //   sslState: 'SniEnabled'
+      //   thumbprint: Cdph_SslCertificateThumbprint
+      //   hostType: 'Standard'
+      // }
       {
         name: appService_WebApp_UniqueDefaultFullDomain
         sslState: 'Disabled'
