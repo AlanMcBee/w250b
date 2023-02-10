@@ -520,24 +520,24 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
     // availabilityZone: ''
-    backup: {
-      backupRetentionDays: DatabaseForMySql_BackupRetentionDays
-      geoRedundantBackup: 'Disabled'
-    }
-/*     createMode: 'Default' */
+    // backup: {
+    //   backupRetentionDays: DatabaseForMySql_BackupRetentionDays
+    //   geoRedundantBackup: 'Disabled'
+    // }
+    createMode: 'Default'
     // dataEncryption: json('null')
-    highAvailability: {
-      mode: 'Disabled'
-    }
-    maintenanceWindow: {
-      customWindow: 'Disabled'
-    }
+    // highAvailability: {
+    //   mode: 'Disabled'
+    // }
+    // maintenanceWindow: {
+    //   customWindow: 'Disabled'
+    // }
     // network: json('null')
-    // replicationRole: 'None'
+    replicationRole: 'None'
     storage: {
       storageSizeGB: DatabaseForMySql_StorageGB
-      iops: 360
-      autoGrow: 'Enabled'
+      // iops: 360
+      // autoGrow: 'Enabled'
     }
     version: '8.0.21'
   }
