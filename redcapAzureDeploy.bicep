@@ -400,7 +400,7 @@ var appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal = empty(AppServi
 // -----------------------------
 
 var appService_Config_ConnectionString_Database = 'Database=${databaseForMySql_PrimaryDbName}'
-var appService_Config_ConnectionString_DataSource = 'Data Source=${databaseForMySql_HostNameFinal}'
+var appService_Config_ConnectionString_DataSource = 'Data Source=${databaseForMySql_HostName}'
 var appService_Config_ConnectionString_UserId = 'User Id=${databaseForMySql_AdministratorAccountName}'
 var appService_Config_ConnectionString_Password = 'Password=${DatabaseForMySql_AdministratorLoginPassword}'
 var appService_Config_ConnectionString_settings = [
@@ -515,7 +515,7 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     name: DatabaseForMySql_Sku
     tier: DatabaseForMySql_Tier
   }
-//  identity: json('null')
+  //  identity: json('null')
   properties: {
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
@@ -606,10 +606,10 @@ resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // clientCertEnabled: false
     // clientCertMode: 'Required'
     // containerSize: 0
-    customDomainVerificationId: appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault
+    // customDomainVerificationId: appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault
     // dailyMemoryTimeQuota: 0
     hostNamesDisabled: false
-    hostNameSslStates: [
+    /*     hostNameSslStates: [
       // {
       //   name: appService_WebApp_FullDomainName
       //   sslState: 'SniEnabled'
@@ -627,6 +627,7 @@ resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
         hostType: 'Repository'
       }
     ]
+ */
     httpsOnly: true
     // hyperV: false
     // isXenon: false
@@ -765,7 +766,7 @@ resource appService_WebSite_SourceControl_Resource 'Microsoft.Web/sites/sourceco
   }
 }
 
-output AzAppService_CustomDomainVerification string = appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal
+output AzAppService_CustomDomainVerification string = appService_WebSite_Resource.properties.customDomainVerificationId
 
 // Keep these output variables named the same as original until dependencies are identified and refactored
 output MySQLHostName string = databaseForMySql_HostName
