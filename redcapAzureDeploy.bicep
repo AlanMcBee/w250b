@@ -543,7 +543,7 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
   }
 }
 
-/* resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
+resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
   parent: databaseForMySql_FlexibleServer_Resource
   name: firewallRule.key
   properties: {
@@ -560,7 +560,7 @@ resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL
     collation: 'utf8_general_ci'
   }
 }
- */
+
 // Azure App Services
 // ------------------
 
