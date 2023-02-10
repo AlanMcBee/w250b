@@ -515,25 +515,25 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     name: DatabaseForMySql_Sku
     tier: DatabaseForMySql_Tier
   }
-  identity: json('null')
+//  identity: json('null')
   properties: {
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
-    availabilityZone: ''
+    // availabilityZone: ''
     backup: {
       backupRetentionDays: DatabaseForMySql_BackupRetentionDays
       geoRedundantBackup: 'Disabled'
     }
-    // createMode: 'Default'
-    dataEncryption: json('null')
+/*     createMode: 'Default' */
+    // dataEncryption: json('null')
     highAvailability: {
       mode: 'Disabled'
     }
     maintenanceWindow: {
       customWindow: 'Disabled'
     }
-    network: json('null')
-    replicationRole: 'None'
+    // network: json('null')
+    // replicationRole: 'None'
     storage: {
       storageSizeGB: DatabaseForMySql_StorageGB
       iops: 360
@@ -543,7 +543,7 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
   }
 }
 
-resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
+/* resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
   parent: databaseForMySql_FlexibleServer_Resource
   name: firewallRule.key
   properties: {
@@ -560,7 +560,7 @@ resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL
     collation: 'utf8_general_ci'
   }
 }
-
+ */
 // Azure App Services
 // ------------------
 
