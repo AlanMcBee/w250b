@@ -20,7 +20,7 @@
         "Arm_DeploymentCreationDateTime": {
             "value": ""
         },
-        "Arm_ResourceLocation": {
+        "Arm_MainSiteResourceLocation": {
             "value": "westus2"
         },
         "Cdph_BusinessUnit": {

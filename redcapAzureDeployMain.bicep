@@ -345,7 +345,7 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 // lowercase required: https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql
 var databaseForMySql_ResourceName = toLower('mysql-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
 
-var databaseForMySql_HostNameFinal = empty(DatabaseForMySql_ServerName) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : DatabaseForMySql_ServerName
+var databaseForMySql_HostNameFinal = !empty(DatabaseForMySql_ServerName) ? DatabaseForMySql_ServerName : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 
 var databaseForMySql_HostName = '${databaseForMySql_HostNameFinal}.mysql.database.azure.com'
 
@@ -370,11 +370,17 @@ var storageAccount_ContainerName = 'redcap' // TODO: parameterize this if the na
 // var storageAccount_Keys = concat(listKeys(storageAccount_ResourceName, '2015-05-01-preview').key1)
 var storageAccount_Key = storageAccount_Resource.listKeys().keys[0].value
 
+// Key Vault variables
+// -------------------
+
+var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+
 // App Service variables
 // ---------------------
 
 var appService_Plan_ResourceName = 'asp-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
-var appService_WebSite_ResourceName = 'app-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_Certificate_ResourceName = 'cert-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_WebHost_ResourceName = 'app-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 
 var appService_Tags = union(
   {
@@ -383,18 +389,20 @@ var appService_Tags = union(
   cdph_CommonTags
 )
 
-var appService_WebApp_UniqueSubdomainFinal = empty(AppService_WebAppSubdomain) ? 'REDCap' : AppService_WebAppSubdomain
+var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebAppSubdomain) ? AppService_WebAppSubdomain : 'REDCap'
 
-var appService_WebApp_UniqueDefaultSubdomain = '${appService_WebApp_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
-var appService_WebApp_UniqueDefaultFullDomain = '${appService_WebApp_UniqueDefaultSubdomain}.azurewebsites.net'
-var appService_WebApp_UniqueDefaultKuduFullDomain = '${appService_WebApp_UniqueDefaultSubdomain}.scm.azurewebsites.net'
+var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
+var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
+var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
 
-var appService_WebApp_SubdomainFinal = empty(AppService_WebAppSubdomain) ? 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}' : AppService_WebAppSubdomain
-var appService_WebApp_FullDomainName = '${appService_WebApp_SubdomainFinal}.cdph.ca.gov'
+var appService_WebHost_SubdomainFinal = !empty(AppService_WebAppSubdomain) ? AppService_WebAppSubdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
+
+var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
 // This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
-var appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
-var appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal = empty(AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue) ? appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault : AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue
+var appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
+var appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal = !empty(AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue) ? AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue : appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
 
 // App Service App Configuration
 // -----------------------------
@@ -459,49 +467,47 @@ resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' 
   //   }
   //   accessTier: 'Hot'
   // }
-}
 
-resource storageAccount_Blob_Resource 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
-  parent: storageAccount_Resource
-  name: 'default'
-  // properties: {
-  //   changeFeed: {
-  //     enabled: false
-  //   }
-  //   restorePolicy: {
-  //     enabled: false
-  //   }
-  //   containerDeleteRetentionPolicy: {
-  //     enabled: true
-  //     days: 7
-  //   }
-  //   cors: {
-  //     corsRules: []
-  //   }
-  //   deleteRetentionPolicy: {
-  //     allowPermanentDelete: false
-  //     enabled: true
-  //     days: 7
-  //   }
-  //   isVersioningEnabled: false
-  // }
-}
+  resource storageAccount_Blob_Resource 'blobServices' = {
+    name: 'default'
+    // properties: {
+    //   changeFeed: {
+    //     enabled: false
+    //   }
+    //   restorePolicy: {
+    //     enabled: false
+    //   }
+    //   containerDeleteRetentionPolicy: {
+    //     enabled: true
+    //     days: 7
+    //   }
+    //   cors: {
+    //     corsRules: []
+    //   }
+    //   deleteRetentionPolicy: {
+    //     allowPermanentDelete: false
+    //     enabled: true
+    //     days: 7
+    //   }
+    //   isVersioningEnabled: false
+    // }
 
-resource storageAccount_Blob_Container_Resource 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01' = {
-  parent: storageAccount_Blob_Resource
-  name: storageAccount_ContainerName // fixed container name
-  // properties: {
-  //   immutableStorageWithVersioning: {
-  //     enabled: false
-  //   }
-  //   defaultEncryptionScope: '$account-encryption-key'
-  //   denyEncryptionScopeOverride: false
-  //   publicAccess: 'None'
-  // }
-  // dependsOn: [
+    resource storageAccount_Blob_Container_Resource 'containers' = {
+      name: storageAccount_ContainerName // fixed container name
+      // properties: {
+      //   immutableStorageWithVersioning: {
+      //     enabled: false
+      //   }
+      //   defaultEncryptionScope: '$account-encryption-key'
+      //   denyEncryptionScopeOverride: false
+      //   publicAccess: 'None'
+      // }
+      // dependsOn: [
 
-  //   storageAccountResource
-  // ]
+      //   storageAccountResource
+      // ]
+    }
+  }
 }
 
 // Database for MySQL Flexible Server
@@ -541,23 +547,94 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     }
     version: '8.0.21'
   }
+
+  resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'firewallRules' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
+    name: firewallRule.key
+    properties: {
+      startIpAddress: firewallRule.value.StartIpAddress
+      endIpAddress: firewallRule.value.EndIpAddress
+    }
+  }]
+
+  resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'databases' = {
+    name: databaseForMySql_PrimaryDbName
+    properties: {
+      charset: 'utf8'
+      collation: 'utf8_general_ci'
+    }
+  }
+
 }
 
-resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for (firewallRule, index) in items(databaseForMySql_FirewallRules): {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: firewallRule.key
-  properties: {
-    startIpAddress: firewallRule.value.StartIpAddress
-    endIpAddress: firewallRule.value.EndIpAddress
-  }
-}]
+// Azure Key Vault
+// ---------------
 
-resource databaseForMySql_FlexibleServer_RedCapDb_Resource 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: databaseForMySql_FlexibleServer_Resource
-  name: databaseForMySql_PrimaryDbName
-  properties: {
-    charset: 'utf8'
-    collation: 'utf8_general_ci'
+resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existing = {
+  name: keyVault_ResourceName
+  
+  resource keyVault_AccessPolicy_AppService_Resource 'accessPolicies' = {
+    name: 'add'
+    properties: {
+      accessPolicies: [
+        {
+          tenantId: subscription().tenantId
+          applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
+          objectId: ''
+          permissions: {
+            // keys: [
+            //   'get'
+            //   'list'
+            //   'create'
+            //   'update'
+            //   'import'
+            //   'delete'
+            //   'backup'
+            //   'restore'
+            //   'recover'
+            //   'purge'
+            // ]
+            // secrets: [
+            //   'get'
+            //   'list'
+            //   'set'
+            //   'delete'
+            //   'backup'
+            //   'restore'
+            //   'recover'
+            //   'purge'
+            // ]
+            certificates: [
+              'get'
+              'list'
+              'delete'
+              'create'
+              'import'
+              'update'
+              'managecontacts'
+              'getissuers'
+              'listissuers'
+              'setissuers'
+              'deleteissuers'
+              'manageissuers'
+              'recover'
+              'purge'
+            ]
+            // storage: [
+            //   'get'
+            //   'list'
+            //   'delete'
+            //   'set'
+            //   'update'
+            //   'regeneratekey'
+            //   'setsas'
+            //   'listsas'
+            //   'getsas'
+            //   'deletesas'
+            // ]
+          }
+        }
+      ]
+    }
   }
 }
 
@@ -588,8 +665,41 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
-  name: appService_WebSite_ResourceName
+resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
+  name: appService_Certificate_ResourceName
+  location: Arm_MainSiteResourceLocation
+  tags: cdph_CommonTags
+  properties: {
+    canonicalName: 
+    // name: appService_Certificate_ResourceName
+    // keyVaultId: keyVault_Resource.id
+    // keyVaultSecretName: keyVault_Secret_ResourceName
+    // password: keyVault_Secret_ResourceName
+    // pfxBlob: keyVault_Secret_ResourceName
+    // serverFarmId: appService_Plan_Resource.id
+    // siteName: appService_WebHost_ResourceName
+    // subjectName: appService_WebApp_FullDomainName
+    // valid: true
+    // hostNames: [
+    //   appService_WebApp_FullDomainName
+    // ]
+    // issueDate: '2021-08-01T00:00:00Z'
+    // expirationDate: '2022-08-01T00:00:00Z'
+    // thumbprint: Cdph_SslCertificateThumbprint
+    // selfLink: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
+    // kind: 'app'
+    // hostingEnvironmentProfile: json('null')
+    // resourceGroup: '00000000-0000-0000-0000-000000000000'
+    // subscription: '00000000-0000-0000-0000-000000000000'
+    // id: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
+    // type: 'Microsoft.Web/certificates'
+    // location: Arm_MainSiteResourceLocation
+    // tags: cdph_CommonTags
+  }
+}
+
+resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
+  name: appService_WebHost_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: appService_Tags
   dependsOn: [
@@ -646,132 +756,135 @@ resource appService_WebSite_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // vnetImagePullEnabled: false
     // vnetRouteAllEnabled: false
   }
-}
 
-resource appService_WebSite_Config_Resource 'Microsoft.Web/sites/config@2022-03-01' = {
-  parent: appService_WebSite_Resource
-  name: 'web'
-  properties: {
-    // acrUseManagedIdentityCreds: false
-    alwaysOn: true
-    appCommandLine: '/home/startup.sh'
-    // autoHealEnabled: false
-    // azureStorageAccounts: {}
-    connectionStrings: [
-      {
-        name: 'defaultConnection'
-        connectionString: appService_Config_ConnectionString
-        type: 'MySql'
-      }
-    ]
-    // detailedErrorLoggingEnabled: false
-    ftpsState: 'Disabled'
-    // functionsRuntimeScaleMonitoringEnabled: false
-    // http20Enabled: false
-    // httpLoggingEnabled: false
-    // ipSecurityRestrictions: [
-    //   {
-    //     ipAddress: 'Any'
-    //     action: 'Allow'
-    //     priority: 2147483647
-    //     name: 'Allow all'
-    //     description: 'Allow all access'
-    //   }
-    // ]
-    // loadBalancing: 'LeastRequests'
-    // localMySqlEnabled: false
-    // logsDirectorySizeLimit: 35
-    // managedPipelineMode: 'Integrated'
-    // minimumElasticInstanceCount: 0
-    // minTlsVersion: '1.2'
-    numberOfWorkers: 1
-    // preWarmedInstanceCount: 0
-    // publishingUsername: ''
-    // remoteDebuggingEnabled: false
-    // remoteDebuggingVersion: 'VS2019'
-    // requestTracingEnabled: false
-    // scmIpSecurityRestrictions: [
-    //   {
-    //     ipAddress: 'Any'
-    //     action: 'Allow'
-    //     priority: 2147483647
-    //     name: 'Allow all'
-    //     description: 'Allow all access'
-    //   }
-    // ]
-    // scmIpSecurityRestrictionsUseMain: false
-    // scmMinTlsVersion: '1.2'
-    scmType: 'None'
-    // use32BitWorkerProcess: true
-    // vnetPrivatePortsCount: 0
-    // vnetRouteAllEnabled: false
-    // webSocketsEnabled: false
-    // }
+  resource appService_WebHost_Config_Resource 'config' = {
+    name: 'web'
+    properties: {
+      // acrUseManagedIdentityCreds: false
+      alwaysOn: true
+      appCommandLine: '/home/startup.sh'
+      // autoHealEnabled: false
+      // azureStorageAccounts: {}
+      connectionStrings: [
+        {
+          name: 'defaultConnection'
+          connectionString: appService_Config_ConnectionString
+          type: 'MySql'
+        }
+      ]
+      // detailedErrorLoggingEnabled: false
+      ftpsState: 'Disabled'
+      // functionsRuntimeScaleMonitoringEnabled: false
+      // http20Enabled: false
+      // httpLoggingEnabled: false
+      // ipSecurityRestrictions: [
+      //   {
+      //     ipAddress: 'Any'
+      //     action: 'Allow'
+      //     priority: 2147483647
+      //     name: 'Allow all'
+      //     description: 'Allow all access'
+      //   }
+      // ]
+      // loadBalancing: 'LeastRequests'
+      // localMySqlEnabled: false
+      // logsDirectorySizeLimit: 35
+      // managedPipelineMode: 'Integrated'
+      // minimumElasticInstanceCount: 0
+      // minTlsVersion: '1.2'
+      numberOfWorkers: 1
+      // preWarmedInstanceCount: 0
+      // publishingUsername: ''
+      // remoteDebuggingEnabled: false
+      // remoteDebuggingVersion: 'VS2019'
+      // requestTracingEnabled: false
+      // scmIpSecurityRestrictions: [
+      //   {
+      //     ipAddress: 'Any'
+      //     action: 'Allow'
+      //     priority: 2147483647
+      //     name: 'Allow all'
+      //     description: 'Allow all access'
+      //   }
+      // ]
+      // scmIpSecurityRestrictionsUseMain: false
+      // scmMinTlsVersion: '1.2'
+      scmType: 'None'
+      // use32BitWorkerProcess: true
+      // vnetPrivatePortsCount: 0
+      // vnetRouteAllEnabled: false
+      // webSocketsEnabled: false
+      // }
+    }
+  }
+
+  resource appService_WebHost_Config_AppSettings_Resource 'config' = {
+    name: 'appsettings'
+    properties: {
+      // SCM (Kudu)
+      SCM_DO_BUILD_DURING_DEPLOYMENT: '1'
+
+      // PHP
+      PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
+
+      // REDCap
+      redcapAppZip: ProjectRedcap_DownloadAppZipUri
+      redcapCommunityUsername: ProjectRedcap_CommunityUsername
+      redcapCommunityPassword: ProjectRedcap_CommunityPassword
+      redcapAppZipVersion: ProjectRedcap_DownloadAppZipVersion
+
+      // Azure Storage
+      StorageContainerName: storageAccount_ContainerName
+      StorageAccount: storageAccount_ResourceName
+      StorageKey: storageAccount_Key
+
+      // MySQL
+      DBHostName: databaseForMySql_HostName
+      DBName: DatabaseForMySql_DbName
+      DBUserName: databaseForMySql_AdministratorAccountName
+      DBPassword: DatabaseForMySql_AdministratorLoginPassword
+
+      // SMTP
+      from_email_address: Smtp_FromEmailAddress
+      smtp_fqdn_name: Smtp_FQDN
+      smtp_port: '${Smtp_Port}'
+      smtp_user_name: Smtp_UserLogin
+      smtp_password: Smtp_UserPassword
+    }
+  }
+
+  resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
+    name: appService_WebHost_Certificate_Redcap_ResourceName
+    properties: {
+
+    }
+  }
+
+  resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
+    name: appService_WebHost_FullDomainName
+    properties: {
+      hostNameType: 'Verified'
+      sslState: 'SniEnabled'
+      thumbprint: Cdph_SslCertificateThumbprint
+    }
+  }
+
+  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
+    name: 'web'
+    properties: {
+      branch: 'main'
+      isManualIntegration: true
+      repoUrl: 'https://github.com/AlanMcBee/w250b.git'
+    }
   }
 }
 
-resource appService_WebSite_Config_AppSettings_Resource 'Microsoft.Web/sites/config@2022-03-01' = {
-  parent: appService_WebSite_Resource
-  name: 'appsettings'
-  properties: {
-    // SCM (Kudu)
-    SCM_DO_BUILD_DURING_DEPLOYMENT: '1'
-
-    // PHP
-    PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
-
-    // REDCap
-    redcapAppZip: ProjectRedcap_DownloadAppZipUri
-    redcapCommunityUsername: ProjectRedcap_CommunityUsername
-    redcapCommunityPassword: ProjectRedcap_CommunityPassword
-    redcapAppZipVersion: ProjectRedcap_DownloadAppZipVersion
-
-    // Azure Storage
-    StorageContainerName: storageAccount_ContainerName
-    StorageAccount: storageAccount_ResourceName
-    StorageKey: storageAccount_Key
-
-    // MySQL
-    DBHostName: databaseForMySql_HostName
-    DBName: DatabaseForMySql_DbName
-    DBUserName: databaseForMySql_AdministratorAccountName
-    DBPassword: DatabaseForMySql_AdministratorLoginPassword
-
-    // SMTP
-    from_email_address: Smtp_FromEmailAddress
-    smtp_fqdn_name: Smtp_FQDN
-    smtp_port: '${Smtp_Port}'
-    smtp_user_name: Smtp_UserLogin
-    smtp_password: Smtp_UserPassword
-  }
-}
-
-resource appService_WebSite_HostNameBinding_Resource 'Microsoft.Web/sites/hostNameBindings@2022-03-01' = {
-  parent: appService_WebSite_Resource
-  name: appService_WebApp_FullDomainName
-  properties: {
-    hostNameType: 'Verified'
-    sslState: 'SniEnabled'
-    thumbprint: Cdph_SslCertificateThumbprint
-  }
-}
-
-resource appService_WebSite_SourceControl_Resource 'Microsoft.Web/sites/sourcecontrols@2022-03-01' = {
-  parent: appService_WebSite_Resource
-  name: 'web'
-  properties: {
-    branch: 'main'
-    isManualIntegration: true
-    repoUrl: 'https://github.com/AlanMcBee/w250b.git'
-  }
-}
-
-output AzAppService_CustomDomainVerification string = appService_WebSite_Resource.properties.customDomainVerificationId
+output AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
 
 // Keep these output variables named the same as original until dependencies are identified and refactored
 output MySQLHostName string = databaseForMySql_HostName
 output MySqlUserName string = databaseForMySql_AdministratorAccountName
-output webSiteFQDN string = appService_WebApp_UniqueDefaultFullDomain
+output webSiteFQDN string = appService_WebHost_UniqueDefaultFullDomain
 output storageAccountKey string = storageAccount_Key
 output storageAccountName string = storageAccount_ResourceName
 output storageContainerName string = storageAccount_ContainerName

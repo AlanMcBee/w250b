@@ -9,7 +9,7 @@
 
 param (
     # Name of the resource group to deploy resources into
-    [Parameter(Mandatory = $true)]
+    [Parameter()]
     [string]
     $Arm_ResourceGroupName,
 
@@ -129,6 +129,22 @@ $templateParameters = $flattenedParameters + @{
     Smtp_UserPassword                           = $Smtp_UserPassword
 }
 
+if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName'))
+{
+    $resourceGroupName = $Arm_ResourceGroupName
+}
+else
+{
+    'asp-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+    $organization = $templateParameters['Cdph_Organization']
+    $businessUnit = $templateParameters['Cdph_BusinessUnit']
+    $program = $templateParameters['Cdph_BusinessUnitProgram']
+    $environment = $templateParameters['Cdph_Environment']
+    $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
+    $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
+}
+
+
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
 
@@ -137,20 +153,20 @@ $bicepPath = 'redcapAzureDeploy.bicep'
 
 try
 {
-    Get-AzResourceGroup -Name $Arm_ResourceGroupName -ErrorAction Stop
-    Write-Output "Resource group $Arm_ResourceGroupName exists. Updating deployment"
+    Get-AzResourceGroup -Name $resourceGroupName -ErrorAction Stop
+    Write-Output "Resource group $resourceGroupName exists. Updating deployment"
 }
 catch
 {
-    $resourceGroup = New-AzResourceGroup -Name $Arm_ResourceGroupName -Location $Arm_MainSiteResourceLocation
-    Write-Output "Created new resource group $Arm_ResourceGroupName."
+    $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
+    Write-Output "Created new resource group $resourceGroupName."
 }
 
 $version = (Get-Date).ToString('yyyyMMddHHmmss')
 $deploymentName = "RedCAPDeploy.$version"
 # $deployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $RGName -TemplateParameterObject $parms -TemplateFile $TemplateFile -Name "RedCAPDeploy$version"  -Force -Verbose
 $deployArgs = @{
-    ResourceGroupName       = $Arm_ResourceGroupName
+    ResourceGroupName       = $resourceGroupName
     TemplateFile            = $bicepPath
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
@@ -165,7 +181,7 @@ if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded'
 }
 else
 {
-    $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $Arm_ResourceGroupName
+    $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
     $deploymentErrors | ConvertTo-Json -Depth 8
 }
 

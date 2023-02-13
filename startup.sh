@@ -1,5 +1,17 @@
 #!/bin/bash
-	
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+
+####################################################################################
+#
+# Invoked by deploy.sh
+# following the invocation of postbuild.sh
+#
+####################################################################################
+
 a2enmod headers
 echo "Header set MyHeader \"%D %t"\" >> /etc/apache2/apache2.conf
 echo "Header always unset \"X-Powered-By\"" >> /etc/apache2/apache2.conf

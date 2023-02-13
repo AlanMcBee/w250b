@@ -7,6 +7,13 @@
 
 ####################################################################################
 #
+# Invoked by postbuild.sh
+# which was invoked by deploy.sh
+#
+####################################################################################
+
+####################################################################################
+#
 # Initialize the REDCap database using the SQL commands scraped from the 
 # install.php page, then update additional configuration settings including 
 # user file uploading settings to Azure Blob Storage

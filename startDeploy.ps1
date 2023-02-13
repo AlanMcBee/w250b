@@ -2,18 +2,20 @@
 // *****************************************************************************************************************************
 // This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
 // *****************************************************************************************************************************
-
  #>
 
 param (
+    # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
     [Parameter()]
     [string]
     $ResourceGroupName,
 
+    # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
     [Parameter()]
     [int]
     $CdphResourceInstance = 1,
 
+    # Azure region for the main site. Options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
     [Parameter()]
     [string]
     $MainSiteResourceLocation = 'eastus',
@@ -27,10 +29,11 @@ param (
     #   westus
     #   westus2
     #   westus3
-    
+
+    # Azure region for the storage account. Options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
     [Parameter()]
     [string]
-    $StorageResourceLocation = 'westus'
+    $StorageResourceLocation = 'westus',
     # Options:
     #   centralus
     #   eastus
@@ -41,26 +44,49 @@ param (
     #   westus
     #   westus2
     #   westus3
+
+    # Path to PFX certificate
+    [Parameter(Mandatory = $true)]
+    [ValidateScript({Test-Path $_})]
+    [string]
+    $PfxCertificatePath,
+
+    # Password for PFX certificate. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $PfxCertificatePassword,
+
+    # Password for MySQL administrator. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $MySqlAdminPassword,
+
+    # Password for REDCap Community. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $RedcapCommunityPassword,
+
+    # Password for SMTP server. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    [Parameter(Mandatory = $true)]
+    [securestring]
+    $SmtpPassword
 )
 
-Set-StrictMode -Version Latest 
+Set-StrictMode -Version Latest
 
-$env:NO_COLOR = '_' # used during testing in Windows Server 2012; remove for all others
-
-if ($PSBoundParameters.ContainsKey('ResourceGroupName'))
-{
-    $rgName = $ResourceGroupName
+$keyVaultDeployArgs = @{
+    Arm_ResourceGroupName        = $ResourceGroupName
+    Arm_MainSiteResourceLocation = $MainSiteResourceLocation
+    Arm_StorageResourceLocation  = $StorageResourceLocation
+    Cdph_ResourceInstance        = $CdphResourceInstance
+    PfxCertificatePath           = $PfxCertificatePath
+    PfxCertificatePassword       = $PfxCertificatePassword
 }
-else
-{
-    $rgName = Read-Host -Prompt 'Resource Group Name (see https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftresources)'
-}
-[securestring] $mySqlAdminPassword = Read-Host -Prompt 'MySQL Administrator Password' -AsSecureString
-[securestring] $redcapCommunityPassword = Read-Host -Prompt 'REDCap Community Password' -AsSecureString
-[securestring] $smtpPassword = Read-Host -Prompt 'SMTP Password' -AsSecureString
+.\redcapAzureDeployKeyVault.ps1 @keyVaultDeployArgs
 
-$deployArgs = @{
-    Arm_ResourceGroupName                       = $rgName
+
+$mainDeployArgs = @{
+    Arm_ResourceGroupName                       = $ResourceGroupName
     Arm_MainSiteResourceLocation                = $MainSiteResourceLocation
     Arm_StorageResourceLocation                 = $StorageResourceLocation
     Cdph_ResourceInstance                       = $CdphResourceInstance
@@ -68,5 +94,4 @@ $deployArgs = @{
     ProjectRedcap_CommunityPassword             = $redcapCommunityPassword
     Smtp_UserPassword                           = $smtpPassword
 }
-
-.\redcapAzureDeploy.ps1 @deployArgs
+.\redcapAzureDeployMain.ps1 @deployArgs
