@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Cdph_Organization": {
+            "value": "ITSD"
+        },
+        "Cdph_BusinessUnit": {
+            "value": "ESS"
+        },
+        "Cdph_BusinessUnitProgram": {
+            "value": "RedCap"
+        },
+        "Cdph_Environment": {
+            "value": "Dev"
+        },
+        "Cdph_ResourceInstance": {
+            "value": 1
+        },
+        "Arm_MainSiteResourceLocation": {
+            "value": "eastus"
+        },
+        "Arm_DeploymentCreationDateTime": {
+            "value": "" // Okay to leave this empty; it will be filled in by the script
+        }
+    }
+}
