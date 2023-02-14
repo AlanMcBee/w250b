@@ -4,7 +4,7 @@
 // *****************************************************************************************************************************
 
  #>
-#requires -Modules Az.Resources
+#requires -Modules Az.Resources, Az.KeyVault
 #requires -Version 7.1
 
 param (
@@ -25,11 +25,6 @@ param (
     #   westus2
     #   westus3
 
-    # Resource instance number to use for naming resources
-    [Parameter()]
-    [int]
-    $Cdph_ResourceInstance = 1,
-
     [Parameter(Mandatory = $true)]
     [ValidateSet(
         'centralus',
@@ -45,47 +40,28 @@ param (
     [string]
     $Arm_MainSiteResourceLocation,
 
+    # Resource instance number to use for naming resources
+    [Parameter()]
+    [int]
+    $Cdph_ResourceInstance = 1,
+
+    # Path to PFX certificate file to upload to Key Vault for App Service SSL binding
     [Parameter(Mandatory = $true)]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]
+    [ValidateScript({Test-Path $_})]
     [string]
-    $Arm_StorageResourceLocation,
+    $PfxCertificatePath,
 
-    # Password for the MySQL administrator account
+    # Password for PFX certificate file
     [Parameter(Mandatory = $true)]
     [securestring]
-    $DatabaseForMySql_AdministratorLoginPassword,
-
-    # Password for the REDCap Community site account
-    [Parameter(Mandatory = $true)]
-    [securestring]
-    $ProjectRedcap_CommunityPassword,
-
-    # Password for the SMTP server account
-    [Parameter(Mandatory = $true)]
-    [securestring]
-    $Smtp_UserPassword
+    $PfxCertificatePassword
 )
 
 $startTime = Get-Date
 Write-Output "Beginning deployment at $starttime"
 
 $requiredParameters = @(
-    'Cdph_SslCertificateThumbprint',
-    'ProjectRedcap_DownloadAppZipUri',
-    'ProjectRedcap_CommunityUsername',
-    'Smtp_FromEmailAddress',
-    'Smtp_FQDN',
-    'Smtp_UserLogin'
+    'Cdph_SslCertificateThumbprint'
 )
 $deployParametersPath = 'redcapAzureDeploy.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
@@ -123,11 +99,7 @@ $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocati
 $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
 
 # Merge parameters
-$templateParameters = $flattenedParameters + @{
-    DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-    ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
-    Smtp_UserPassword                           = $Smtp_UserPassword
-}
+$templateParameters = $flattenedParameters
 
 if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName'))
 {
@@ -135,7 +107,6 @@ if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName'))
 }
 else
 {
-    'asp-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
     $organization = $templateParameters['Cdph_Organization']
     $businessUnit = $templateParameters['Cdph_BusinessUnit']
     $program = $templateParameters['Cdph_BusinessUnitProgram']
@@ -144,12 +115,13 @@ else
     $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
 }
 
+$appServicePlanName = "asp-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$($instance.PadLeft(2, '0'))"
 
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
 
 # Start deployment
-$bicepPath = 'redcapAzureDeploy.bicep'
+$bicepPath = 'redcapAzureDeployKeyVault.bicep'
 
 try
 {
@@ -163,25 +135,37 @@ catch
 }
 
 $version = (Get-Date).ToString('yyyyMMddHHmmss')
-$deploymentName = "RedCAPDeploy.$version"
-# $deployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $RGName -TemplateParameterObject $parms -TemplateFile $TemplateFile -Name "RedCAPDeploy$version"  -Force -Verbose
+$deploymentName = "REDCapDeploy.$version"
 $deployArgs = @{
     ResourceGroupName       = $resourceGroupName
     TemplateFile            = $bicepPath
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
 }
-$armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose
+[Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent
+
+while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running') {
+    Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToShortTimeString())"
+    Start-Sleep 5
+}
 
 if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded') # PowerShell 7
 {
     $siteName = $armDeployment.Outputs.webSiteFQDN.Value
-    Start-Process "https://$($siteName)/AzDeployStatus.php"
     $deployment.Outputs | ConvertTo-Json -Depth 8
+
+    $keyVaultResourceName = $deployment.Outputs.KeyVault_ResourceName.Value
+
+    $deployment
+    Import-AzKeyVaultCertificate `
+        -VaultName $keyVaultResourceName `
+        -Name $appServicePlanName `
+        -FilePath $PfxCertificatePath `
+        -Password $PfxCertificatePassword
 }
 else
 {
-    $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation] $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
     $deploymentErrors | ConvertTo-Json -Depth 8
 }
 

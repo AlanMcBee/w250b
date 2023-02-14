@@ -140,15 +140,6 @@ param Arm_DeploymentCreationDateTime string = utcNow()
 // Azure App Service Plan parameters
 // ---------------------------------
 
-@description('PHP Version. Default = php|8.2')
-@allowed([
-  'php|8.0'
-  'php|8.1'
-  'php|8.2'
-])
-// Web server with PHP 7.2.5 or higher (including support for PHP 8). 
-param AppService_LinuxFxVersion string = 'php|8.2'
-
 @description('App Service Plan\'s pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/. Default = S1')
 @allowed([
   'S1'
@@ -167,13 +158,28 @@ param AppServicePlan_SkuName string = 'S1'
 @minValue(1)
 param AppServicePlan_Capacity int = 1
 
+// Azure App Service parameters
+// ----------------------------
+
+@description('PHP Version. Default = php|8.2')
+@allowed([
+  'php|8.0'
+  'php|8.1'
+  'php|8.2'
+])
+// Web server with PHP 7.2.5 or higher (including support for PHP 8). 
+param AppService_LinuxFxVersion string = 'php|8.2'
+
 @description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov.')
-param AppService_WebAppSubdomain string = ''
-// See variable appService_WebApp_SubdomainFinal for the final value
+param AppService_WebHost_Subdomain string = ''
+// See variable appService_WebHost_SubdomainFinal for the final value
 
 @description('Custom domain TXT DNS record verification value. Default = \'\' (empty string); If empty, a random value will be generated. This value will be used to verify ownership of the custom domain. See https://learn.microsoft.com/azure/app-service/app-service-web-tutorial-custom-domain for more information.')
-param AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue string = ''
-// See variable appService_WebApp_CustomDomainDnsTxtRecordVerificationFinal for the final value
+param AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue string = ''
+// See variable appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal for the final value
+
+@description('Source control repository URL. Default = https://github.com/AlanMcBee/w250b.git')
+param AppService_WebHost_SourceControl_GitHubRepositoryUri string = 'https://github.com/AlanMcBee/w250b.git'
 
 // Azure Database for MySQL parameters
 // -----------------------------------
@@ -258,8 +264,8 @@ param DatabaseForMySql_Tier string = 'GeneralPurpose'
 ])
 param DatabaseForMySql_Sku string = 'Standard_D4ads_v5'
 
-@description('Database for MySql Flexible Server: Storage in GB. Default = 10 (recommended by REDCap)')
-param DatabaseForMySql_StorageGB int = 10
+@description('Database for MySql Flexible Server: Storage in GB. Default = 20 (10 GB is recommended by REDCap; 20 GB is the default minimum in Azure)')
+param DatabaseForMySql_StorageGB int = 20
 
 @description('Database for MySQL Flexible Server: Backup Retention Days. Default = 7')
 param DatabaseForMySql_BackupRetentionDays int = 7
@@ -280,9 +286,6 @@ param StorageAccount_Redundancy string = 'Standard_LRS'
 // REDCap community and download parameters
 // ----------------------------------------
 
-@description('REDCap zip file URI')
-param ProjectRedcap_DownloadAppZipUri string
-
 @description('REDCap Community site username for downloading the REDCap zip file')
 param ProjectRedcap_CommunityUsername string
 
@@ -290,17 +293,22 @@ param ProjectRedcap_CommunityUsername string
 @secure()
 param ProjectRedcap_CommunityPassword string
 
+@description('REDCap zip file URI')
+param ProjectRedcap_DownloadAppZipUri string
+
 @description('REDCap zip file version to be downloaded from the REDCap Community site. Default = latest')
 param ProjectRedcap_DownloadAppZipVersion string = 'latest'
 
 // SMTP configuration parameters
 // -----------------------------
 
-@description('Email address configured as the sending address in REDCap')
-param Smtp_FromEmailAddress string
-
 @description('Fully-qualified domain name of your SMTP relay endpoint')
 param Smtp_FQDN string
+
+@description('Port for your SMTP relay. Default = 587')
+@minValue(0)
+@maxValue(65535)
+param Smtp_Port int = 587
 
 @description('Login name for your SMTP relay')
 param Smtp_UserLogin string
@@ -309,10 +317,13 @@ param Smtp_UserLogin string
 @secure()
 param Smtp_UserPassword string
 
-@description('Port for your SMTP relay. Default = 587')
-@minValue(0)
-@maxValue(65535)
-param Smtp_Port int = 587
+@description('Email address configured as the sending address in REDCap')
+param Smtp_FromEmailAddress string
+
+// Azure Monitor Application Insights parameters
+// ---------------------------------------------
+@description('Enable Azure Monitor Application Insights deployment. Default = true')
+param Monitor_ApplicationInsights bool = true
 
 // =========
 // VARIABLES
@@ -363,7 +374,7 @@ var databaseForMySql_FirewallRules = {
 // Azure Storage Account variables
 // -------------------------------
 
-var storageAccount_ResourceName = 'st${toLower(Cdph_Organization)}${toLower(Cdph_BusinessUnit)}${toLower(Cdph_BusinessUnitProgram)}${toLower(Cdph_Environment)}${arm_ResourceInstance_ZeroPadded}'
+var storageAccount_ResourceName = toLower('st${Cdph_Organization}${Cdph_BusinessUnit}${Cdph_BusinessUnitProgram}${Cdph_Environment}${arm_ResourceInstance_ZeroPadded}')
 
 var storageAccount_ContainerName = 'redcap' // TODO: parameterize this if the name should or could be changed
 
@@ -389,20 +400,20 @@ var appService_Tags = union(
   cdph_CommonTags
 )
 
-var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebAppSubdomain) ? AppService_WebAppSubdomain : 'REDCap'
+var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap'
 
 var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
 
-var appService_WebHost_SubdomainFinal = !empty(AppService_WebAppSubdomain) ? AppService_WebAppSubdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
 var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
 // This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
 var appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
-var appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal = !empty(AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue) ? AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue : appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
+var appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal = !empty(AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue) ? AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue : appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
 
 // App Service App Configuration
 // -----------------------------
@@ -418,6 +429,16 @@ var appService_Config_ConnectionString_settings = [
   appService_Config_ConnectionString_Password
 ]
 var appService_Config_ConnectionString = join(appService_Config_ConnectionString_settings, '; ')
+
+// Application Insights variables
+// ------------------------------
+
+var appInsights_ResourceName = 'appi-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+
+// Log Analytics variables
+// -----------------------
+
+var logAnalytics_Workspace_ResourceName = 'log-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 
 // =========
 // RESOURCES
@@ -571,70 +592,71 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
 
 resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existing = {
   name: keyVault_ResourceName
-  
-  resource keyVault_AccessPolicy_AppService_Resource 'accessPolicies' = {
-    name: 'add'
-    properties: {
-      accessPolicies: [
-        {
-          tenantId: subscription().tenantId
-          applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-          objectId: ''
-          permissions: {
-            // keys: [
-            //   'get'
-            //   'list'
-            //   'create'
-            //   'update'
-            //   'import'
-            //   'delete'
-            //   'backup'
-            //   'restore'
-            //   'recover'
-            //   'purge'
-            // ]
-            // secrets: [
-            //   'get'
-            //   'list'
-            //   'set'
-            //   'delete'
-            //   'backup'
-            //   'restore'
-            //   'recover'
-            //   'purge'
-            // ]
-            certificates: [
-              'get'
-              'list'
-              'delete'
-              'create'
-              'import'
-              'update'
-              'managecontacts'
-              'getissuers'
-              'listissuers'
-              'setissuers'
-              'deleteissuers'
-              'manageissuers'
-              'recover'
-              'purge'
-            ]
-            // storage: [
-            //   'get'
-            //   'list'
-            //   'delete'
-            //   'set'
-            //   'update'
-            //   'regeneratekey'
-            //   'setsas'
-            //   'listsas'
-            //   'getsas'
-            //   'deletesas'
-            // ]
-          }
+}
+
+resource keyVault_AccessPolicy_AppService_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault_Resource
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
+        objectId: appService_WebHost_Resource.identity.principalId
+        permissions: {
+          // keys: [
+          //   'get'
+          //   'list'
+          //   'create'
+          //   'update'
+          //   'import'
+          //   'delete'
+          //   'backup'
+          //   'restore'
+          //   'recover'
+          //   'purge'
+          // ]
+          // secrets: [
+          //   'get'
+          //   'list'
+          //   'set'
+          //   'delete'
+          //   'backup'
+          //   'restore'
+          //   'recover'
+          //   'purge'
+          // ]
+          certificates: [
+            'get'
+            // 'list'
+            // 'delete'
+            // 'create'
+            // 'import'
+            // 'update'
+            // 'managecontacts'
+            // 'getissuers'
+            // 'listissuers'
+            // 'setissuers'
+            // 'deleteissuers'
+            // 'manageissuers'
+            // 'recover'
+            // 'purge'
+          ]
+          // storage: [
+          //   'get'
+          //   'list'
+          //   'delete'
+          //   'set'
+          //   'update'
+          //   'regeneratekey'
+          //   'setsas'
+          //   'listsas'
+          //   'getsas'
+          //   'deletesas'
+          // ]
         }
-      ]
-    }
+      }
+    ]
   }
 }
 
@@ -670,7 +692,7 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
-    canonicalName: 
+    canonicalName: json('null')
     // name: appService_Certificate_ResourceName
     // keyVaultId: keyVault_Resource.id
     // keyVaultSecretName: keyVault_Secret_ResourceName
@@ -678,10 +700,10 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // pfxBlob: keyVault_Secret_ResourceName
     // serverFarmId: appService_Plan_Resource.id
     // siteName: appService_WebHost_ResourceName
-    // subjectName: appService_WebApp_FullDomainName
+    // subjectName: appService_WebHost_FullDomainName
     // valid: true
     // hostNames: [
-    //   appService_WebApp_FullDomainName
+    //   appService_WebHost_FullDomainName
     // ]
     // issueDate: '2021-08-01T00:00:00Z'
     // expirationDate: '2022-08-01T00:00:00Z'
@@ -716,23 +738,23 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // clientCertEnabled: false
     // clientCertMode: 'Required'
     // containerSize: 0
-    // customDomainVerificationId: appService_WebApp_CustomDomainDnsTxtRecordVerificationDefault
+    // customDomainVerificationId: appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
     // dailyMemoryTimeQuota: 0
     hostNamesDisabled: false
     /*     hostNameSslStates: [
       // {
-      //   name: appService_WebApp_FullDomainName
+      //   name: appService_WebHost_FullDomainName
       //   sslState: 'SniEnabled'
       //   thumbprint: Cdph_SslCertificateThumbprint
       //   hostType: 'Standard'
       // }
       {
-        name: appService_WebApp_UniqueDefaultFullDomain
+        name: appService_WebHost_UniqueDefaultFullDomain
         sslState: 'Disabled'
         hostType: 'Standard'
       }
       {
-        name: appService_WebApp_UniqueDefaultKuduFullDomain
+        name: appService_WebHost_UniqueDefaultKuduFullDomain
         sslState: 'Disabled'
         hostType: 'Repository'
       }
@@ -824,6 +846,9 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       // SCM (Kudu)
       SCM_DO_BUILD_DURING_DEPLOYMENT: '1'
 
+      // Application Insights
+      APPINSIGHTS_INSTRUMENTATIONKEY:  Monitor_ApplicationInsights ? appInsights_Resource.properties.InstrumentationKey : ''
+
       // PHP
       PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
 
@@ -851,12 +876,16 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       smtp_user_name: Smtp_UserLogin
       smtp_password: Smtp_UserPassword
     }
+    dependsOn: [
+      appService_WebHost_SiteExtensions_AppInsightsResource
+    ]
   }
-
+  
   resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
     name: appService_WebHost_Certificate_Redcap_ResourceName
     properties: {
-
+      keyVaultId: keyVault_Resource.id
+      keyVaultSecretName: keyVault_Secret_ResourceName
     }
   }
 
@@ -869,12 +898,41 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
+  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights) {
+    name: 'Microsoft.ApplicationInsights.AzureWebSites'
+    dependsOn: [
+      appInsights_Resource
+    ]
+  }
+
   resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
     name: 'web'
     properties: {
       branch: 'main'
       isManualIntegration: true
-      repoUrl: 'https://github.com/AlanMcBee/w250b.git'
+      repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
+    }
+  }
+}
+
+resource appInsights_Resource 'Microsoft.Insights/components@2015-05-01' = if(Monitor_ApplicationInsights) {
+  name: appInsights_ResourceName
+  location: Arm_MainSiteResourceLocation
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Flow_Type: 'Bluefield'
+    Request_Source: 'rest'
+    WorkspaceResourceId: logAnalytics_Workspace_Resource.id
+  }
+}
+
+resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if(Monitor_ApplicationInsights) {
+  name: logAnalytics_Workspace_ResourceName
+  location: Arm_MainSiteResourceLocation
+  properties: {
+    sku: {
+      name: 'PerGB2018'
     }
   }
 }

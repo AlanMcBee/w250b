@@ -2,26 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AppService_LinuxFxVersion": {
-            "value": "php|8.2"
-        },
-        "AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue": {
-            "value": ""
-        },
-        "AppService_WebAppSubdomain": {
-            "value": ""
-        },
-        "AppServicePlan_Capacity": {
-            "value": 1
-        },
-        "AppServicePlan_SkuName": {
-            "value": "S1"
-        },
-        "Arm_DeploymentCreationDateTime": {
-            "value": ""
-        },
-        "Arm_MainSiteResourceLocation": {
-            "value": "westus2"
+        "Cdph_Organization": {
+            "value": "ITSD"
         },
         "Cdph_BusinessUnit": {
             "value": "ESS"
@@ -32,80 +14,101 @@
         "Cdph_Environment": {
             "value": "Dev"
         },
-        "Cdph_Organization": {
-            "value": "ITSD"
-        },
         "Cdph_ResourceInstance": {
             "value": 1
         },
         "Cdph_SslCertificateThumbprint": {
-            "value": "" // REQUIRED
+            "value": "" // REQUIRED; Replace this empty string with the correct value
+        },
+        "Arm_MainSiteResourceLocation": {
+            "value": "eastus"
+        },
+        "Arm_StorageResourceLocation": {
+            "value": "westus"
+        },
+        "Arm_DeploymentCreationDateTime": {
+            "value": "" // Okay to leave this empty; it will be filled in by the script
+        },
+        "AppServicePlan_SkuName": {
+            "value": "S1"
+        },
+        "AppServicePlan_Capacity": {
+            "value": 1
+        },
+        "AppService_LinuxFxVersion": {
+            "value": "php|8.2"
+        },
+        "AppService_WebApp_Subdomain": {
+            "value": ""
+        },
+        "AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue": {
+            "value": ""
+        },
+        "AppService_WebHost_SourceControl_GitHubRepositoryUri": {
+            "value": "https://github.com/AlanMcBee/w250b.git"
+        },
+        "DatabaseForMySql_Tier": {
+            "value": "GeneralPurpose"
+        },
+        "DatabaseForMySql_Sku": {
+            "value": "Standard_D4ads_v5"
+        },
+        "DatabaseForMySql_ServerName": {
+            "value": ""
         },
         "DatabaseForMySql_AdministratorLoginName": {
             "value": "redcap_app"
         },
-                
         // Do not set the password here. Instead, set it using startDeploy.ps1
         //
         // "DatabaseForMySql_AdministratorLoginPassword": {
         //     "value": ""
         // },
-
+        "DatabaseForMySql_StorageGB": {
+            "value": 20
+        },
         "DatabaseForMySql_BackupRetentionDays": {
             "value": 7
         },
         "DatabaseForMySql_DbName": {
             "value": "redcap"
         },
-        "DatabaseForMySql_ServerName": {
-            "value": ""
+        "StorageAccount_Redundancy": {
+            "value": "Standard_LRS"
         },
-        "DatabaseForMySql_Sku": {
-            "value": "Standard_D4ads_v5"
+        "ProjectRedcap_CommunityUsername": {
+            "value": "" // REQUIRED; Replace this empty string with the correct value
         },
-        "DatabaseForMySql_StorageGB": {
-            "value": 10
-        },
-        "DatabaseForMySql_Tier": {
-            "value": "GeneralPurpose"
-        },
-
         // Do not set the password here. Instead, set it using startDeploy.ps1
         //
         // "ProjectRedcap_CommunityPassword": {
         //     "value": ""
         // },
-
-        "ProjectRedcap_CommunityUsername": {
-            "value": "" // REQUIRED
-        },
         "ProjectRedcap_DownloadAppZipUri": {
-            "value": "" // REQUIRED
+            "value": "" // REQUIRED; Replace this empty string with the correct value
         },
         "ProjectRedcap_DownloadAppZipVersion": {
             "value": "latest"
         },
         "Smtp_FQDN": {
-            "value": "" // REQUIRED
-        },
-        "Smtp_FromEmailAddress": {
-            "value": "" // REQUIRED
+            "value": "" // REQUIRED; Replace this empty string with the correct value
         },
         "Smtp_Port": {
             "value": 587
         },
         "Smtp_UserLogin": {
-            "value": "" // REQUIRED
+            "value": "" // REQUIRED; Replace this empty string with the correct value
         },
-
         // Do not set the password here. Instead, set it using startDeploy.ps1
         //
         // "Smtp_UserPassword": {
         //     "value": "" // TODO: Fill in parameter value
-        // },
-
-        "StorageAccount_Redundancy": {
-            "value": "Standard_LRS"
+        // }
+        "Smtp_FromEmailAddress": {
+            "value": "" // REQUIRED; Replace this empty string with the correct value
+        },
+        "Monitor_ApplicationInsights": {
+            "value": true
         }
     }
 }
