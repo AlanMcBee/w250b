@@ -115,14 +115,47 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $pfxPW = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
     ```
 
-1. In PowerShell, run the `startDeploy.ps1` script:
+    Initialize a variable with the path to your PFX certificate file:
+
+    ```powershell
+    $pfxPath = 'C:\path\to\your\certificate.pfx'
+    ```
+
+    If you will use optional arguments, initialize the variables for them now. For example:
+
+    ```powershell
+    $resourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
+    $resourceGroupInstance = 1
+    $mainSiteResourceLocation = 'eastus'
+    $storageResourceLocation = 'westus'
+    ```
+
+1. In PowerShell, run the `startDeploy.ps1` script.
+
+    The following script contains only the required arguments:
 
     ```powershell
     .\startDeploy.ps1 `
+        -PfxCertificatePassword $pfxPW `
+        -PfxCertificatePath $pfxPath `
         -MySqlAdminPassword $mySqlPW `
         -RedCapCommunityPassword $redCapPW `
-        -SmtpPassword $smtpPW `
-        -PfxCertificatePassword $pfxPW
+        -SmtpPassword $smtpPW
+    ```
+
+    And this script contains all of the arguments:
+
+    ```powershell
+    .\startDeploy.ps1 `
+        -ResourceGroupName $resourceGroupName `
+        -CdphResourceInstance $resourceGroupInstance
+        -MainSiteResourceLocation $mainSiteResourceLocation `
+        -StorageResourceLocation $storageResourceLocation `
+        -PfxCertificatePath $pfxPath `
+        -PfxCertificatePassword $pfxPW `
+        -MySqlAdminPassword $mySqlPW `
+        -RedCapCommunityPassword $redCapPW `
+        -SmtpPassword $smtpPW
     ```
 
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
