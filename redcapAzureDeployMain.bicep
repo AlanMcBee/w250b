@@ -174,9 +174,9 @@ param AppService_LinuxFxVersion string = 'php|8.2'
 param AppService_WebHost_Subdomain string = ''
 // See variable appService_WebHost_SubdomainFinal for the final value
 
-@description('Custom domain TXT DNS record verification value. Default = \'\' (empty string); If empty, a random value will be generated. This value will be used to verify ownership of the custom domain. See https://learn.microsoft.com/azure/app-service/app-service-web-tutorial-custom-domain for more information.')
-param AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue string = ''
-// See variable appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal for the final value
+// @description('Custom domain TXT DNS record verification value. Default = \'\' (empty string); If empty, a random value will be generated. This value will be used to verify ownership of the custom domain. See https://learn.microsoft.com/azure/app-service/app-service-web-tutorial-custom-domain for more information.')
+// param AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue string = ''
+// // See variable appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal for the final value
 
 @description('Source control repository URL. Default = https://github.com/AlanMcBee/w250b.git')
 param AppService_WebHost_SourceControl_GitHubRepositoryUri string = 'https://github.com/AlanMcBee/w250b.git'
@@ -404,16 +404,16 @@ var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomai
 
 var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
-var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
+// var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
 
 var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
-var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
+// var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
-// This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
-var appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
-var appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal = !empty(AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue) ? AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue : appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
+// // This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
+// var appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault = '${uniqueString(subscription().subscriptionId)}${uniqueString(resourceGroup().id)}'
+// var appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal = !empty(AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue) ? AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue : appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
 
 // App Service App Configuration
 // -----------------------------
@@ -547,10 +547,10 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
     // availabilityZone: ''
-    // backup: {
-    //   backupRetentionDays: DatabaseForMySql_BackupRetentionDays
-    //   geoRedundantBackup: 'Disabled'
-    // }
+    backup: {
+      backupRetentionDays: DatabaseForMySql_BackupRetentionDays
+      geoRedundantBackup: 'Disabled'
+    }
     createMode: 'Default'
     // dataEncryption: json('null')
     // highAvailability: {
@@ -881,13 +881,14 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     ]
   }
   
-  resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
-    name: appService_WebHost_Certificate_Redcap_ResourceName
-    properties: {
-      keyVaultId: keyVault_Resource.id
-      keyVaultSecretName: keyVault_Secret_ResourceName
-    }
-  }
+  // resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
+  //   name: appService_WebHost_Certificate_Redcap_ResourceName
+  //   properties: {
+  //     publicCertificateLocation: 'KeyVault'
+  //     keyVaultId: keyVault_Resource.id
+  //     keyVaultSecretName: appService_WebHost_ResourceName
+  //   }
+  // }
 
   resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
     name: appService_WebHost_FullDomainName
@@ -915,7 +916,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appInsights_Resource 'Microsoft.Insights/components@2015-05-01' = if(Monitor_ApplicationInsights) {
+resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if(Monitor_ApplicationInsights) {
   name: appInsights_ResourceName
   location: Arm_MainSiteResourceLocation
   kind: 'web'
