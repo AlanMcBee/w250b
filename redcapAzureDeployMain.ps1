@@ -163,7 +163,7 @@ catch
 }
 
 $version = (Get-Date).ToString('yyyyMMddHHmmss')
-$deploymentName = "REDCapDeploy.$version"
+$deploymentName = "REDCapDeployMain.$version"
 $deployArgs = @{
     ResourceGroupName       = $resourceGroupName
     TemplateFile            = $bicepPath
