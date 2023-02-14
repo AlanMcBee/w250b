@@ -91,7 +91,7 @@ $requiredParameters = @(
     'Smtp_UserLogin',
     'Smtp_FromEmailAddress'
 )
-$deployParametersPath = 'redcapAzureDeploy.parameters.json'
+$deployParametersPath = 'redcapAzureDeployMain.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
 if ($null -eq $deployParameters)
 {

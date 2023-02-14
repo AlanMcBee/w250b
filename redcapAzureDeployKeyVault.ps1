@@ -67,7 +67,7 @@ $requiredParameters = @(
     'Cdph_SslCertificateThumbprint',
     'AppService_WebHost_SourceControl_GitHubRepositoryUri'
 )
-$deployParametersPath = 'redcapAzureDeploy.parameters.json'
+$deployParametersPath = 'redcapAzureDeployKeyVault.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
 if ($null -eq $deployParameters)
 {
