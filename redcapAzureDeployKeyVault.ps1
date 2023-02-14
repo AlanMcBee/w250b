@@ -95,7 +95,6 @@ foreach ($parameterName in $parametersEntry.Keys)
 
 # Override parameters with values from the command line
 $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
-$flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
 $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
 
 # Merge parameters
