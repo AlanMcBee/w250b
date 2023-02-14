@@ -147,7 +147,7 @@ $program = $templateParameters['Cdph_BusinessUnitProgram']
 $environment = $templateParameters['Cdph_Environment']
 $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
 
-if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName') && -not [string]::IsNullOrEmpty($Arm_ResourceGroupName))
+if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
 {
     $resourceGroupName = $Arm_ResourceGroupName
 }
