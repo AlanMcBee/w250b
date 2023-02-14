@@ -77,7 +77,6 @@ Set-StrictMode -Version Latest
 $keyVaultDeployArgs = @{
     Arm_ResourceGroupName        = $ResourceGroupName
     Arm_MainSiteResourceLocation = $MainSiteResourceLocation
-    Arm_StorageResourceLocation  = $StorageResourceLocation
     Cdph_ResourceInstance        = $CdphResourceInstance
     PfxCertificatePath           = $PfxCertificatePath
     PfxCertificatePassword       = $PfxCertificatePassword
