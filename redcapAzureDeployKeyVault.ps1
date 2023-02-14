@@ -63,9 +63,7 @@ Write-Output "Beginning deployment at $starttime"
 $requiredParameters = @(
     'Cdph_Organization',
     'Cdph_BusinessUnit',
-    'Cdph_BusinessUnitProgram',
-    'Cdph_SslCertificateThumbprint',
-    'AppService_WebHost_SourceControl_GitHubRepositoryUri'
+    'Cdph_BusinessUnitProgram'
 )
 $deployParametersPath = 'redcapAzureDeployKeyVault.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
