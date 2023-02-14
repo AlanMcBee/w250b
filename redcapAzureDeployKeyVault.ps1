@@ -114,7 +114,7 @@ else
     $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
 }
 
-$appServicePlanName = "asp-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$($instance.PadLeft(2, '0'))"
+$appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$($instance.PadLeft(2, '0'))"
 
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
