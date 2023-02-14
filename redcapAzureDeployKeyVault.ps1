@@ -61,7 +61,11 @@ $startTime = Get-Date
 Write-Output "Beginning deployment at $starttime"
 
 $requiredParameters = @(
-    'Cdph_SslCertificateThumbprint'
+    'Cdph_Organization',
+    'Cdph_BusinessUnit',
+    'Cdph_BusinessUnitProgram',
+    'Cdph_SslCertificateThumbprint',
+    'AppService_WebHost_SourceControl_GitHubRepositoryUri'
 )
 $deployParametersPath = 'redcapAzureDeploy.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
@@ -94,8 +98,14 @@ foreach ($parameterName in $parametersEntry.Keys)
 }
 
 # Override parameters with values from the command line
-$flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
-$flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') && ![string]::IsNullOrWhiteSpace( $Arm_MainSiteResourceLocation))
+{
+    $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
+}
+if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') && ![string]::IsNullOrWhiteSpace( $Cdph_ResourceInstance))
+{
+    $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+}
 
 # Merge parameters
 $templateParameters = $flattenedParameters
@@ -113,6 +123,7 @@ else
 {
     $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
 }
+Write-Output "Using resource group name $resourceGroupName"
 
 $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$($instance.PadLeft(2, '0'))"
 
@@ -143,7 +154,8 @@ $deployArgs = @{
 }
 [Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent
 
-while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running') {
+while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running')
+{
     Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToShortTimeString())"
     Start-Sleep 5
 }

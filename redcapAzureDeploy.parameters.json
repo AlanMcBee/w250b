@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Cdph_Organization": {
-            "value": "ITSD"
+            "value": "ITSD" // REQUIRED
         },
         "Cdph_BusinessUnit": {
-            "value": "ESS"
+            "value": "ESS" // REQUIRED
         },
         "Cdph_BusinessUnitProgram": {
-            "value": "RedCap"
+            "value": "RedCap" // REQUIRED
         },
         "Cdph_Environment": {
             "value": "Dev"

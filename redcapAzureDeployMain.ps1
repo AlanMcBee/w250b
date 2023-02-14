@@ -80,12 +80,16 @@ $startTime = Get-Date
 Write-Output "Beginning deployment at $starttime"
 
 $requiredParameters = @(
+    'Cdph_Organization',
+    'Cdph_BusinessUnit',
+    'Cdph_BusinessUnitProgram',
     'Cdph_SslCertificateThumbprint',
-    'ProjectRedcap_DownloadAppZipUri',
+    'AppService_WebHost_SourceControl_GitHubRepositoryUri',
     'ProjectRedcap_CommunityUsername',
-    'Smtp_FromEmailAddress',
+    'ProjectRedcap_DownloadAppZipUri',
     'Smtp_FQDN',
-    'Smtp_UserLogin'
+    'Smtp_UserLogin',
+    'Smtp_FromEmailAddress'
 )
 $deployParametersPath = 'redcapAzureDeploy.parameters.json'
 $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
@@ -118,9 +122,18 @@ foreach ($parameterName in $parametersEntry.Keys)
 }
 
 # Override parameters with values from the command line
-$flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
-$flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
-$flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance'))
+{
+    $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+}
+if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation'))
+{
+    $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
+}
+if ($PSBoundParameters.ContainsKey('Arm_StorageResourceLocation'))
+{
+    $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
+}
 
 # Merge parameters
 $templateParameters = $flattenedParameters + @{
@@ -128,22 +141,21 @@ $templateParameters = $flattenedParameters + @{
     ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
     Smtp_UserPassword                           = $Smtp_UserPassword
 }
+$organization = $templateParameters['Cdph_Organization']
+$businessUnit = $templateParameters['Cdph_BusinessUnit']
+$program = $templateParameters['Cdph_BusinessUnitProgram']
+$environment = $templateParameters['Cdph_Environment']
+$instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
 
-if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName'))
+if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName') && -not [string]::IsNullOrEmpty($Arm_ResourceGroupName))
 {
     $resourceGroupName = $Arm_ResourceGroupName
 }
 else
 {
-    'asp-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
-    $organization = $templateParameters['Cdph_Organization']
-    $businessUnit = $templateParameters['Cdph_BusinessUnit']
-    $program = $templateParameters['Cdph_BusinessUnitProgram']
-    $environment = $templateParameters['Cdph_Environment']
-    $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
     $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
 }
-
+Write-Output "Using resource group name $resourceGroupName"
 
 # Make sure we're logged in. Use Connect-AzAccount if not.
 Get-AzContext -ErrorAction Stop
@@ -172,7 +184,8 @@ $deployArgs = @{
 }
 [Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = New-AzResourceGroupDeployment @deployArgs -DeploymentDebugLogLevel ResponseContent -Force -Verbose
 
-while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running') {
+while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running')
+{
     Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToShortTimeString())"
     Start-Sleep 5
 }

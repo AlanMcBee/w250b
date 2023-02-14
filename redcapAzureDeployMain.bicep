@@ -14,17 +14,17 @@
   'ITSD'
   'CDPH'
 ])
-param Cdph_Organization string = 'ITSD'
+param Cdph_Organization string
 
 @description('CDPH Business Unit (numbers & digits only)')
 @maxLength(5)
 @minLength(2)
-param Cdph_BusinessUnit string = 'ESS'
+param Cdph_BusinessUnit string
 
 @description('CDPH Business Unit Program (numbers & digits only)')
 @maxLength(7)
 @minLength(2)
-param Cdph_BusinessUnitProgram string = 'RedCap'
+param Cdph_BusinessUnitProgram string
 
 @description('Targeted deployment environment')
 @maxLength(4)
@@ -178,8 +178,8 @@ param AppService_WebHost_Subdomain string = ''
 // param AppService_WebHost_CustomDomainDnsTxtRecordVerificationValue string = ''
 // // See variable appService_WebHost_CustomDomainDnsTxtRecordVerificationFinal for the final value
 
-@description('Source control repository URL. Default = https://github.com/AlanMcBee/w250b.git')
-param AppService_WebHost_SourceControl_GitHubRepositoryUri string = 'https://github.com/AlanMcBee/w250b.git'
+@description('Source control repository URL.')
+param AppService_WebHost_SourceControl_GitHubRepositoryUri string
 
 // Azure Database for MySQL parameters
 // -----------------------------------
