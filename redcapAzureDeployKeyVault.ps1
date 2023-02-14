@@ -99,18 +99,18 @@ $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
 
 # Merge parameters
 $templateParameters = $flattenedParameters
+$organization = $templateParameters['Cdph_Organization']
+$businessUnit = $templateParameters['Cdph_BusinessUnit']
+$program = $templateParameters['Cdph_BusinessUnitProgram']
+$environment = $templateParameters['Cdph_Environment']
+$instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
 
-if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName'))
+if ($PSBoundParameters.ContainsKey('Arm_ResourceGroupName') && ![string]::IsNullOrWhiteSpace( $Arm_ResourceGroupName))
 {
     $resourceGroupName = $Arm_ResourceGroupName
 }
 else
 {
-    $organization = $templateParameters['Cdph_Organization']
-    $businessUnit = $templateParameters['Cdph_BusinessUnit']
-    $program = $templateParameters['Cdph_BusinessUnitProgram']
-    $environment = $templateParameters['Cdph_Environment']
-    $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
     $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
 }
 
