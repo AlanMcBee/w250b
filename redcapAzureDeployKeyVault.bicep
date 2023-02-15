@@ -388,21 +388,22 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
-    tenantId: subscription().tenantId
-    sku: {
-      name: 'standard'
-      family: 'A'
-    }
+    accessPolicies: [] // required, and will be updated by redcapAzureDeployMain.bicep
     enabledForDeployment: false
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: true
-    enableSoftDelete: true
     enablePurgeProtection: true
+    enableRbacAuthorization: false
+    enableSoftDelete: true
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
     }
-    enableRbacAuthorization: false
+    sku: {
+      name: 'standard'
+      family: 'A'
+    }
+    tenantId: subscription().tenantId
   }
 }
 
