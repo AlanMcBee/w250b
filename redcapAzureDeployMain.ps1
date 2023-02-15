@@ -5,6 +5,7 @@
 
  #>
 #requires -Modules Az.Resources
+#requires -Modules ./ErrorRecord.psm1
 #requires -Version 7.1
 
 param (
@@ -182,7 +183,15 @@ $deployArgs = @{
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
 }
-[Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = New-AzResourceGroupDeployment @deployArgs -DeploymentDebugLogLevel ResponseContent -Force -Verbose
+[Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = $null
+try
+{
+    $armDeployment = New-AzResourceGroupDeployment @deployArgs -DeploymentDebugLogLevel ResponseContent -Force -Verbose
+}
+catch
+{
+    Write-CaughtErrorRecord $_ Error -IncludeStackTrace
+}
 
 while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running')
 {
@@ -205,8 +214,16 @@ if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded'
 }
 else
 {
-    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation] $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
-    $deploymentErrors | ConvertTo-Json -Depth 8
+    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation] $deploymentErrors = $null
+    try
+    {
+        $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+        $deploymentErrors | ConvertTo-Json -Depth 8
+    }
+    catch
+    {
+        Write-CaughtErrorRecord $_ Error -IncludeStackTrace
+    }
 }
 
 $endTime = Get-Date
