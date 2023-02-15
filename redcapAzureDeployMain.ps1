@@ -13,8 +13,8 @@ param (
     [string]
     $Arm_ResourceGroupName,
 
-    # Geographic location for all resources in this deployment. 
-    # This script can deploy resources into the following regions: 
+    # Geographic location for all resources in this deployment.
+    # This script can deploy resources into the following regions:
     #   centralus
     #   eastus
     #   eastus2
@@ -184,7 +184,8 @@ $deployArgs = @{
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
 }
-[Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = $null
+# [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
+$armDeployment = $null
 try
 {
     $armDeployment = New-AzResourceGroupDeployment @deployArgs -DeploymentDebugLogLevel ResponseContent -Force -Verbose
@@ -216,7 +217,8 @@ if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded'
 }
 else
 {
-    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation] $deploymentErrors = $null
+    # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
+    $deploymentErrors = $null
     try
     {
         $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
