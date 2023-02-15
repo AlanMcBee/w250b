@@ -214,7 +214,7 @@ if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded'
     $armDeployment.Outputs | ConvertTo-Json -Depth 8
     try
     {
-        $siteName = $armDeployment.Outputs['webSiteFQDN'].Value
+        $siteName = $armDeployment.Outputs['webSiteFQDN']
         Start-Process "https://$($siteName)/AzDeployStatus.php"
     }
     catch

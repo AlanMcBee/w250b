@@ -184,7 +184,7 @@ if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succe
 {
     $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-    $keyVaultResourceName = $armDeployment.Outputs['KeyVault_ResourceName'].Value
+    $keyVaultResourceName = $armDeployment.Outputs['KeyVault_ResourceName']
 
     Import-AzKeyVaultCertificate `
         -VaultName $keyVaultResourceName `
