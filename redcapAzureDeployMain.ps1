@@ -188,9 +188,7 @@ $deployArgs = @{
 $armDeployment = $null
 try
 {
-    $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent
-    'armDeployment ='
-    $armDeployment | ConvertTo-Json -Depth 8
+    $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
     Write-Output "Provisioning State = $($armDeployment?.ProvisioningState)"
 }
 catch
