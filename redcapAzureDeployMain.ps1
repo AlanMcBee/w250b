@@ -5,7 +5,6 @@
 
  #>
 #requires -Modules Az.Resources
-#requires -Modules ./ErrorRecord.psm1
 #requires -Version 7.1
 
 param (
@@ -76,6 +75,8 @@ param (
     [securestring]
     $Smtp_UserPassword
 )
+
+Import-Module .\ErrorRecord.psm1
 
 $startTime = Get-Date
 Write-Output "Beginning deployment at $starttime"
