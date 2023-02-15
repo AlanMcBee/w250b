@@ -360,7 +360,21 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 // Key Vault variables
 // -------------------
 
-var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var orgLength = length(Cdph_Organization)
+var unitLength = length(Cdph_BusinessUnit)
+var programLength = length(Cdph_BusinessUnitProgram)
+var envLength = length(Cdph_Environment)
+var minBaseLength = length('kv00') + 4 // 'kv' + 2-digit instance + 4 hyphens
+var maxKeyVaultNameLength = 24
+var inputNameLength = orgLength + unitLength + programLength + envLength
+var inputOverBaseLength = inputNameLength + minBaseLength
+var isOneOverMax = (inputOverBaseLength - 1) == maxKeyVaultNameLength // if one over, will just remove the last hyphen
+var isOverMax = (inputOverBaseLength - 1) > maxKeyVaultNameLength // if over, will remove the last hyphen anyway
+var lastHyphen = (isOneOverMax || isOverMax) ? '-' : ''
+var lengthOverMax = isOverMax ? (inputOverBaseLength - 1) - maxKeyVaultNameLength : 0 // adjust for the removed hyphen
+var newProgramLength = programLength - lengthOverMax
+var newProgram = substring(Cdph_BusinessUnitProgram, 0, newProgramLength)
+var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${newProgram}-${Cdph_Environment}${lastHyphen}${arm_ResourceInstance_ZeroPadded}'
 
 // =========
 // RESOURCES
