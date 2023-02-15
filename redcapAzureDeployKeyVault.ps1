@@ -182,12 +182,10 @@ while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Ru
 
 if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
 {
-    $siteName = $armDeployment.Outputs.webSiteFQDN.Value
-    $deployment.Outputs | ConvertTo-Json -Depth 8
+    $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-    $keyVaultResourceName = $deployment.Outputs.KeyVault_ResourceName.Value
+    $keyVaultResourceName = $armDeployment.Outputs.KeyVault_ResourceName.Value
 
-    $deployment
     Import-AzKeyVaultCertificate `
         -VaultName $keyVaultResourceName `
         -Name $appServicePlanName `

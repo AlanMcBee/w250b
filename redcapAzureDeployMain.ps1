@@ -211,7 +211,7 @@ while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Ru
 
 if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded')
 {
-    $deployment.Outputs | ConvertTo-Json -Depth 8
+    $armDeployment.Outputs | ConvertTo-Json -Depth 8
     try
     {
         $siteName = $armDeployment.Outputs.webSiteFQDN.Value
