@@ -160,20 +160,27 @@ $armDeployment = $null
 try
 {
     $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
-    Write-Output "Provisioning State = $($armDeployment?.ProvisioningState)"
+    if ($null -eq $armDeployment)
+    {
+        Write-Error 'New-AzResourceGroupDeployment returned $null'
+    }
+    else
+    {
+        Write-Output "Provisioning State = $($armDeployment.ProvisioningState)"
+    }
 }
 catch
 {
     Write-CaughtErrorRecord $_ Error -IncludeStackTrace
 }
 
-while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running')
+while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
 {
-    Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
+    Write-Output "State = $($armDeployment.ProvisioningState); Check again at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
     Start-Sleep 5
 }
 
-if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded') # PowerShell 7
+if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
 {
     $siteName = $armDeployment.Outputs.webSiteFQDN.Value
     $deployment.Outputs | ConvertTo-Json -Depth 8
