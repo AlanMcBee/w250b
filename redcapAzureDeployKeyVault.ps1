@@ -158,7 +158,8 @@ $deployArgs = @{
 [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $armDeployment = $null
 try
 {
-    $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent
+    $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -ProceedIfNoChange -DeploymentDebugLogLevel ResponseContent
+    Write-Output "Provisioning State = $($armDeployment?.ProvisioningState)"
 }
 catch
 {
@@ -167,7 +168,7 @@ catch
 
 while ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Running')
 {
-    Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToShortTimeString())"
+    Write-Output "Waiting for deployment to complete at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
     Start-Sleep 5
 }
 
