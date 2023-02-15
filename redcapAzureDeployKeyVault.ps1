@@ -155,7 +155,7 @@ $deployArgs = @{
     Name                    = $deploymentName
     TemplateParameterObject = $templateParameters
 }
-[Microsoft.Azure.Commands.Resources.Models.PSResourceGroupDeployment] $armDeployment = $null
+[Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $armDeployment = $null
 try
 {
     $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent
