@@ -2,95 +2,107 @@
 // *****************************************************************************************************************************
 // This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
 // *****************************************************************************************************************************
+Deploy-REDCap.ps1
  #>
 
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
     [Parameter()]
     [string]
-    $ResourceGroupName,
+    $Arm_ResourceGroupName,
+
+    # Azure region for the main site. 
+    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+    # Not all resources are available in all regions.
+    [Parameter()]
+    [ValidateSet(
+        'centralus',
+        'eastus',
+        'eastus2',
+        'northcentralus',
+        'southcentralus',
+        'westcentralus',
+        'westus',
+        'westus2',
+        'westus3'
+    )]    
+    [string]
+    $Arm_MainSiteResourceLocation = 'eastus',
+
+    # Azure region for the storage account. 
+    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+    # Not all resources are available in all regions.
+    [Parameter()]
+    [ValidateSet(
+        'centralus',
+        'eastus',
+        'eastus2',
+        'northcentralus',
+        'southcentralus',
+        'westcentralus',
+        'westus',
+        'westus2',
+        'westus3'
+    )]    
+    [string]
+    $Arm_StorageResourceLocation = 'westus',
 
     # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
     [Parameter()]
     [int]
-    $CdphResourceInstance = 1,
+    $Cdph_ResourceInstance = 1,
 
-    # Azure region for the main site. Options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    [Parameter()]
-    [string]
-    $MainSiteResourceLocation = 'eastus',
-    # Options:
-    #   centralus
-    #   eastus
-    #   eastus2
-    #   northcentralus
-    #   southcentralus
-    #   westcentralus
-    #   westus
-    #   westus2
-    #   westus3
-
-    # Azure region for the storage account. Options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    [Parameter()]
-    [string]
-    $StorageResourceLocation = 'westus',
-    # Options:
-    #   centralus
-    #   eastus
-    #   eastus2
-    #   northcentralus
-    #   southcentralus
-    #   westcentralus
-    #   westus
-    #   westus2
-    #   westus3
-
-    # Path to PFX certificate
+    # Path to PFX certificate file to upload to Key Vault for App Service SSL binding
     [Parameter(Mandatory = $true)]
     [ValidateScript({Test-Path $_})]
     [string]
-    $PfxCertificatePath,
+    $Cdph_PfxCertificatePath,
 
-    # Password for PFX certificate. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    # Password for PFX certificate file
     [Parameter(Mandatory = $true)]
     [securestring]
-    $PfxCertificatePassword,
-
-    # Password for MySQL administrator. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    $Cdph_PfxCertificatePassword,
+    
+    # Password for MySQL administrator account
+    # Recommended: Use Get-Secret to retrieve the password from a secure store.
     [Parameter(Mandatory = $true)]
     [securestring]
-    $MySqlAdminPassword,
+    $DatabaseForMySql_AdministratorLoginPassword,
 
-    # Password for REDCap Community. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    # Password for REDCap Community.
+    # Recommended: Use Get-Secret to retrieve the password from a secure store.
     [Parameter(Mandatory = $true)]
     [securestring]
-    $RedcapCommunityPassword,
+    $ProjectRedcap_CommunityPassword,
 
-    # Password for SMTP server. Recommended: Use Get-Secret to retrieve the password from a secure store.
+    # Password for SMTP server.
+    # Recommended: Use Get-Secret to retrieve the password from a secure store.
     [Parameter(Mandatory = $true)]
     [securestring]
-    $SmtpPassword
+    $Smtp_UserPassword
 )
 
 Set-StrictMode -Version Latest
 
 $keyVaultDeployArgs = @{
-    Arm_ResourceGroupName        = $ResourceGroupName
-    Arm_MainSiteResourceLocation = $MainSiteResourceLocation
-    Cdph_ResourceInstance        = $CdphResourceInstance
-    PfxCertificatePath           = $PfxCertificatePath
-    PfxCertificatePassword       = $PfxCertificatePassword
+    Arm_ResourceGroupName        = $Arm_ResourceGroupName
+    Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
+    Cdph_ResourceInstance        = $Cdph_ResourceInstance
+    PfxCertificatePath           = $Cdph_PfxCertificatePath
+    PfxCertificatePassword       = $Cdph_PfxCertificatePassword
 }
 .\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
 
 
 $mainDeployArgs = @{
-    Arm_ResourceGroupName                       = $ResourceGroupName
-    Arm_MainSiteResourceLocation                = $MainSiteResourceLocation
-    Arm_StorageResourceLocation                 = $StorageResourceLocation
-    Cdph_ResourceInstance                       = $CdphResourceInstance
-    DatabaseForMySql_AdministratorLoginPassword = $mySqlAdminPassword
-    ProjectRedcap_CommunityPassword             = $redcapCommunityPassword
-    Smtp_UserPassword                           = $smtpPassword
+    Arm_ResourceGroupName                       = $Arm_ResourceGroupName
+    Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
+    Arm_StorageResourceLocation                 = $Arm_StorageResourceLocation
+    Cdph_ResourceInstance                       = $Cdph_ResourceInstance
+    DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+    ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
+    Smtp_UserPassword                           = $Smtp_UserPassword
 }
-.\Deploy-REDCapMain.ps1 @deployArgs
+.\Deploy-REDCapMain.ps1 @mainDeployArgs
