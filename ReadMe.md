@@ -99,7 +99,7 @@
 |
 | Monitor_ApplicationInsights                                 | `true`              | `true`                                   |
 
-For any parameters that are marked as *OVERRIDE IS REQUIRED*, you must provide a value, either by saving it in the `redcapAzureDeploy.parameters.json` file or by passing it in on the command line (which can include modifying the `redcapAzureDeployKeyVault.ps1` or `redcapAzureDeployMain.ps1` files).
+For any parameters that are marked as *OVERRIDE IS REQUIRED*, you must provide a value, either by saving it in the `redcapAzureDeploy.parameters.json` file or by passing it in on the command line (which can include modifying the `Deploy-REDCapKeyVault.ps1` or `Deploy-REDCapMain.ps1` files).
 Note that no passwords should be saved in the `redcapAzureDeploy.parameters.json` file. Instead, use the PowerShell SecretStore module to store them in the vault, or else provide them from the command line.
 See the []
 
@@ -226,11 +226,11 @@ _ ToDo: Write this section
 
 # Going deeper
 
-The script `Deploy-REDCap.ps1` is a wrapper around two scripts: `redcapAzureDeployKeyVault.ps1` and `redcapAzureDeployMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
+The script `Deploy-REDCap.ps1` is a wrapper around two scripts: `Deploy-REDCapKeyVault.ps1` and `Deploy-REDCapMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
 
-The `redcapAzureDeployKeyVault.ps1` script is responsible for creating the Azure Key Vault and storing some secrets in it. It does this by deploying the `redcapAzureDeployKeyVault.bicep` template.
+The `Deploy-REDCapKeyVault.ps1` script is responsible for creating the Azure Key Vault and storing some secrets in it. It does this by deploying the `redcapAzureDeployKeyVault.bicep` template.
 
-The `redcapAzureDeployMain.ps1` script is responsible for creating the rest of the resources in Azure. This includes:
+The `Deploy-REDCapMain.ps1` script is responsible for creating the rest of the resources in Azure. This includes:
 * an Azure Database for MySQL Flexible Server
 * an Azure Database for MySQL Flexible Server database
 * an Azure App Service Plan

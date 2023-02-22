@@ -81,7 +81,7 @@ $keyVaultDeployArgs = @{
     PfxCertificatePath           = $PfxCertificatePath
     PfxCertificatePassword       = $PfxCertificatePassword
 }
-.\redcapAzureDeployKeyVault.ps1 @keyVaultDeployArgs
+.\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
 
 
 $mainDeployArgs = @{
@@ -93,4 +93,4 @@ $mainDeployArgs = @{
     ProjectRedcap_CommunityPassword             = $redcapCommunityPassword
     Smtp_UserPassword                           = $smtpPassword
 }
-.\redcapAzureDeployMain.ps1 @deployArgs
+.\Deploy-REDCapMain.ps1 @deployArgs
