@@ -135,7 +135,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     The following script contains only the required arguments:
 
     ```powershell
-    .\startDeploy.ps1 `
+    .\Start-Deploy.ps1 `
         -PfxCertificatePassword $pfxPW `
         -PfxCertificatePath $pfxPath `
         -MySqlAdminPassword $mySqlPW `
@@ -146,7 +146,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     And this script contains all of the arguments:
 
     ```powershell
-    .\startDeploy.ps1 `
+    .\Start-Deploy.ps1 `
         -ResourceGroupName $resourceGroupName `
         -CdphResourceInstance $resourceGroupInstance
         -MainSiteResourceLocation $mainSiteResourceLocation `
@@ -158,6 +158,23 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         -SmtpPassword $smtpPW
     ```
 
+    Advanced PowerShell users can use splatting:
+
+    ```powershell
+    $deployArgs = @{
+        ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
+        CdphResourceInstance = 1
+        MainSiteResourceLocation = 'eastus'
+        StorageResourceLocation = 'westus'
+        PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
+        PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+        MySqlAdminPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
+        RedCapCommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
+        SmtpPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
+    }
+    .\Start-Deploy.ps1 @deployArgs
+    ```
+
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
 
     Since the secure values are in variables, you can re-run this as many times as you need to without having to re-enter the passwords.
@@ -166,7 +183,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
     ```powershell
     $instance = 2 # Change this to the instance number you want to use
-    .\startDeploy.ps1 `
+    .\Start-Deploy.ps1 `
         -MySqlAdminPassword $mySqlPW `
         -RedCapCommunityPassword $redCapPW `
         -SmtpPassword $smtpPW `
