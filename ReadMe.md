@@ -146,14 +146,14 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $storageResourceLocation = 'westus'
     ```
 
-1. In PowerShell, run the `Start-Deploy.ps1` script.
+1. In PowerShell, run the `Deploy-REDCap.ps1` script.
 
     * Simple usage:
 
         * Using only the *required* arguments:
 
         ```powershell
-        .\Start-Deploy.ps1 `
+        .\Deploy-REDCap.ps1 `
             -PfxCertificatePassword $pfxPW `
             -PfxCertificatePath $pfxPath `
             -MySqlAdminPassword $mySqlPW `
@@ -164,7 +164,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         * Using *all* of the arguments:
 
         ```powershell
-        .\Start-Deploy.ps1 `
+        .\Deploy-REDCap.ps1 `
             -ResourceGroupName $resourceGroupName `
             -CdphResourceInstance $resourceGroupInstance
             -MainSiteResourceLocation $mainSiteResourceLocation `
@@ -190,7 +190,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
             RedCapCommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
             SmtpPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
         }
-        .\Start-Deploy.ps1 @deployArgs
+        .\Deploy-REDCap.ps1 @deployArgs
         ```
 
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
@@ -202,7 +202,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     ```powershell
     $instance = 2 # Change this to the instance number you want to use
 
-    .\Start-Deploy.ps1 `
+    .\Deploy-REDCap.ps1 `
         -MySqlAdminPassword $mySqlPW `
         -RedCapCommunityPassword $redCapPW `
         -SmtpPassword $smtpPW `
@@ -226,7 +226,7 @@ _ ToDo: Write this section
 
 # Going deeper
 
-The script `Start-Deploy.ps1` is a wrapper around two scripts: `redcapAzureDeployKeyVault.ps1` and `redcapAzureDeployMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
+The script `Deploy-REDCap.ps1` is a wrapper around two scripts: `redcapAzureDeployKeyVault.ps1` and `redcapAzureDeployMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
 
 The `redcapAzureDeployKeyVault.ps1` script is responsible for creating the Azure Key Vault and storing some secrets in it. It does this by deploying the `redcapAzureDeployKeyVault.bicep` template.
 
