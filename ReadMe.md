@@ -154,41 +154,41 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
         ```powershell
         .\Deploy-REDCap.ps1 `
-            -PfxCertificatePassword $pfxPW `
-            -PfxCertificatePath $pfxPath `
-            -MySqlAdminPassword $mySqlPW `
-            -RedCapCommunityPassword $redCapPW `
-            -SmtpPassword $smtpPW
+            -Cdph_PfxCertificatePath $pfxPath `
+            -Cdph_PfxCertificatePassword $pfxPW `
+            -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
+            -ProjectRedcap_CommunityPassword $redCapPW `
+            -Smtp_UserPassword $smtpPW
         ```
 
         * Using *all* of the arguments:
 
         ```powershell
         .\Deploy-REDCap.ps1 `
-            -ResourceGroupName $resourceGroupName `
-            -CdphResourceInstance $resourceGroupInstance
-            -MainSiteResourceLocation $mainSiteResourceLocation `
-            -StorageResourceLocation $storageResourceLocation `
-            -PfxCertificatePath $pfxPath `
-            -PfxCertificatePassword $pfxPW `
-            -MySqlAdminPassword $mySqlPW `
-            -RedCapCommunityPassword $redCapPW `
-            -SmtpPassword $smtpPW
+            -Arm_ResourceGroupName $resourceGroupName `
+            -Arm_MainSiteResourceLocation $mainSiteResourceLocation `
+            -Arm_StorageResourceLocation $storageResourceLocation `
+            -Cdph_ResourceInstance $resourceGroupInstance
+            -Cdph_PfxCertificatePath $pfxPath `
+            -Cdph_PfxCertificatePassword $pfxPW `
+            -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
+            -ProjectRedcap_CommunityPassword $redCapPW `
+            -Smtp_UserPassword $smtpPW
         ```
 
     * Advanced PowerShell users can use splatting (shown with all arguments):
 
         ```powershell
         $deployArgs = @{
-            ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
-            CdphResourceInstance = 1
-            MainSiteResourceLocation = 'eastus'
-            StorageResourceLocation = 'westus'
-            PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
-            PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
-            MySqlAdminPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
-            RedCapCommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
-            SmtpPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
+            Arm_ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
+            Arm_MainSiteResourceLocation = 'eastus'
+            Arm_StorageResourceLocation = 'westus'
+            Cdph_ResourceInstance = 1
+            Cdph_PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
+            Cdph_PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+            DatabaseForMySql_AdministratorLoginPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
+            ProjectRedcap_CommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
+            Smtp_UserPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
         }
         .\Deploy-REDCap.ps1 @deployArgs
         ```
@@ -203,11 +203,12 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $instance = 2 # Change this to the instance number you want to use
 
     .\Deploy-REDCap.ps1 `
-        -MySqlAdminPassword $mySqlPW `
-        -RedCapCommunityPassword $redCapPW `
-        -SmtpPassword $smtpPW `
-        -PfxCertificatePassword $pfxPW `
-        -CdphResourceInstance $instance
+        -Cdph_PfxCertificatePath $pfxPath `
+        -Cdph_PfxCertificatePassword $pfxPW `
+        -Cdph_ResourceInstance $instance `
+        -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
+        -ProjectRedcap_CommunityPassword $redCapPW `
+        -Smtp_UserPassword $smtpPW 
     ```
 
     ... where `$instance` is a value between 1 and 99, inclusive.
@@ -226,7 +227,7 @@ _ ToDo: Write this section
 
 # Going deeper
 
-The script `Deploy-REDCap.ps1` is a wrapper around two scripts: `Deploy-REDCapKeyVault.ps1` and `Deploy-REDCapMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
+The script `Deploy-REDCap.ps1` is a wrapper around two scripts: `Deploy-REDCapKeyVault.ps1` and `Deploy-REDCapMain.ps1`. The wrapper script is responsible for prompting for secure and volatile parameters and validating them.
 
 The `Deploy-REDCapKeyVault.ps1` script is responsible for creating the Azure Key Vault and storing some secrets in it. It does this by deploying the `redcapAzureDeployKeyVault.bicep` template.
 
