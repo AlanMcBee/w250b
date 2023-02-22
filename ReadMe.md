@@ -37,7 +37,8 @@
     1. Create a new secret vault:
 
         ```powershell
-        Register-SecretVault -Name Azure -ModuleName Microsoft.PowerShell.SecretStore -DefaultVault
+        $vaultName = 'REDCap' # Change this to your vault name
+        Register-SecretVault -Name $vaultName -ModuleName Microsoft.PowerShell.SecretStore -DefaultVault
         ```
 
     1. Add passwords required by the script to the vault. The names here are examples only:
@@ -48,6 +49,8 @@
         Set-Secret -Name 'SmtpPW' -Secret (Read-Host -AsSecureString 'Enter SMTP login password')
         Set-Secret -Name 'PfxPW' -Secret (Read-Host -AsSecureString 'Enter PFX certificate password')
         ```
+
+    These values will stay in your vault until you remove them. 
 
 1. If you plan to override any of the default values in `redcapAzureDeploy.parameters.json`, make your changes to that file now. Some values you may want to change:
 
@@ -106,14 +109,27 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
 ## Invoking the deployment script
 
-1. In PowerShell, initialize the secure password variables (if you chose to use the PowerShell SecretStore module recommended earlier):
+1. In PowerShell, initialize the secure password variables:
 
-    ```powershell
-    $mySqlPW = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
-    $redCapPW = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
-    $smtpPW = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
-    $pfxPW = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
-    ```
+    * If you chose to use the PowerShell SecretStore module recommended earlier:
+
+        ```powershell
+        $mySqlPW = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
+        $redCapPW = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
+        $smtpPW = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
+        $pfxPW = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+        ```
+
+    * If you chose ***not*** to use the PowerShell SecretStore module:
+
+        ```powershell
+        $mySqlPW = Read-Host -AsSecureString 'Enter REDCap MySQL database administrator password'
+        $redCapPW = Read-Host -AsSecureString 'Enter REDCap community user password'
+        $smtpPW = Read-Host -AsSecureString 'Enter SMTP login password'
+        $pfxPW = Read-Host -AsSecureString 'Enter PFX certificate password'
+        ```
+
+1. In PowerShell, initialize additional variables:
 
     Initialize a variable with the path to your PFX certificate file:
 
@@ -130,50 +146,52 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $storageResourceLocation = 'westus'
     ```
 
-1. In PowerShell, run the `startDeploy.ps1` script.
+1. In PowerShell, run the `Start-Deploy.ps1` script.
 
-    The following script contains only the required arguments:
+    * Simple usage:
 
-    ```powershell
-    .\Start-Deploy.ps1 `
-        -PfxCertificatePassword $pfxPW `
-        -PfxCertificatePath $pfxPath `
-        -MySqlAdminPassword $mySqlPW `
-        -RedCapCommunityPassword $redCapPW `
-        -SmtpPassword $smtpPW
-    ```
+        * Using only the *required* arguments:
 
-    And this script contains all of the arguments:
+        ```powershell
+        .\Start-Deploy.ps1 `
+            -PfxCertificatePassword $pfxPW `
+            -PfxCertificatePath $pfxPath `
+            -MySqlAdminPassword $mySqlPW `
+            -RedCapCommunityPassword $redCapPW `
+            -SmtpPassword $smtpPW
+        ```
 
-    ```powershell
-    .\Start-Deploy.ps1 `
-        -ResourceGroupName $resourceGroupName `
-        -CdphResourceInstance $resourceGroupInstance
-        -MainSiteResourceLocation $mainSiteResourceLocation `
-        -StorageResourceLocation $storageResourceLocation `
-        -PfxCertificatePath $pfxPath `
-        -PfxCertificatePassword $pfxPW `
-        -MySqlAdminPassword $mySqlPW `
-        -RedCapCommunityPassword $redCapPW `
-        -SmtpPassword $smtpPW
-    ```
+        * Using *all* of the arguments:
 
-    Advanced PowerShell users can use splatting:
+        ```powershell
+        .\Start-Deploy.ps1 `
+            -ResourceGroupName $resourceGroupName `
+            -CdphResourceInstance $resourceGroupInstance
+            -MainSiteResourceLocation $mainSiteResourceLocation `
+            -StorageResourceLocation $storageResourceLocation `
+            -PfxCertificatePath $pfxPath `
+            -PfxCertificatePassword $pfxPW `
+            -MySqlAdminPassword $mySqlPW `
+            -RedCapCommunityPassword $redCapPW `
+            -SmtpPassword $smtpPW
+        ```
 
-    ```powershell
-    $deployArgs = @{
-        ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
-        CdphResourceInstance = 1
-        MainSiteResourceLocation = 'eastus'
-        StorageResourceLocation = 'westus'
-        PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
-        PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
-        MySqlAdminPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
-        RedCapCommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
-        SmtpPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
-    }
-    .\Start-Deploy.ps1 @deployArgs
-    ```
+    * Advanced PowerShell users can use splatting (shown with all arguments):
+
+        ```powershell
+        $deployArgs = @{
+            ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
+            CdphResourceInstance = 1
+            MainSiteResourceLocation = 'eastus'
+            StorageResourceLocation = 'westus'
+            PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
+            PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+            MySqlAdminPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
+            RedCapCommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
+            SmtpPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
+        }
+        .\Start-Deploy.ps1 @deployArgs
+        ```
 
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
 
@@ -183,15 +201,17 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
     ```powershell
     $instance = 2 # Change this to the instance number you want to use
+
     .\Start-Deploy.ps1 `
         -MySqlAdminPassword $mySqlPW `
         -RedCapCommunityPassword $redCapPW `
         -SmtpPassword $smtpPW `
         -PfxCertificatePassword $pfxPW `
-        -CdphResourceInstance $instance 
+        -CdphResourceInstance $instance
     ```
 
     ... where `$instance` is a value between 1 and 99, inclusive.
+
 
 ---
 
@@ -206,7 +226,7 @@ _ ToDo: Write this section
 
 # Going deeper
 
-The script `startDeploy.ps1` is a wrapper around two scripts: `redcapAzureDeployKeyVault.ps1` and `redcapAzureDeployMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
+The script `Start-Deploy.ps1` is a wrapper around two scripts: `redcapAzureDeployKeyVault.ps1` and `redcapAzureDeployMain.ps1`. The wrapper script is responsible for prompting for secure and very volatile parameters and validating them.
 
 The `redcapAzureDeployKeyVault.ps1` script is responsible for creating the Azure Key Vault and storing some secrets in it. It does this by deploying the `redcapAzureDeployKeyVault.bicep` template.
 
