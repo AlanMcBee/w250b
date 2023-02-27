@@ -61,6 +61,7 @@
 | Cdph_BusinessUnitProgram                                    | `RedCap`            | `RedCap`                                 |
 | Cdph_Environment                                            | `Dev`               | `Dev`                                    |
 | Cdph_ResourceInstance                                       | `1`                 | `01`                                     |
+| Cdph_ClientIPAddress                                        | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | Cdph_SslCertificateThumbprint                               | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | 
 | Arm_MainSiteResourceLocation                                | `eastus`            | `eastus`                                 |
@@ -135,6 +136,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
     ```powershell
     $pfxPath = 'C:\path\to\your\certificate.pfx'
+    $clientIP = '192.168.0.1' # Replace with your IP address (hint: search the Web for "what is my ip address")
     ```
 
     If you will use optional arguments, initialize the variables for them now. For example:
@@ -170,9 +172,10 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         .\Deploy-REDCap.ps1 `
             -Cdph_PfxCertificatePath $pfxPath `
             -Cdph_PfxCertificatePassword $pfxPW `
+            -Cdph_ClientIPAddress $clientIP`
             -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
             -ProjectRedcap_CommunityPassword $redCapPW `
-            -Smtp_UserPassword $smtpPW
+            -Smtp_UserPassword $smtpPW 
         ```
 
         * Using *all* of the arguments:
@@ -185,6 +188,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
             -Cdph_ResourceInstance $resourceGroupInstance
             -Cdph_PfxCertificatePath $pfxPath `
             -Cdph_PfxCertificatePassword $pfxPW `
+            -Cdph_ClientIPAddress $clientIP `
             -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
             -ProjectRedcap_CommunityPassword $redCapPW `
             -Smtp_UserPassword $smtpPW
@@ -200,6 +204,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
             Cdph_ResourceInstance = 1
             Cdph_PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
             Cdph_PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+            Cdph_ClientIPAddress = '192.168.0.1' ` # See note above about this parameter
             DatabaseForMySql_AdministratorLoginPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
             ProjectRedcap_CommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
             Smtp_UserPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
@@ -220,6 +225,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         -Cdph_PfxCertificatePath $pfxPath `
         -Cdph_PfxCertificatePassword $pfxPW `
         -Cdph_ResourceInstance $instance `
+        -Cdph_ClientIPAddress $clientIP `
         -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
         -ProjectRedcap_CommunityPassword $redCapPW `
         -Smtp_UserPassword $smtpPW 

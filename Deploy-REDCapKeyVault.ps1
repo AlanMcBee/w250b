@@ -47,7 +47,12 @@ param (
     # Password for PFX certificate file
     [Parameter(Mandatory = $true)]
     [securestring]
-    $Cdph_PfxCertificatePassword
+    $Cdph_PfxCertificatePassword,
+
+    # Client IP address to allow access to Key Vault
+    [Parameter(Mandatory = $true)]
+    [string]
+    $Cdph_ClientIPAddress
 )
 
 $measured = Measure-Command {
