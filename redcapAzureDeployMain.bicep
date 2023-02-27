@@ -952,12 +952,13 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
   }
 }
 
-output AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
+// NOTE: Bicep/ARM will lowercase the initial letter for all output
+output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
 
 // Keep these output variables named the same as original until dependencies are identified and refactored
-output MySQLHostName string = databaseForMySql_HostName
-output MySqlUserName string = databaseForMySql_AdministratorAccountName
-output webSiteFQDN string = appService_WebHost_UniqueDefaultFullDomain
-output storageAccountKey string = storageAccount_Key
-output storageAccountName string = storageAccount_ResourceName
-output storageContainerName string = storageAccount_ContainerName
+output out_MySQLHostName string = databaseForMySql_HostName
+output out_MySqlUserName string = databaseForMySql_AdministratorAccountName
+output out_WebSiteFQDN string = appService_WebHost_UniqueDefaultFullDomain
+output out_StorageAccountKey string = storageAccount_Key
+output out_StorageAccountName string = storageAccount_ResourceName
+output out_StorageContainerName string = storageAccount_ContainerName

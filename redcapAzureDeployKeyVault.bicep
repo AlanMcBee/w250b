@@ -411,4 +411,4 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
 // OUTPUTS
 // =======
 
-output KeyVault_ResourceName string = keyVault_ResourceName
+output Out_KeyVault_ResourceName string = keyVault_ResourceName

@@ -177,13 +177,17 @@ $measured = Measure-Command {
         {
             $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-            $keyVaultResourceName = $armDeployment.Outputs['KeyVault_ResourceName']
+            $keyVaultResourceName = $armDeployment.Outputs['out_KeyVault_ResourceName']
 
             Import-AzKeyVaultCertificate `
                 -VaultName $keyVaultResourceName `
                 -Name $appServicePlanName `
                 -FilePath $Cdph_PfxCertificatePath `
                 -Password $Cdph_PfxCertificatePassword
+
+            Write-Output [PSCustomObject]@{
+                Result = $true
+            }
         }
         else
         {
@@ -193,10 +197,18 @@ $measured = Measure-Command {
             {
                 $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
                 $deploymentErrors | ConvertTo-Json -Depth 8
+                Write-Output [PSCustomObject]@{
+                    Result = $false
+                    Errors = $deploymentErrors
+                }
             }
             catch
             {
                 Write-CaughtErrorRecord $_ Error -IncludeStackTrace
+                Write-Output [PSCustomObject]@{
+                    Result = $false
+                    Errors = $deploymentErrors
+                }
             }
         }
 

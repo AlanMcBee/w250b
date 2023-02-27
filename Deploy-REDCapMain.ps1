@@ -214,7 +214,7 @@ $measured = Measure-Command {
             $armDeployment.Outputs | ConvertTo-Json -Depth 8
             try
             {
-                $siteName = $armDeployment.Outputs['webSiteFQDN']
+                $siteName = $armDeployment.Outputs['out_WebSiteFQDN']
                 Start-Process "https://$($siteName)/AzDeployStatus.php"
             }
             catch

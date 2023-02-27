@@ -93,16 +93,18 @@ $keyVaultDeployArgs = @{
     Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
 }
-.\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
+$deploymentResult = .\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
 
-
-$mainDeployArgs = @{
-    Arm_ResourceGroupName                       = $Arm_ResourceGroupName
-    Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
-    Arm_StorageResourceLocation                 = $Arm_StorageResourceLocation
-    Cdph_ResourceInstance                       = $Cdph_ResourceInstance
-    DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-    ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
-    Smtp_UserPassword                           = $Smtp_UserPassword
+if ($deploymentResult.Result -eq $true)
+{
+    $mainDeployArgs = @{
+        Arm_ResourceGroupName                       = $Arm_ResourceGroupName
+        Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
+        Arm_StorageResourceLocation                 = $Arm_StorageResourceLocation
+        Cdph_ResourceInstance                       = $Cdph_ResourceInstance
+        DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+        ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
+        Smtp_UserPassword                           = $Smtp_UserPassword
+    }
 }
 .\Deploy-REDCapMain.ps1 @mainDeployArgs
