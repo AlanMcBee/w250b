@@ -50,7 +50,7 @@ param (
     $Cdph_PfxCertificatePassword
 )
 
-$measured = Measure=Command {
+$measured = Measure-Command {
     & {
         Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
