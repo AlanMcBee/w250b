@@ -177,7 +177,7 @@ $measured = Measure-Command {
         {
             $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-            $keyVaultResourceName = $armDeployment.Outputs['out_KeyVault_ResourceName']
+            $keyVaultResourceName = $armDeployment.Outputs['out_KeyVault_ResourceName'].Value
 
             Import-AzKeyVaultCertificate `
                 -VaultName $keyVaultResourceName `
