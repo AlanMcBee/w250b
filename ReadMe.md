@@ -146,6 +146,20 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $storageResourceLocation = 'westus'
     ```
 
+1. Recommended, but optional: 
+
+    In PowerShell, initialize the Azure context:
+
+    ```powershell
+    Connect-AzAccount
+    ```
+
+    In PowerShell, turn on the Information stream to view the output of the deployment script:
+
+    ```powershell
+    $InformationPreference = 'Continue'
+    ```
+
 1. In PowerShell, run the `Deploy-REDCap.ps1` script.
 
     * Simple usage:
