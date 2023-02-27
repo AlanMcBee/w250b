@@ -90,8 +90,8 @@ $keyVaultDeployArgs = @{
     Arm_ResourceGroupName        = $Arm_ResourceGroupName
     Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
     Cdph_ResourceInstance        = $Cdph_ResourceInstance
-    PfxCertificatePath           = $Cdph_PfxCertificatePath
-    PfxCertificatePassword       = $Cdph_PfxCertificatePassword
+    Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
+    Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
 }
 .\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
 

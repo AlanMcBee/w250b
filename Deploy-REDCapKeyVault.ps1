@@ -52,7 +52,7 @@ param (
 
 $measured = Measure=Command {
     & {
-        Write-Output "Beginning deployment at $((Get-Date).ToString())"
+        Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
         Import-Module .\ErrorRecord.psm1
 
@@ -117,7 +117,7 @@ $measured = Measure=Command {
         {
             $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
         }
-        Write-Output "Using resource group name $resourceGroupName"
+        Write-Information "Using resource group name $resourceGroupName"
 
         $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$($instance.PadLeft(2, '0'))"
 
@@ -130,14 +130,14 @@ $measured = Measure=Command {
         try
         {
             Get-AzResourceGroup -Name $resourceGroupName -ErrorAction Stop
-            Write-Output "Resource group $resourceGroupName exists. Updating deployment"
+            Write-Information "Resource group $resourceGroupName exists. Updating deployment"
         }
         catch
         {
 
-            Write-Output "Creating new resource group: $resourceGroupName"
+            Write-Information "Creating new resource group: $resourceGroupName"
             $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
-            Write-Output "Created new resource group $resourceGroupName."
+            Write-Information "Created new resource group $resourceGroupName."
         }
 
         $version = (Get-Date).ToString('yyyyMMddHHmmss')
@@ -159,7 +159,7 @@ $measured = Measure=Command {
             }
             else
             {
-                Write-Output "Provisioning State = $($armDeployment.ProvisioningState)"
+                Write-Information "Provisioning State = $($armDeployment.ProvisioningState)"
             }
         }
         catch
@@ -169,7 +169,7 @@ $measured = Measure=Command {
 
         while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
         {
-            Write-Output "State = $($armDeployment.ProvisioningState); Check again at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
+            Write-Information "State = $($armDeployment.ProvisioningState); Check again at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
             Start-Sleep 5
         }
 
@@ -202,4 +202,4 @@ $measured = Measure=Command {
 
     } | Out-Default
 }
-Write-Output "Total Deployment time: $($measured.ToString())"
+Write-Information "Total Deployment time: $($measured.ToString())"
