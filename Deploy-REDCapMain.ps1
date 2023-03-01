@@ -77,6 +77,11 @@ param (
 
 Import-Module .\ErrorRecord.psm1
 
+$deploymentResult = [PSCustomObject]@{
+    Successful = $true
+    Error = $null
+    DeploymentErrors = $null
+}
 $measured = Measure-Command {
     & {
         Write-Information "Beginning deployment at $((Get-Date).ToString())"
@@ -97,24 +102,33 @@ $measured = Measure-Command {
         $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
         if ($null -eq $deployParameters)
         {
+            $deploymentResult.Successful = $false
             Write-Error "Unable to load deployment parameters from $deployParametersPath"
         }
+        if (-not $deploymentResult.Successful) { return }
+       
         if (-not $deployParameters.ContainsKey('parameters'))
         {
+            $deploymentResult.Successful = $false
             Write-Error "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
         }
+        if (-not $deploymentResult.Successful) { return }
+       
         $parametersEntry = $deployParameters.parameters
         foreach ($requiredParameter in $requiredParameters)
         {
             if (-not $parametersEntry.ContainsKey($requiredParameter))
             {
+                $deploymentResult.Successful = $false
                 Write-Error "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
             }
             if (0 -eq $parametersEntry[$requiredParameter].value.Length)
             {
+                $deploymentResult.Successful = $false
                 Write-Error "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
             }
         }
+        if (-not $deploymentResult.Successful) { return }
 
         # Create hashtable from parametersEntry moving the value sub-property to the top level
         $flattenedParameters = @{}
@@ -124,15 +138,15 @@ $measured = Measure-Command {
         }
 
         # Override parameters with values from the command line
-        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance'))
+        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -or $Cdph_ResourceInstance -gt 1)
         {
             $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
         }
-        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation'))
+        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation)))
         {
             $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
         }
-        if ($PSBoundParameters.ContainsKey('Arm_StorageResourceLocation'))
+        if ($PSBoundParameters.ContainsKey('Arm_StorageResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_StorageResourceLocation)))
         {
             $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
         }
@@ -175,6 +189,7 @@ $measured = Measure-Command {
             $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
             Write-Information "Created new resource group $resourceGroupName."
         }
+        if (-not $deploymentResult.Successful) { return }
 
         $version = (Get-Date).ToString('yyyyMMddHHmmss')
         $deploymentName = "REDCapDeployMain.$version"
@@ -191,6 +206,7 @@ $measured = Measure-Command {
             $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
             if ($null -eq $armDeployment)
             {
+                $deploymentResult.Successful = $false
                 Write-Error 'New-AzResourceGroupDeployment returned $null'
             }
             else
@@ -200,8 +216,14 @@ $measured = Measure-Command {
         }
         catch
         {
+            $deploymentResult.Successful = $false
+            if ($armDeployment -ne $null)
+            {
+                $deploymentResult.DeploymentErrors = $armDeployment | ConvertTo-Json -Depth 10
+            }
             Write-CaughtErrorRecord $_ Error -IncludeStackTrace
         }
+        if (-not $deploymentResult.Successful) { return }
 
         while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
         {
@@ -219,20 +241,27 @@ $measured = Measure-Command {
             }
             catch
             {
+                $deploymentResult.Successful = $false
+                $deploymentResult.Error = $_
                 Write-Information 'Unable to open AzDeployStatus.php in browser.'
             }
         }
         else
         {
+            $deploymentResult.Successful = $false
             # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
             $deploymentErrors = $null
             try
             {
                 $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
                 $deploymentErrors | ConvertTo-Json -Depth 8
+                $deploymentResult.Error = $_
+                $deploymentResult.DeploymentErrors = $deploymentErrors
             }
             catch
             {
+                $deploymentResult.Error = $_
+                $deploymentResult.DeploymentErrors = $deploymentErrors
                 Write-CaughtErrorRecord $_ Error -IncludeStackTrace
             }
         }
@@ -240,3 +269,4 @@ $measured = Measure-Command {
     } | Out-Default
 }
 Write-Information "Total Deployment time: $($measured.ToString())"
+Write-Output $deploymentResult

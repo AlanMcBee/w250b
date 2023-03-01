@@ -163,15 +163,15 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     Connect-AzAccount
     ```
 
-    Make sure you are using the AzContext you want to use. The context will select the subscription for a tenant, and the assets will be created in that subscription. You can use the `Get-AzContext -ListAvailable` command to see the current context, and the `Select-AzContext` command to change it to a different saved context.
+    Make sure you are using the AzContext you want to use. The context will select the subscription for a tenant, and the assets will be created in that subscription. You can use the `Get-AzContext` command to see the current context, the `Get-AzContext -ListAvailable` command to see all saved contexts, and the `Select-AzContext` command to change it to a different saved context.
 
-    In PowerShell, turn on the Information stream to view the output of the deployment script:
+    In PowerShell, turn on the Information stream to view the information-level progress of the deployment script:
 
     ```powershell
     $InformationPreference = 'Continue'
     ```
 
-1. In PowerShell, run the `Deploy-REDCap.ps1` script.
+1. In PowerShell, run the `Deploy-REDCap.ps1` script. Choose one of the following options (simple or advanced):
 
     * Simple usage:
 
@@ -221,12 +221,15 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         .\Deploy-REDCap.ps1 @deployArgs
         ```
 
+    -----
+
     Note: It might make sense for you to create your own local `deploy.ps1` script that contains the above commands, so that you can just run that script to initialize your environment, at least during your initial testing. For example:
     
     ```powershell
     # deploy.ps1
+    if (-not (Test-SecretVault  Mcaps529128 -ErrorAction SilentlyContinue))
     Unlock-SecretVault -Name 'REDCap'
-    Connect-AzAccount -ContextName  'name of your Az PowerShell context' # Use Get-AzContext -ListAvailable to see the list of contexts
+    Select-AzContext -Name 'name of your Az PowerShell context' # Use Get-AzContext -ListAvailable to see the list of contexts
     $deployArgs = @{
         Arm_ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
         Arm_MainSiteResourceLocation = 'eastus'
@@ -243,6 +246,8 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     ```
     
     Then, you can just run `.\deploy.ps1` to deploy the resources. An entry in the `.gitignore` file has already been made for `deploy.ps1`, so you can safely add it to your local workspace.
+
+    -----
 
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
 

@@ -7,7 +7,6 @@ Deploy-REDCapKeyVault.ps1
 #requires -Modules Az.Resources, Az.KeyVault
 #requires -Version 7.1
 
-
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
     [Parameter()]
@@ -56,6 +55,12 @@ param (
     $Cdph_ClientIPAddress
 )
 
+$deploymentResult = [PSCustomObject]@{
+    Successful = $true
+    Error = $null
+    DeploymentErrors = $null
+    Certificate = $null
+}
 $measured = Measure-Command {
     & {
         Write-Information "Beginning deployment at $((Get-Date).ToString())"
@@ -71,24 +76,33 @@ $measured = Measure-Command {
         $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
         if ($null -eq $deployParameters)
         {
+            $deploymentResult.Successful = $false
             Write-Error "Unable to load deployment parameters from $deployParametersPath"
         }
+        if (-not $deploymentResult.Successful) { return }
+
         if (-not $deployParameters.ContainsKey('parameters'))
         {
+            $deploymentResult.Successful = $false
             Write-Error "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
         }
+        if (-not $deploymentResult.Successful) { return }
+
         $parametersEntry = $deployParameters.parameters
         foreach ($requiredParameter in $requiredParameters)
         {
             if (-not $parametersEntry.ContainsKey($requiredParameter))
             {
+                $deploymentResult.Successful = $false
                 Write-Error "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
             }
             if (0 -eq $parametersEntry[$requiredParameter].value.Length)
             {
+                $deploymentResult.Successful = $false
                 Write-Error "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
             }
         }
+        if (-not $deploymentResult.Successful) { return }
 
         # Create hashtable from parametersEntry moving the value sub-property to the top level
         $flattenedParameters = @{}
@@ -144,7 +158,6 @@ $measured = Measure-Command {
         }
         catch
         {
-
             Write-Information "Creating new resource group: $resourceGroupName"
             $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
             Write-Information "Created new resource group $resourceGroupName."
@@ -165,6 +178,7 @@ $measured = Measure-Command {
             $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
             if ($null -eq $armDeployment)
             {
+                $deploymentResult.Successful = $false
                 Write-Error 'New-AzResourceGroupDeployment returned $null'
             }
             else
@@ -174,8 +188,11 @@ $measured = Measure-Command {
         }
         catch
         {
+            $deploymentResult.Successful = $false
+            $deploymentResult.Error = $_
             Write-CaughtErrorRecord $_ Error -IncludeStackTrace
         }
+        if (-not $deploymentResult.Successful) { return }
 
         while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
         {
@@ -189,39 +206,32 @@ $measured = Measure-Command {
 
             $keyVaultResourceName = $armDeployment.Outputs['out_KeyVault_ResourceName'].Value
 
-            Import-AzKeyVaultCertificate `
+            $deploymentResult.Certificate = Import-AzKeyVaultCertificate `
                 -VaultName $keyVaultResourceName `
                 -Name $appServicePlanName `
                 -FilePath $Cdph_PfxCertificatePath `
                 -Password $Cdph_PfxCertificatePassword
-
-            Write-Output [PSCustomObject]@ {
-                Result = $true
-            }
         }
         else
         {
+            $deploymentResult.Successful = $false
             # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
             $deploymentErrors = $null
             try
             {
                 $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
                 $deploymentErrors | ConvertTo-Json -Depth 8
-                Write-Output [PSCustomObject]@ {
-                    Result = $false
-                    Errors = $deploymentErrors
-                }
+                $deploymentResult.DeploymentErrors = $deploymentErrors
             }
             catch
             {
                 Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-                Write-Output [PSCustomObject]@ {
-                    Result = $false
-                    Errors = $deploymentErrors
-                }
+                $deploymentResult.Error = $_
+                $deploymentResult.DeploymentErrors = $deploymentErrors
             }
         }
 
     } | Out-Default
 }
 Write-Information "Total Deployment time: $($measured.ToString())"
+Write-Output $deploymentResult

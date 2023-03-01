@@ -4,6 +4,7 @@
 // *****************************************************************************************************************************
 Deploy-REDCap.ps1
  #>
+using namespace Microsoft.Azure.Commands.KeyVault.Models
 
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
@@ -100,10 +101,17 @@ $keyVaultDeployArgs = @{
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
     Cdph_ClientIPAddress         = $Cdph_ClientIPAddress
 }
-$deploymentResult = .\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
+$keyVaultDeploymentResult = &'.\Deploy-REDCapKeyVault.ps1' @keyVaultDeployArgs
 
-if ($deploymentResult.Result -eq $true)
+if ($keyVaultDeploymentResult.Successful -eq $true)
 {
+    [PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
+    $mainParameters = Get-Content -Path '.\redcapAzureDeployMain.parameters.json' -Raw | ConvertFrom-Json
+    $mainParameters.parameters.Cdph_SslCertificateThumbprint.value = $keyVaultCertificate.Thumbprint
+    $mainParameters 
+    | ConvertTo-Json -Depth 10 
+    | Set-Content -Path '.\redcapAzureDeployMain.parameters.json' -Encoding UTF8 -Force
+
     $mainDeployArgs = @{
         Arm_ResourceGroupName                       = $Arm_ResourceGroupName
         Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
@@ -114,4 +122,5 @@ if ($deploymentResult.Result -eq $true)
         Smtp_UserPassword                           = $Smtp_UserPassword
     }
 }
-.\Deploy-REDCapMain.ps1 @mainDeployArgs
+$mainDeploymentResult = &'.\Deploy-REDCapMain.ps1' @mainDeployArgs
+$mainDeploymentResult | ConvertTo-Json -Depth 12
