@@ -64,6 +64,12 @@ param (
     [Parameter(Mandatory = $true)]
     [securestring]
     $Cdph_PfxCertificatePassword,
+
+    # Client IP address to allow access to Key Vault
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern('^(\d{1,3}\.){3}\d{1,3}$')]
+    [string]
+    $Cdph_ClientIPAddress,
     
     # Password for MySQL administrator account
     # Recommended: Use Get-Secret to retrieve the password from a secure store.
@@ -92,6 +98,7 @@ $keyVaultDeployArgs = @{
     Cdph_ResourceInstance        = $Cdph_ResourceInstance
     Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
+    Cdph_ClientIPAddress         = $Cdph_ClientIPAddress
 }
 $deploymentResult = .\Deploy-REDCapKeyVault.ps1 @keyVaultDeployArgs
 

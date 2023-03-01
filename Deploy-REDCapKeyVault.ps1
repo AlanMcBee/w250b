@@ -51,6 +51,7 @@ param (
 
     # Client IP address to allow access to Key Vault
     [Parameter(Mandatory = $true)]
+    [ValidatePattern('^(\d{1,3}\.){3}\d{1,3}$')]
     [string]
     $Cdph_ClientIPAddress
 )
@@ -97,13 +98,17 @@ $measured = Measure-Command {
         }
 
         # Override parameters with values from the command line
-        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') && ![string]::IsNullOrWhiteSpace( $Arm_MainSiteResourceLocation))
+        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') && ![string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation))
         {
             $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
         }
-        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') && ![string]::IsNullOrWhiteSpace( $Cdph_ResourceInstance))
+        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') && ![string]::IsNullOrWhiteSpace($Cdph_ResourceInstance))
         {
             $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+        }
+        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') && ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+        {
+            $flattenedParameters['Cdph_ClientIPAddress'] = $Cdph_ClientIPAddress
         }
 
         # Merge parameters
@@ -190,7 +195,7 @@ $measured = Measure-Command {
                 -FilePath $Cdph_PfxCertificatePath `
                 -Password $Cdph_PfxCertificatePassword
 
-            Write-Output [PSCustomObject]@{
+            Write-Output [PSCustomObject]@ {
                 Result = $true
             }
         }
@@ -202,7 +207,7 @@ $measured = Measure-Command {
             {
                 $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
                 $deploymentErrors | ConvertTo-Json -Depth 8
-                Write-Output [PSCustomObject]@{
+                Write-Output [PSCustomObject]@ {
                     Result = $false
                     Errors = $deploymentErrors
                 }
@@ -210,7 +215,7 @@ $measured = Measure-Command {
             catch
             {
                 Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-                Write-Output [PSCustomObject]@{
+                Write-Output [PSCustomObject]@ {
                     Result = $false
                     Errors = $deploymentErrors
                 }

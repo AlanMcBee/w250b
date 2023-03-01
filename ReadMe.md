@@ -50,7 +50,7 @@
         Set-Secret -Name 'PfxPW' -Secret (Read-Host -AsSecureString 'Enter PFX certificate password')
         ```
 
-    These values will stay in your vault until you remove them. 
+    These values will stay in your vault until you remove them.
 
 1. If you plan to override any of the default values in `redcapAzureDeploy.parameters.json`, make your changes to that file now. Some values you may want to change:
 
@@ -63,19 +63,19 @@
 | Cdph_ResourceInstance                                       | `1`                 | `01`                                     |
 | Cdph_ClientIPAddress                                        | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | Cdph_SslCertificateThumbprint                               | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
-| 
+|
 | Arm_MainSiteResourceLocation                                | `eastus`            | `eastus`                                 |
 | Arm_StorageResourceLocation                                 | `westus`            | `westus`                                 |
 | Arm_DeploymentCreationDateTime                              | *(empty)*           | Current UTC date/time                    |
-| 
+|
 | AppServicePlan_SkuName                                      | `S1`                | `S1`                                     |
 | AppServicePlan_Capacity                                     | `1`                 | `1` instance                             |
-| 
+|
 | AppService_LinuxFxVersion                                   | `php\               |8.2`                                      | `php\|8.2` |
 | AppService_WebApp_Subdomain                                 | *(empty)*           | `redcap-dev-01.cdph.ca.gov`              |
 | AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue | *(empty)*           | A random value (shared in output)        |
 | AppService_WebHost_SourceControl_GitHubRepositoryUri        | *(empty)*           | `https://github.com/AlanMcBee/w250b.git` |
-| 
+|
 | DatabaseForMySql_Tier                                       | `GeneralPurpose`    | `GeneralPurpose`                         |
 | DatabaseForMySql_Sku                                        | `Standard_D4ads_v5` | `Standard_D4ads_v5`                      |
 | DatabaseForMySql_ServerName                                 | *(empty)*           | `REDCap-Dev-01.mysql.database.azure.com` |
@@ -84,14 +84,14 @@
 | DatabaseForMySql_StorageGB                                  | `20`                | `20` GiB                                 |
 | DatabaseForMySql_BackupRetentionDays                        | `7`                 | `7` days                                 |
 | DatabaseForMySql_DbName                                     | `redcap`            | `redcap_db`                              |
-| 
+|
 | StorageAccount_Redundancy                                   | `Standard_LRS`      | `Standard_LRS`                           |
-| 
+|
 | ProjectRedcap_CommunityUsername                             | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | <del>*ProjectRedcap_CommunityPassword*</del>                |                     | *DO NOT SET IN THIS FILE*                |
 | ProjectRedcap_DownloadAppZipUri                             | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | ProjectRedcap_DownloadAppZipVersion                         | `latest`            | `latest`                                 |
-| 
+|
 | Smtp_FQDN                                                   | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | Smtp_Port                                                   | `587`               | `587`                                    |
 | Smtp_UserLogin                                              | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
@@ -136,7 +136,14 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
     ```powershell
     $pfxPath = 'C:\path\to\your\certificate.pfx'
+    ```
+
+    Initialize a variable with your client workstation's IP address:
+
+    ```powershell
     $clientIP = '192.168.0.1' # Replace with your IP address (hint: search the Web for "what is my ip address")
+    # Alternately, you can use the following command to get your IP address:
+    # $clientIP = Invoke-RestMethod -Uri 'https://api.ipify.org'
     ```
 
     If you will use optional arguments, initialize the variables for them now. For example:
@@ -148,13 +155,15 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
     $storageResourceLocation = 'westus'
     ```
 
-1. Recommended, but optional: 
+1. Recommended, but optional:
 
     In PowerShell, initialize the Azure context:
 
     ```powershell
     Connect-AzAccount
     ```
+
+    Make sure you are using the AzContext you want to use. The context will select the subscription for a tenant, and the assets will be created in that subscription. You can use the `Get-AzContext -ListAvailable` command to see the current context, and the `Select-AzContext` command to change it to a different saved context.
 
     In PowerShell, turn on the Information stream to view the output of the deployment script:
 
@@ -170,12 +179,12 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
 
         ```powershell
         .\Deploy-REDCap.ps1 `
+            -Cdph_ClientIPAddress $clientIP`
             -Cdph_PfxCertificatePath $pfxPath `
             -Cdph_PfxCertificatePassword $pfxPW `
-            -Cdph_ClientIPAddress $clientIP`
             -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
             -ProjectRedcap_CommunityPassword $redCapPW `
-            -Smtp_UserPassword $smtpPW 
+            -Smtp_UserPassword $smtpPW
         ```
 
         * Using *all* of the arguments:
@@ -185,10 +194,10 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
             -Arm_ResourceGroupName $resourceGroupName `
             -Arm_MainSiteResourceLocation $mainSiteResourceLocation `
             -Arm_StorageResourceLocation $storageResourceLocation `
-            -Cdph_ResourceInstance $resourceGroupInstance
+            -Cdph_ResourceInstance $resourceGroupInstance `
+            -Cdph_ClientIPAddress $clientIP `
             -Cdph_PfxCertificatePath $pfxPath `
             -Cdph_PfxCertificatePassword $pfxPW `
-            -Cdph_ClientIPAddress $clientIP `
             -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
             -ProjectRedcap_CommunityPassword $redCapPW `
             -Smtp_UserPassword $smtpPW
@@ -202,15 +211,38 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
             Arm_MainSiteResourceLocation = 'eastus'
             Arm_StorageResourceLocation = 'westus'
             Cdph_ResourceInstance = 1
+            Cdph_ClientIPAddress = Invoke-RestMethod -Uri 'https://api.ipify.org' # See note above about this parameter
             Cdph_PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
             Cdph_PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
-            Cdph_ClientIPAddress = '192.168.0.1' ` # See note above about this parameter
             DatabaseForMySql_AdministratorLoginPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
             ProjectRedcap_CommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
             Smtp_UserPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
         }
         .\Deploy-REDCap.ps1 @deployArgs
         ```
+
+    Note: It might make sense for you to create your own local `deploy.ps1` script that contains the above commands, so that you can just run that script to initialize your environment, at least during your initial testing. For example:
+    
+    ```powershell
+    # deploy.ps1
+    Unlock-SecretVault -Name 'REDCap'
+    Connect-AzAccount -ContextName  'name of your Az PowerShell context' # Use Get-AzContext -ListAvailable to see the list of contexts
+    $deployArgs = @{
+        Arm_ResourceGroupName = 'rg-ITSD-ESS-REDCap-Dev-01'
+        Arm_MainSiteResourceLocation = 'eastus'
+        Arm_StorageResourceLocation = 'westus'
+        Cdph_ResourceInstance = 1
+        Cdph_PfxCertificatePath = 'C:\path\to\your\certificate.pfx'
+        Cdph_PfxCertificatePassword = Get-Secret -Name 'PfxPW' # Do not use -AsPlainText
+        Cdph_ClientIPAddress = Invoke-RestMethod -Uri 'https://api.ipify.org' # See note above about this parameter
+        DatabaseForMySql_AdministratorLoginPassword = Get-Secret -Name 'MySqlPW' # Do not use -AsPlainText
+        ProjectRedcap_CommunityPassword = Get-Secret -Name 'REDCapPW' # Do not use -AsPlainText
+        Smtp_UserPassword = Get-Secret -Name 'SmtpPW' # Do not use -AsPlainText
+    }
+    .\Deploy-REDCap.ps1 @deployArgs
+    ```
+    
+    Then, you can just run `.\deploy.ps1` to deploy the resources. An entry in the `.gitignore` file has already been made for `deploy.ps1`, so you can safely add it to your local workspace.
 
     This will deploy the resources to Azure. It may take a while. The first run may take longer than subsequent runs, as the script will download the latest version of the REDCap application and upload it to the storage account. About 20 minutes is a reasonable estimate for the first run, but it could take longer.
 
@@ -228,7 +260,7 @@ Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.b
         -Cdph_ClientIPAddress $clientIP `
         -DatabaseForMySql_AdministratorLoginPassword $mySqlPW `
         -ProjectRedcap_CommunityPassword $redCapPW `
-        -Smtp_UserPassword $smtpPW 
+        -Smtp_UserPassword $smtpPW
     ```
 
     ... where `$instance` is a value between 1 and 99, inclusive.
@@ -256,7 +288,7 @@ The `Deploy-REDCapMain.ps1` script is responsible for creating the rest of the r
 * an Azure Database for MySQL Flexible Server database
 * an Azure App Service Plan
 * an Azure App Service
-* an Azure Storage Account 
+* an Azure Storage Account
 * Azure Application Insights (optional but recommended)
 
 It does this by deploying the `redcapAzureDeployMain.bicep` template. This template requires the Key Vault to be created first, so it is a dependency of that template.
