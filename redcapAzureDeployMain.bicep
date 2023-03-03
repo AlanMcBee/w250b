@@ -445,6 +445,11 @@ var appInsights_ResourceName = 'appi-${Cdph_Organization}-${Cdph_BusinessUnit}-$
 
 var logAnalytics_Workspace_ResourceName = 'log-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 
+// Azure Resource Provider variables
+// ---------------------------------
+
+var Azure_AppService_ApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' // fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
+
 // =========
 // RESOURCES
 // =========
@@ -599,71 +604,33 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-// resource keyVault_AccessPolicy_AppService_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-//   name: 'add'
-//   parent: keyVault_Resource
-//   properties: {
-//     accessPolicies: [
-//       {
-//         tenantId: subscription().tenantId
-//         applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-//         objectId: appService_WebHost_Resource.identity.principalId
-//         permissions: {
-//           // keys: [
-//           //   'get'
-//           //   'list'
-//           //   'create'
-//           //   'update'
-//           //   'import'
-//           //   'delete'
-//           //   'backup'
-//           //   'restore'
-//           //   'recover'
-//           //   'purge'
-//           // ]
-//           // secrets: [
-//           //   'get'
-//           //   'list'
-//           //   'set'
-//           //   'delete'
-//           //   'backup'
-//           //   'restore'
-//           //   'recover'
-//           //   'purge'
-//           // ]
-//           certificates: [
-//             'get'
-//             // 'list'
-//             // 'delete'
-//             // 'create'
-//             // 'import'
-//             // 'update'
-//             // 'managecontacts'
-//             // 'getissuers'
-//             // 'listissuers'
-//             // 'setissuers'
-//             // 'deleteissuers'
-//             // 'manageissuers'
-//             // 'recover'
-//             // 'purge'
-//           ]
-//           // storage: [
-//           //   'get'
-//           //   'list'
-//           //   'delete'
-//           //   'set'
-//           //   'update'
-//           //   'regeneratekey'
-//           //   'setsas'
-//           //   'listsas'
-//           //   'getsas'
-//           //   'deletesas'
-//           // ]
-//         }
-//       }
-//     ]
-//   }
-// }
+resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault_Resource
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        applicationId: Azure_AppService_ApplicationId
+        objectId: appService_WebHost_Resource.identity.principalId
+        permissions: {
+          certificates: [
+            'get'
+          ]
+          secrets: [
+            'get'
+          ]
+          keys: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+/* 
+Do we need this? 
 
 // resource keyVault_Keys_Resource 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 //   name: keyVault_CertKey_ResourceName
@@ -671,10 +638,10 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
 //   properties: {
 //     attributes: {
 //       enabled: true
-
 //     }
 //   }
 // }
+*/
 
 // Azure App Services
 // ------------------

@@ -152,6 +152,9 @@ param Arm_StorageResourceLocation string = 'westus'
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
 
+@description('Administrator object ID (GUID) for the Azure Active Directory user or group that will be granted access to the Key Vault. Default = current user')
+param Arm_AdministratorObjectId string
+
 
 // =========
 // VARIABLES
@@ -209,39 +212,60 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
     tenantId: subscription().tenantId
   }
 
-  resource keyVault_AccessPolicies_AppService_Resource 'accessPolicies' = {
+  resource keyVault_AccessPolicies_SystemAdministratorAllPermissions_Resource 'accessPolicies' = {
     name: 'add'
     properties: {
       accessPolicies: [
         {
           tenantId: subscription().tenantId
-          applicationId: '1950a258-227b-4e31-a9cf-717495945fc2'
+          objectId: Arm_AdministratorObjectId
           permissions: {
+            secrets: [
+              'get'
+              'list'
+              'set'
+              'delete'
+              'recover'
+              'backup'
+              'restore'
+            ]
             certificates: [
               'get'
+              'list'
+              'delete'
+              'create'
+              'import'
+              'update'
+              'managecontacts'
+              'getissuers'
+              'listissuers'
+              'setissuers'
+              'deleteissuers'
+              'manageissuers'
+              'recover'
+              'backup'
+              'restore'
+            ]
+            keys: [
+              'get'
+              'list'
+              'delete'
+              'create'
+              'import'
+              'update'
+              'encrypt'
+              'decrypt'
+              'wrapkey'
+              'unwrapkey'
+              'sign'
+              'verify'
+              'backup'
+              'restore'
+              'recover'
             ]
           }
         }
       ]
     }
   }
-
-
-  // resource keyVault_AccessPolicies_Resource 'accessPolicies' = {
-  //   name: 'add'
-  //   properties: {
-  //     accessPolicies: [
-  //       {
-  //         tenantId: subscription().tenantId
-  //         applicationId: '1950a258-227b-4e31-a9cf-717495945fc2'
-  //         objectId: '887235fb-6466-474f-a7f8-d3e55b4466d1'
-  //         permissions: {
-  //           certificates: [
-  //             'get'
-  //           ]
-  //         }
-  //       }
-  //     ]
-  //   }
-  // }
 }

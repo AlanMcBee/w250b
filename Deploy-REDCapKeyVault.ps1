@@ -144,6 +144,8 @@ $measured = Measure-Command {
 
         $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
 
+        $templateParameters.Add('Arm_AdministratorObjectId', (Get-AzContext).Account.Id)
+
         if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
         {
             $resourceGroupName = $Arm_ResourceGroupName
