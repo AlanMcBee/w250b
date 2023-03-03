@@ -7,6 +7,8 @@ Deploy-REDCapMain.ps1
 #requires -Modules Az.Resources
 #requires -Version 7.1
 
+using module .\CdphNaming.psm1
+
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
     [Parameter()]
@@ -78,13 +80,16 @@ param (
 Import-Module .\ErrorRecord.psm1
 
 $deploymentResult = [PSCustomObject]@{
-    Successful = $true
-    Error = $null
+    Successful       = $true
+    Error            = $null
     DeploymentErrors = $null
 }
 $measured = Measure-Command {
     & {
         Write-Information "Beginning deployment at $((Get-Date).ToString())"
+
+        Import-Module .\ErrorRecord.psm1
+        Import-Module .\CdphNaming.psm1
 
         $requiredParameters = @(
             'Cdph_Organization',
@@ -162,6 +167,15 @@ $measured = Measure-Command {
         $program = $templateParameters['Cdph_BusinessUnitProgram']
         $environment = $templateParameters['Cdph_Environment']
         $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
+
+        $keyVaultResourceName = New-KeyVaultResourceName `
+            -Cdph_Organization $organization `
+            -Cdph_BusinessUnit $businessUnit `
+            -Cdph_BusinessUnitProgram $program `
+            -Cdph_Environment $environment `
+            -Cdph_ResourceInstance $instance
+
+        $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
 
         if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
         {

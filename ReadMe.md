@@ -106,6 +106,24 @@ See the []
 
 Consult the files `redcapAzureDeployMain.bicep` and `redcapAzureDeployKeyVault.bicep` for more information about the parameters.
 
+1. Check the availability of resources in the regions you selected.
+
+    While the site https://azure.microsoft.com/en-us/regions/services/ will generally indicate the availability of resources in a region, it does not always reflect limits on your subscription or temporary availability changes.
+
+    1. Azure Database for MySQL Flexible Server
+
+    Use this PowerShell script to check whether the region you selected for the Azure Database for MySQL Flexible Server is available:
+
+    ```powershell
+    $flexibleServerSku = 'Standard_D4ads_v5'
+    $flexibleServerTier = 'GeneralPurpose'
+    $resourceProvider = Get-AzResourceProvider -ProviderNamespace Microsoft.DBforMySQL
+    $flexibleServers = $resourceProvider.ResourceTypes | ? ResourceTypeName -eq 'flexibleServers'
+    $location = $flexibleServers.Locations | ? { $_ -eq 'East US' }
+    # WIP - need to check for $location.Capabilities
+    $skus = Get-AzComputeResourceSku -Location eastus
+    ```
+
 --------------------------------------------------------------------------------
 
 ## Invoking the deployment script

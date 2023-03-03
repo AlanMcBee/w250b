@@ -17,13 +17,13 @@
 param Cdph_Organization string = 'ITSD'
 
 @description('CDPH Business Unit (numbers & digits only)')
-@maxLength(5)
 @minLength(2)
+@maxLength(5)
 param Cdph_BusinessUnit string = 'ESS'
 
 @description('CDPH Business Unit Program (numbers & digits only)')
-@maxLength(7)
 @minLength(2)
+@maxLength(7)
 param Cdph_BusinessUnitProgram string = 'RedCap'
 
 @description('Targeted deployment environment')
@@ -46,6 +46,11 @@ param Cdph_ResourceInstance int = 1
 @minLength(7)
 @maxLength(45)
 param Cdph_ClientIPAddress string
+
+@description('Key Vault resource name (must be globally unique). Use the CdphNaming.psm1 PowerShell module to generate a unique name.')
+@minLength(3)
+@maxLength(24)
+param Cdph_KeyVaultResourceName string
 
 /* 
 @description('Thumbprint for SSL SNI server certificate. A custom domain name is a required part of this template.')
@@ -152,6 +157,8 @@ param Arm_DeploymentCreationDateTime string = utcNow()
 // VARIABLES
 // =========
 
+var clientIpAddressCidr = Cdph_ClientIPAddress == '' ? '' : '${Cdph_ClientIPAddress}/32'
+
 // CDPH-specific variables
 // -----------------------
 
@@ -167,31 +174,6 @@ var cdph_CommonTags = {
   ENVIRONMENT: Cdph_Environment
 }
 
-// ARM variables
-// -------------
-
-// Make instance number into a zero-prefixed string exactly 2 digits long
-var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
-
-// Key Vault variables
-// -------------------
-
-var orgLength = length(Cdph_Organization)
-var unitLength = length(Cdph_BusinessUnit)
-var programLength = length(Cdph_BusinessUnitProgram)
-var envLength = length(Cdph_Environment)
-var minBaseLength = length('kv00') + 4 // 'kv' + 2-digit instance + 4 hyphens
-var maxKeyVaultNameLength = 24
-var inputNameLength = orgLength + unitLength + programLength + envLength
-var inputOverBaseLength = inputNameLength + minBaseLength
-var isOneOverMax = (inputOverBaseLength - 1) == maxKeyVaultNameLength // if one over, will just remove the last hyphen
-var isOverMax = (inputOverBaseLength - 1) > maxKeyVaultNameLength // if over, will remove the last hyphen anyway
-var lastHyphen = (isOneOverMax || isOverMax) ? '-' : ''
-var lengthOverMax = isOverMax ? (inputOverBaseLength - 1) - maxKeyVaultNameLength : 0 // adjust for the removed hyphen
-var newProgramLength = programLength - lengthOverMax
-var newProgram = substring(Cdph_BusinessUnitProgram, 0, newProgramLength)
-var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${newProgram}-${Cdph_Environment}${lastHyphen}${arm_ResourceInstance_ZeroPadded}'
-
 // =========
 // RESOURCES
 // =========
@@ -199,8 +181,8 @@ var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${newP
 // Azure Key Vault
 // ---------------
 
-resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
-  name: keyVault_ResourceName
+resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: Cdph_KeyVaultResourceName
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
@@ -216,7 +198,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
       defaultAction: 'Deny'
       ipRules: [
         {
-          value: Cdph_ClientIPAddress
+          value: clientIpAddressCidr
         }
       ]
     }
@@ -227,27 +209,39 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
     tenantId: subscription().tenantId
   }
 
-  resource keyVault_AccessPolicies_Resource 'accessPolicies' = {
+  resource keyVault_AccessPolicies_AppService_Resource 'accessPolicies' = {
     name: 'add'
     properties: {
       accessPolicies: [
         {
           tenantId: subscription().tenantId
           applicationId: '1950a258-227b-4e31-a9cf-717495945fc2'
-          objectId: '887235fb-6466-474f-a7f8-d3e55b4466d1'
           permissions: {
             certificates: [
-              'import'
+              'get'
             ]
           }
         }
       ]
     }
   }
+
+
+  // resource keyVault_AccessPolicies_Resource 'accessPolicies' = {
+  //   name: 'add'
+  //   properties: {
+  //     accessPolicies: [
+  //       {
+  //         tenantId: subscription().tenantId
+  //         applicationId: '1950a258-227b-4e31-a9cf-717495945fc2'
+  //         objectId: '887235fb-6466-474f-a7f8-d3e55b4466d1'
+  //         permissions: {
+  //           certificates: [
+  //             'get'
+  //           ]
+  //         }
+  //       }
+  //     ]
+  //   }
+  // }
 }
-
-// =======
-// OUTPUTS
-// =======
-
-output Out_KeyVault_ResourceName string = keyVault_ResourceName

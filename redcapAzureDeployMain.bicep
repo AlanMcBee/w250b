@@ -46,6 +46,11 @@ param Cdph_ResourceInstance int = 1
 @maxLength(40)
 param Cdph_SslCertificateThumbprint string
 
+@description('Key Vault resource name (must be globally unique). Use the CdphNaming.psm1 PowerShell module to generate a unique name.')
+@minLength(3)
+@maxLength(24)
+param Cdph_KeyVaultResourceName string
+
 // General Azure Resource Manager parameters
 // -----------------------------------------
 
@@ -350,6 +355,11 @@ var cdph_CommonTags = {
 // Make instance number into a zero-prefixed string exactly 2 digits long
 var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 
+// Key Vault variables
+// -------------------
+
+var keyVault_CertKey_ResourceName = toLower('certkey-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
+
 // Database for MySQL variables
 // ----------------------------
 
@@ -381,25 +391,6 @@ var storageAccount_ContainerName = 'redcap' // TODO: parameterize this if the na
 // var storageAccount_Keys = concat(listKeys(storageAccount_ResourceName, '2015-05-01-preview').key1)
 var storageAccount_Key = storageAccount_Resource.listKeys().keys[0].value
 
-// Key Vault variables
-// -------------------
-
-var orgLength = length(Cdph_Organization)
-var unitLength = length(Cdph_BusinessUnit)
-var programLength = length(Cdph_BusinessUnitProgram)
-var envLength = length(Cdph_Environment)
-var minBaseLength = length('kv00') + 4 // 'kv' + 2-digit instance + 4 hyphens
-var maxKeyVaultNameLength = 24
-var inputNameLength = orgLength + unitLength + programLength + envLength
-var inputOverBaseLength = inputNameLength + minBaseLength
-var isOneOverMax = (inputOverBaseLength - 1) == maxKeyVaultNameLength // if one over, will just remove the last hyphen
-var isOverMax = (inputOverBaseLength - 1) > maxKeyVaultNameLength // if over, will remove the last hyphen anyway
-var lastHyphen = (isOneOverMax || isOverMax) ? '-' : ''
-var lengthOverMax = isOverMax ? (inputOverBaseLength - 1) - maxKeyVaultNameLength : 0 // adjust for the removed hyphen
-var newProgramLength = programLength - lengthOverMax
-var newProgram = substring(Cdph_BusinessUnitProgram, 0, newProgramLength)
-var keyVault_ResourceName = 'kv-${Cdph_Organization}-${Cdph_BusinessUnit}-${newProgram}-${Cdph_Environment}${lastHyphen}${arm_ResourceInstance_ZeroPadded}'
-
 // App Service variables
 // ---------------------
 
@@ -418,7 +409,7 @@ var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomai
 
 var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
-// var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
+var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
 
 var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
@@ -605,74 +596,85 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
 // ---------------
 
 resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existing = {
-  name: keyVault_ResourceName
+  name: Cdph_KeyVaultResourceName
 }
 
-resource keyVault_AccessPolicy_AppService_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault_Resource
-  properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-        objectId: appService_WebHost_Resource.identity.principalId
-        permissions: {
-          // keys: [
-          //   'get'
-          //   'list'
-          //   'create'
-          //   'update'
-          //   'import'
-          //   'delete'
-          //   'backup'
-          //   'restore'
-          //   'recover'
-          //   'purge'
-          // ]
-          // secrets: [
-          //   'get'
-          //   'list'
-          //   'set'
-          //   'delete'
-          //   'backup'
-          //   'restore'
-          //   'recover'
-          //   'purge'
-          // ]
-          certificates: [
-            'get'
-            // 'list'
-            // 'delete'
-            // 'create'
-            // 'import'
-            // 'update'
-            // 'managecontacts'
-            // 'getissuers'
-            // 'listissuers'
-            // 'setissuers'
-            // 'deleteissuers'
-            // 'manageissuers'
-            // 'recover'
-            // 'purge'
-          ]
-          // storage: [
-          //   'get'
-          //   'list'
-          //   'delete'
-          //   'set'
-          //   'update'
-          //   'regeneratekey'
-          //   'setsas'
-          //   'listsas'
-          //   'getsas'
-          //   'deletesas'
-          // ]
-        }
-      }
-    ]
-  }
-}
+// resource keyVault_AccessPolicy_AppService_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+//   name: 'add'
+//   parent: keyVault_Resource
+//   properties: {
+//     accessPolicies: [
+//       {
+//         tenantId: subscription().tenantId
+//         applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
+//         objectId: appService_WebHost_Resource.identity.principalId
+//         permissions: {
+//           // keys: [
+//           //   'get'
+//           //   'list'
+//           //   'create'
+//           //   'update'
+//           //   'import'
+//           //   'delete'
+//           //   'backup'
+//           //   'restore'
+//           //   'recover'
+//           //   'purge'
+//           // ]
+//           // secrets: [
+//           //   'get'
+//           //   'list'
+//           //   'set'
+//           //   'delete'
+//           //   'backup'
+//           //   'restore'
+//           //   'recover'
+//           //   'purge'
+//           // ]
+//           certificates: [
+//             'get'
+//             // 'list'
+//             // 'delete'
+//             // 'create'
+//             // 'import'
+//             // 'update'
+//             // 'managecontacts'
+//             // 'getissuers'
+//             // 'listissuers'
+//             // 'setissuers'
+//             // 'deleteissuers'
+//             // 'manageissuers'
+//             // 'recover'
+//             // 'purge'
+//           ]
+//           // storage: [
+//           //   'get'
+//           //   'list'
+//           //   'delete'
+//           //   'set'
+//           //   'update'
+//           //   'regeneratekey'
+//           //   'setsas'
+//           //   'listsas'
+//           //   'getsas'
+//           //   'deletesas'
+//           // ]
+//         }
+//       }
+//     ]
+//   }
+// }
+
+// resource keyVault_Keys_Resource 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
+//   name: keyVault_CertKey_ResourceName
+//   parent: keyVault_Resource
+//   properties: {
+//     attributes: {
+//       enabled: true
+
+//     }
+//   }
+// }
 
 // Azure App Services
 // ------------------
@@ -746,8 +748,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    // TODO: If this can be set to false, it can improve site availability
-    // clientAffinityEnabled: true
+    clientAffinityEnabled: false
 
     // clientCertEnabled: false
     // clientCertMode: 'Required'
@@ -755,13 +756,13 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // customDomainVerificationId: appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
     // dailyMemoryTimeQuota: 0
     hostNamesDisabled: false
-    /*     hostNameSslStates: [
-      // {
-      //   name: appService_WebHost_FullDomainName
-      //   sslState: 'SniEnabled'
-      //   thumbprint: Cdph_SslCertificateThumbprint
-      //   hostType: 'Standard'
-      // }
+    hostNameSslStates: [
+      {
+        name: appService_WebHost_FullDomainName
+        sslState: 'SniEnabled'
+        thumbprint: Cdph_SslCertificateThumbprint
+        hostType: 'Standard'
+      }
       {
         name: appService_WebHost_UniqueDefaultFullDomain
         sslState: 'Disabled'
@@ -773,7 +774,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
         hostType: 'Repository'
       }
     ]
- */
+
     httpsOnly: true
     // hyperV: false
     // isXenon: false
@@ -783,7 +784,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // scmSiteAlsoStopped: false
     serverFarmId: appService_Plan_Resource.id
     siteConfig: {
-      // SEE: webSiteAppServiceConfigResource for additional config
       alwaysOn: true
       linuxFxVersion: AppService_LinuxFxVersion
     }
@@ -791,6 +791,20 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // vnetContentShareEnabled: false
     // vnetImagePullEnabled: false
     // vnetRouteAllEnabled: false
+  }
+
+  resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'basicPublishingCredentialsPolicies' = {
+    name: 'scm'
+    properties: {
+      allow: true
+    }
+  }
+
+  resource appService_WebHost_BasicPublishingCredentialsPolicies_Ftp_Resource 'basicPublishingCredentialsPolicies' = {
+    name: 'ftp'
+    properties: {
+      allow: false
+    }
   }
 
   resource appService_WebHost_Config_Resource 'config' = {
@@ -808,6 +822,12 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
           type: 'MySql'
         }
       ]
+      defaultDocuments: [
+        'index.html'
+        'default.html'
+        'index.php'
+        'hostingstart.html'
+      ]
       // detailedErrorLoggingEnabled: false
       ftpsState: 'Disabled'
       // functionsRuntimeScaleMonitoringEnabled: false
@@ -822,7 +842,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       //     description: 'Allow all access'
       //   }
       // ]
-      // loadBalancing: 'LeastRequests'
+      loadBalancing: 'LeastRequests'
       // localMySqlEnabled: false
       // logsDirectorySizeLimit: 35
       // managedPipelineMode: 'Integrated'
@@ -861,7 +881,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       SCM_DO_BUILD_DURING_DEPLOYMENT: '1'
 
       // Application Insights
-      APPINSIGHTS_INSTRUMENTATIONKEY:  Monitor_ApplicationInsights ? appInsights_Resource.properties.InstrumentationKey : ''
+      APPINSIGHTS_INSTRUMENTATIONKEY: Monitor_ApplicationInsights ? appInsights_Resource.properties.InstrumentationKey : ''
 
       // PHP
       PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
@@ -894,7 +914,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       appService_WebHost_SiteExtensions_AppInsightsResource
     ]
   }
-  
+
   // resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
   //   name: appService_WebHost_Certificate_Redcap_ResourceName
   //   properties: {
@@ -904,9 +924,18 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //   }
   // }
 
+  resource appService_WebHost_HostNameBinding_Default_Resource 'hostNameBindings' = {
+    name: appService_WebHost_UniqueDefaultFullDomain
+    properties: {
+      hostNameType: 'Verified'
+      siteName: appService_WebHost_ResourceName
+    }
+  }
+
   resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
     name: appService_WebHost_FullDomainName
     properties: {
+      siteName: appService_WebHost_ResourceName
       hostNameType: 'Verified'
       sslState: 'SniEnabled'
       thumbprint: Cdph_SslCertificateThumbprint
@@ -930,7 +959,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if(Monitor_ApplicationInsights) {
+resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if (Monitor_ApplicationInsights) {
   name: appInsights_ResourceName
   location: Arm_MainSiteResourceLocation
   kind: 'web'
@@ -942,7 +971,7 @@ resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if(Mo
   }
 }
 
-resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if(Monitor_ApplicationInsights) {
+resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if (Monitor_ApplicationInsights) {
   name: logAnalytics_Workspace_ResourceName
   location: Arm_MainSiteResourceLocation
   properties: {

@@ -56,16 +56,17 @@ param (
 )
 
 $deploymentResult = [PSCustomObject]@{
-    Successful = $true
-    Error = $null
+    Successful       = $true
+    Error            = $null
     DeploymentErrors = $null
-    Certificate = $null
+    Certificate      = $null
 }
 $measured = Measure-Command {
     & {
         Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
         Import-Module .\ErrorRecord.psm1
+        Import-Module .\CdphNaming.psm1
 
         $requiredParameters = @(
             'Cdph_Organization',
@@ -131,7 +132,17 @@ $measured = Measure-Command {
         $businessUnit = $templateParameters['Cdph_BusinessUnit']
         $program = $templateParameters['Cdph_BusinessUnitProgram']
         $environment = $templateParameters['Cdph_Environment']
-        $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
+        $instance = $templateParameters['Cdph_ResourceInstance']
+        $paddedInstance = $instance.ToString().PadLeft(2, '0')
+
+        $keyVaultResourceName = New-KeyVaultResourceName `
+            -Cdph_Organization $organization `
+            -Cdph_BusinessUnit $businessUnit `
+            -Cdph_BusinessUnitProgram $program `
+            -Cdph_Environment $environment `
+            -Cdph_ResourceInstance $instance
+
+        $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
 
         if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
         {
@@ -139,11 +150,11 @@ $measured = Measure-Command {
         }
         else
         {
-            $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
+            $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$paddedInstance"
         }
         Write-Information "Using resource group name $resourceGroupName"
 
-        $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$($instance.PadLeft(2, '0'))"
+        $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$paddedInstance"
 
         # Make sure we're logged in. Use Connect-AzAccount if not.
         Get-AzContext -ErrorAction Stop
@@ -204,13 +215,25 @@ $measured = Measure-Command {
         {
             $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-            $keyVaultResourceName = $armDeployment.Outputs['out_KeyVault_ResourceName'].Value
-
-            $deploymentResult.Certificate = Import-AzKeyVaultCertificate `
+            $certificate = $null
+            $certificate = Get-AzKeyVaultCertificate `
                 -VaultName $keyVaultResourceName `
                 -Name $appServicePlanName `
-                -FilePath $Cdph_PfxCertificatePath `
-                -Password $Cdph_PfxCertificatePassword
+                -ErrorAction SilentlyContinue
+
+            if ($null -eq $certificate)
+            {
+                Write-Information "Importing certificate $Cdph_PfxCertificatePath into Key Vault $keyVaultResourceName"
+                $certificate = Import-AzKeyVaultCertificate `
+                    -VaultName $keyVaultResourceName `
+                    -Name $appServicePlanName `
+                    -FilePath $Cdph_PfxCertificatePath `
+                    -Password $Cdph_PfxCertificatePassword
+            }
+            else {
+                Write-Information "Certificate $appServicePlanName already exists in Key Vault $keyVaultResourceName"
+            }
+            $deploymentResult.Certificate = $certificate
         }
         else
         {
