@@ -105,6 +105,7 @@ $keyVaultDeploymentResult = &'.\Deploy-REDCapKeyVault.ps1' @keyVaultDeployArgs
 
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
+    # Get the certificate from the Key Vault deployment and update the main deployment parameters file with the thumbprint of the certificate.
     [PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
     $mainParameters = Get-Content -Path '.\redcapAzureDeployMain.parameters.json' -Raw | ConvertFrom-Json
     $mainParameters.parameters.Cdph_SslCertificateThumbprint.value = $keyVaultCertificate.Thumbprint

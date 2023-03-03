@@ -1,114 +1,96 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "Cdph_Organization": {
-            "value": "ITSD" // REQUIRED
-        },
-        "Cdph_BusinessUnit": {
-            "value": "ESS" // REQUIRED
-        },
-        "Cdph_BusinessUnitProgram": {
-            "value": "RedCap" // REQUIRED
-        },
-        "Cdph_Environment": {
-            "value": "Dev"
-        },
-        "Cdph_ResourceInstance": {
-            "value": 1
-        },
-        "Cdph_SslCertificateThumbprint": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        "Arm_MainSiteResourceLocation": {
-            "value": "eastus"
-        },
-        "Arm_StorageResourceLocation": {
-            "value": "westus"
-        },
-        "Arm_DeploymentCreationDateTime": {
-            "value": "" // Okay to leave this empty; it will be filled in by the script
-        },
-        "AppServicePlan_SkuName": {
-            "value": "S1"
-        },
-        "AppServicePlan_Capacity": {
-            "value": 1
-        },
-        "AppService_LinuxFxVersion": {
-            "value": "php|8.2"
-        },
-        "AppService_WebApp_Subdomain": {
-            "value": ""
-        },
-        "AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue": {
-            "value": ""
-        },
-        "AppService_WebHost_SourceControl_GitHubRepositoryUri": {
-            "value": "https://github.com/AlanMcBee/w250b.git"
-        },
-        "DatabaseForMySql_Tier": {
-            "value": "GeneralPurpose"
-        },
-        "DatabaseForMySql_Sku": {
-            "value": "Standard_D4ads_v5"
-        },
-        "DatabaseForMySql_ServerName": {
-            "value": ""
-        },
-        "DatabaseForMySql_AdministratorLoginName": {
-            "value": "redcap_app"
-        },
-        // Do not set the password here. Instead, set it using startDeploy.ps1
-        //
-        // "DatabaseForMySql_AdministratorLoginPassword": {
-        //     "value": ""
-        // },
-        "DatabaseForMySql_StorageGB": {
-            "value": 20
-        },
-        "DatabaseForMySql_BackupRetentionDays": {
-            "value": 7
-        },
-        "DatabaseForMySql_DbName": {
-            "value": "redcap"
-        },
-        "StorageAccount_Redundancy": {
-            "value": "Standard_LRS"
-        },
-        "ProjectRedcap_CommunityUsername": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        // Do not set the password here. Instead, set it using startDeploy.ps1
-        //
-        // "ProjectRedcap_CommunityPassword": {
-        //     "value": ""
-        // },
-        "ProjectRedcap_DownloadAppZipUri": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        "ProjectRedcap_DownloadAppZipVersion": {
-            "value": "latest"
-        },
-        "Smtp_FQDN": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        "Smtp_Port": {
-            "value": 587
-        },
-        "Smtp_UserLogin": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        // Do not set the password here. Instead, set it using startDeploy.ps1
-        //
-        // "Smtp_UserPassword": {
-        //     "value": "" // TODO: Fill in parameter value
-        // }
-        "Smtp_FromEmailAddress": {
-            "value": "" // REQUIRED; Replace this empty string with the correct value
-        },
-        "Monitor_ApplicationInsights": {
-            "value": true
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Cdph_Organization": {
+      "value": "ITSD"
+    },
+    "Cdph_BusinessUnit": {
+      "value": "w250b"
+    },
+    "Cdph_BusinessUnitProgram": {
+      "value": "RedCap"
+    },
+    "Cdph_Environment": {
+      "value": "Dev"
+    },
+    "Cdph_ResourceInstance": {
+      "value": 1
+    },
+    "Cdph_SslCertificateThumbprint": {
+      "value": "6DAB9C4E2A3CB683E0BD84F9B56A8B823F258548"
+    },
+    "Arm_MainSiteResourceLocation": {
+      "value": "eastus"
+    },
+    "Arm_StorageResourceLocation": {
+      "value": "westus"
+    },
+    "Arm_DeploymentCreationDateTime": {
+      "value": ""
+    },
+    "AppServicePlan_SkuName": {
+      "value": "S1"
+    },
+    "AppServicePlan_Capacity": {
+      "value": 1
+    },
+    "AppService_LinuxFxVersion": {
+      "value": "php|8.2"
+    },
+    "AppService_WebHost_Subdomain": {
+      "value": ""
+    },
+    "AppService_WebHost_SourceControl_GitHubRepositoryUri": {
+      "value": "https://github.com/AlanMcBee/w250b.git"
+    },
+    "DatabaseForMySql_Tier": {
+      "value": "GeneralPurpose"
+    },
+    "DatabaseForMySql_Sku": {
+      "value": "Standard_D4ads_v5"
+    },
+    "DatabaseForMySql_ServerName": {
+      "value": ""
+    },
+    "DatabaseForMySql_AdministratorLoginName": {
+      "value": "redcap_app"
+    },
+    "DatabaseForMySql_StorageGB": {
+      "value": 20
+    },
+    "DatabaseForMySql_BackupRetentionDays": {
+      "value": 7
+    },
+    "DatabaseForMySql_DbName": {
+      "value": "redcap"
+    },
+    "StorageAccount_Redundancy": {
+      "value": "Standard_LRS"
+    },
+    "ProjectRedcap_CommunityUsername": {
+      "value": "alan"
+    },
+    "ProjectRedcap_DownloadAppZipUri": {
+      "value": "https://projectredcap.org/redcap_v11.0.0.zip"
+    },
+    "ProjectRedcap_DownloadAppZipVersion": {
+      "value": "latest"
+    },
+    "Smtp_FQDN": {
+      "value": "smtp.office365.com"
+    },
+    "Smtp_Port": {
+      "value": 587
+    },
+    "Smtp_UserLogin": {
+      "value": "alan.mcbee@microsoft.com"
+    },
+    "Smtp_FromEmailAddress": {
+      "value": "alan.mcbee@microsoft.com"
+    },
+    "Monitor_ApplicationInsights": {
+      "value": true
     }
+  }
 }
