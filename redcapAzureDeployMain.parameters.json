@@ -23,8 +23,14 @@
     "Arm_MainSiteResourceLocation": {
       "value": "eastus"
     },
+    "Arm_MainSiteResourceLocationDisplayName": {
+      "value": "East US"
+    },
     "Arm_StorageResourceLocation": {
       "value": "westus"
+    },
+    "Arm_StorageResourceLocationDisplayName": {
+      "value": "West US"
     },
     "Arm_DeploymentCreationDateTime": {
       "value": ""

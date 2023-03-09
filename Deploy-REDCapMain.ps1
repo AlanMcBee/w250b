@@ -157,6 +157,12 @@ function Deploy-REDCapMain
             $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
         }
 
+        $mainSiteResourceLocationDisplayName = Get-AzLocation | Where-Object Location -eq $Arm_MainSiteResourceLocation | Select-Object -First 1 -ExpandProperty DisplayName
+        $flattenedParameters['Arm_MainSiteResourceLocationDisplayName'] = $mainSiteResourceLocationDisplayName
+
+        $storageResourceLocationDisplayName = Get-AzLocation | Where-Object Location -eq $Arm_StorageResourceLocation | Select-Object -First 1 -ExpandProperty DisplayName
+        $flattenedParameters['Arm_StorageResourceLocationDisplayName'] = $storageResourceLocationDisplayName
+
         # Merge parameters
         $templateParameters = $flattenedParameters + @{
             DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword

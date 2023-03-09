@@ -124,7 +124,22 @@ Locations list for public cloud, non-US locations reference:
 ])
 param Arm_MainSiteResourceLocation string = 'eastus'
 
-@description('Location where resources will be deployed')
+@description('Location where resources will be deployed, as a display name (e.g. "East US"). This must match the value of Arm_MainSiteResourceLocation. Use Get-AzLocation to get the display name.')
+@allowed([
+  // values for US in public cloud
+  'Central US'
+  'East US'
+  'East US 2'
+  'North Central US'
+  'South Central US'
+  'West Central US'
+  'West US'
+  'West US 2'
+  'West US 3'
+])
+param Arm_MainSiteResourceLocationDisplayName string = 'East US'
+
+@description('Location where storage resources will be deployed')
 @allowed([
   // values for US in public cloud
   'centralus'
@@ -136,8 +151,23 @@ param Arm_MainSiteResourceLocation string = 'eastus'
   'westus'
   'westus2'
   'westus3'
-])
+])  
 param Arm_StorageResourceLocation string = 'westus'
+
+@description('Location where storage resources will be deployed, as a display name (e.g. "West US"). This must match the value of Arm_StorageResourceLocation. Use Get-AzLocation to get the display name.')
+@allowed([
+  // values for US in public cloud
+  'Central US'
+  'East US'
+  'East US 2'
+  'North Central US'
+  'South Central US'
+  'West Central US'
+  'West US'
+  'West US 2'
+  'West US 3'
+])
+param Arm_StorageResourceLocationDisplayName string = 'West US'
 
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
