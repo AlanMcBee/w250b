@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Cdph_Organization": {
+            "value": "ITSD" // Not actually used by the Bicep script, but it's a required parameter for the .PS1 script
+        },
         "Cdph_BusinessUnit": {
             "value": "w250b"
         },

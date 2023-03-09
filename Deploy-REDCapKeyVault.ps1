@@ -69,6 +69,7 @@ $measured = Measure-Command {
         Import-Module .\CdphNaming.psm1
 
         $requiredParameters = @(
+            'Cdph_Organization',
             'Cdph_BusinessUnit',
             'Cdph_BusinessUnitProgram'
         )
