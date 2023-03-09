@@ -252,9 +252,10 @@ function Deploy-REDCapMain
     }
     catch
     {
+        $x = $_
+        Write-CaughtErrorRecord $x Error -IncludeStackTrace
+        $deploymentResult.Error = $x
         $deploymentResult.Successful = $false
-        $deploymentResult.Error = $_
-        Write-CaughtErrorRecord $_ Error -IncludeStackTrace
     }
     finally
     {

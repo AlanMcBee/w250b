@@ -243,9 +243,10 @@ function Deploy-REDCapKeyVault
     }
     catch
     {
-        Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-        $deploymentResult.Error = $_
-        $deploymentResult.DeploymentErrors = $deploymentErrors
+        $x = $_
+        Write-CaughtErrorRecord $x Error -IncludeStackTrace
+        $deploymentResult.Error = $x
+        $deploymentResult.Successful = $false
     }
     finally
     {
