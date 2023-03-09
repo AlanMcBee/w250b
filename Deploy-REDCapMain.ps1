@@ -4,9 +4,13 @@
 // *****************************************************************************************************************************
 Deploy-REDCapMain.ps1
  #>
+
+using namespace System.Diagnostics
+
 #requires -Modules Az.Resources
 #requires -Version 7.1
 
+using module .\ErrorRecord.psm1
 using module .\CdphNaming.psm1
 
 param (
@@ -84,203 +88,175 @@ $deploymentResult = [PSCustomObject]@{
     Error            = $null
     DeploymentErrors = $null
 }
-$measured = Measure-Command {
-    & {
-        Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
-        Import-Module .\ErrorRecord.psm1
-        Import-Module .\CdphNaming.psm1
+[Stopwatch] $stopwatch = [Stopwatch]::StartNew()
 
-        $requiredParameters = @(
-            'Cdph_Organization',
-            'Cdph_BusinessUnit',
-            'Cdph_BusinessUnitProgram',
-            'Cdph_SslCertificateThumbprint',
-            'AppService_WebHost_SourceControl_GitHubRepositoryUri',
-            'ProjectRedcap_CommunityUsername',
-            'ProjectRedcap_DownloadAppZipUri',
-            'Smtp_FQDN',
-            'Smtp_UserLogin',
-            'Smtp_FromEmailAddress'
-        )
-        $deployParametersPath = 'redcapAzureDeployMain.parameters.json'
-        $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
-        if ($null -eq $deployParameters)
-        {
-            $deploymentResult.Successful = $false
-            Write-Error "Unable to load deployment parameters from $deployParametersPath"
-        }
-        if (-not $deploymentResult.Successful) { return }
+Write-Information "Beginning deployment at $((Get-Date).ToString())"
+
+try
+{
+
+    $requiredParameters = @(
+        'Cdph_Organization',
+        'Cdph_BusinessUnit',
+        'Cdph_BusinessUnitProgram',
+        'Cdph_SslCertificateThumbprint',
+        'AppService_WebHost_SourceControl_GitHubRepositoryUri',
+        'ProjectRedcap_CommunityUsername',
+        'ProjectRedcap_DownloadAppZipUri',
+        'Smtp_FQDN',
+        'Smtp_UserLogin',
+        'Smtp_FromEmailAddress'
+    )
+    $deployParametersPath = 'redcapAzureDeployMain.parameters.json'
+    $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
+    if ($null -eq $deployParameters)
+    {
+        throw "Unable to load deployment parameters from $deployParametersPath"
+    }
        
-        if (-not $deployParameters.ContainsKey('parameters'))
-        {
-            $deploymentResult.Successful = $false
-            Write-Error "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
-        }
-        if (-not $deploymentResult.Successful) { return }
+    if (-not $deployParameters.ContainsKey('parameters'))
+    {
+        throw "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
+    }
        
-        $parametersEntry = $deployParameters.parameters
-        foreach ($requiredParameter in $requiredParameters)
+    $parametersEntry = $deployParameters.parameters
+    foreach ($requiredParameter in $requiredParameters)
+    {
+        if (-not $parametersEntry.ContainsKey($requiredParameter))
         {
-            if (-not $parametersEntry.ContainsKey($requiredParameter))
-            {
-                $deploymentResult.Successful = $false
-                Write-Error "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
-            }
-            if (0 -eq $parametersEntry[$requiredParameter].value.Length)
-            {
-                $deploymentResult.Successful = $false
-                Write-Error "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
-            }
+            throw "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
         }
-        if (-not $deploymentResult.Successful) { return }
+        if (0 -eq $parametersEntry[$requiredParameter].value.Length)
+        {
+            throw "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
+        }
+    }
 
-        # Create hashtable from parametersEntry moving the value sub-property to the top level
-        $flattenedParameters = @{}
-        foreach ($parameterName in $parametersEntry.Keys)
-        {
-            $flattenedParameters[$parameterName] = $parametersEntry[$parameterName].value
-        }
+    # Create hashtable from parametersEntry moving the value sub-property to the top level
+    $flattenedParameters = @{}
+    foreach ($parameterName in $parametersEntry.Keys)
+    {
+        $flattenedParameters[$parameterName] = $parametersEntry[$parameterName].value
+    }
 
-        # Override parameters with values from the command line
-        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -or $Cdph_ResourceInstance -gt 1)
-        {
-            $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
-        }
-        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation)))
-        {
-            $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
-        }
-        if ($PSBoundParameters.ContainsKey('Arm_StorageResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_StorageResourceLocation)))
-        {
-            $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
-        }
+    # Override parameters with values from the command line
+    if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -or $Cdph_ResourceInstance -gt 1)
+    {
+        $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+    }
+    if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation)))
+    {
+        $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
+    }
+    if ($PSBoundParameters.ContainsKey('Arm_StorageResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_StorageResourceLocation)))
+    {
+        $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
+    }
 
-        # Merge parameters
-        $templateParameters = $flattenedParameters + @{
-            DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-            ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
-            Smtp_UserPassword                           = $Smtp_UserPassword
-        }
-        $organization = $templateParameters['Cdph_Organization']
-        $businessUnit = $templateParameters['Cdph_BusinessUnit']
-        $program = $templateParameters['Cdph_BusinessUnitProgram']
-        $environment = $templateParameters['Cdph_Environment']
-        $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
+    # Merge parameters
+    $templateParameters = $flattenedParameters + @{
+        DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+        ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
+        Smtp_UserPassword                           = $Smtp_UserPassword
+    }
+    $organization = $templateParameters['Cdph_Organization']
+    $businessUnit = $templateParameters['Cdph_BusinessUnit']
+    $program = $templateParameters['Cdph_BusinessUnitProgram']
+    $environment = $templateParameters['Cdph_Environment']
+    $instance = $templateParameters['Cdph_ResourceInstance'].ToString().PadLeft(2, '0')
 
-        $keyVaultResourceName = New-KeyVaultResourceName `
-            -Cdph_Organization $organization `
-            -Cdph_BusinessUnit $businessUnit `
-            -Cdph_BusinessUnitProgram $program `
-            -Cdph_Environment $environment `
-            -Cdph_ResourceInstance $instance
+    $keyVaultResourceName = New-KeyVaultResourceName `
+        -Cdph_Organization $organization `
+        -Cdph_BusinessUnit $businessUnit `
+        -Cdph_BusinessUnitProgram $program `
+        -Cdph_Environment $environment `
+        -Cdph_ResourceInstance $instance
 
-        $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
+    $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
 
-        if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
-        {
-            $resourceGroupName = $Arm_ResourceGroupName
-        }
-        else
-        {
-            $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
-        }
-        Write-Information "Using resource group name $resourceGroupName"
+    if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
+    {
+        $resourceGroupName = $Arm_ResourceGroupName
+    }
+    else
+    {
+        $resourceGroupName = "rg-$organization-$businessUnit-$program-$environment-$instance"
+    }
+    Write-Information "Using resource group name $resourceGroupName"
 
-        # Make sure we're logged in. Use Connect-AzAccount if not.
-        Get-AzContext -ErrorAction Stop
+    # Make sure we're logged in. Use Connect-AzAccount if not.
+    Get-AzContext -ErrorAction Stop
 
-        # Start deployment
-        $bicepPath = 'redcapAzureDeployMain.bicep'
+    # Start deployment
+    $bicepPath = 'redcapAzureDeployMain.bicep'
 
-        try
-        {
-            Get-AzResourceGroup -Name $resourceGroupName -ErrorAction Stop
-            Write-Information "Resource group $resourceGroupName exists. Updating deployment"
-        }
-        catch
-        {
-            $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
-            Write-Information "Created new resource group $resourceGroupName."
-        }
-        if (-not $deploymentResult.Successful) { return }
+    $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($resourceGroup))
+    {
+        Write-Information "Creating new resource group: $resourceGroupName"
+        $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
+        Write-Information "Created new resource group $resourceGroupName."
+    }
+    else
+    {
+        Write-Information "Resource group $resourceGroupName exists. Updating deployment"
+    }
 
-        $version = (Get-Date).ToString('yyyyMMddHHmmss')
-        $deploymentName = "REDCapDeployMain.$version"
-        $deployArgs = @{
-            ResourceGroupName       = $resourceGroupName
-            TemplateFile            = $bicepPath
-            Name                    = $deploymentName
-            TemplateParameterObject = $templateParameters
-        }
-        # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
-        $armDeployment = $null
-        try
-        {
-            $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
-            if ($null -eq $armDeployment)
-            {
-                $deploymentResult.Successful = $false
-                Write-Error 'New-AzResourceGroupDeployment returned $null'
-            }
-            else
-            {
-                Write-Information "Provisioning State = $($armDeployment.ProvisioningState)"
-            }
-        }
-        catch
-        {
-            $deploymentResult.Successful = $false
-            if ($armDeployment -ne $null)
-            {
-                $deploymentResult.DeploymentErrors = $armDeployment | ConvertTo-Json -Depth 10
-            }
-            Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-        }
-        if (-not $deploymentResult.Successful) { return }
+    $version = (Get-Date).ToString('yyyyMMddHHmmss')
+    $deploymentName = "REDCapDeployMain.$version"
+    $deployArgs = @{
+        ResourceGroupName       = $resourceGroupName
+        TemplateFile            = $bicepPath
+        Name                    = $deploymentName
+        TemplateParameterObject = $templateParameters
+    }
+    # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
+    $armDeployment = $null
+    $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
+    if ($null -eq $armDeployment)
+    {
+        throw 'New-AzResourceGroupDeployment returned $null'
+    }
+    else
+    {
+        Write-Information "Provisioning State = $($armDeployment.ProvisioningState)"
+    }
 
-        while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
-        {
-            Write-Information "State = $($armDeployment.ProvisioningState); Check again at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
-            Start-Sleep 5
-        }
+    while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
+    {
+        Write-Information "State = $($armDeployment.ProvisioningState); Check again at $([datetime]::Now.AddSeconds(5).ToLongTimeString())"
+        Start-Sleep 5
+    }
 
-        if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
-        {
-            $armDeployment.Outputs | ConvertTo-Json -Depth 8
-            try
-            {
-                $siteName = $armDeployment.Outputs['out_WebSiteFQDN'].Value
-                Start-Process "https://$($siteName)/AzDeployStatus.php"
-            }
-            catch
-            {
-                $deploymentResult.Successful = $false
-                $deploymentResult.Error = $_
-                Write-Information 'Unable to open AzDeployStatus.php in browser.'
-            }
-        }
-        else
-        {
-            $deploymentResult.Successful = $false
-            # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
-            $deploymentErrors = $null
-            try
-            {
-                $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
-                $deploymentErrors | ConvertTo-Json -Depth 8
-                $deploymentResult.Error = $_
-                $deploymentResult.DeploymentErrors = $deploymentErrors
-            }
-            catch
-            {
-                $deploymentResult.Error = $_
-                $deploymentResult.DeploymentErrors = $deploymentErrors
-                Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-            }
-        }
+    if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
+    {
+        $armDeployment.Outputs | ConvertTo-Json -Depth 8
 
-    } @PSBoundParameters | Out-Default
+        $siteName = $armDeployment.Outputs['out_WebSiteFQDN'].Value
+        Start-Process "https://$($siteName)/AzDeployStatus.php"
+    }
+    else
+    {
+        $deploymentResult.Successful = $false
+        # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
+        $deploymentErrors = $null
+        $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+        $deploymentErrors | ConvertTo-Json -Depth 8
+        $deploymentResult.Error = $_
+        $deploymentResult.DeploymentErrors = $deploymentErrors
+    }
 }
+catch
+{
+    $deploymentResult.Successful = $false
+    $deploymentResult.Error = $_
+    Write-CaughtErrorRecord $_ Error -IncludeStackTrace
+}
+
+# Stop timer
+$stopwatch.Stop()
+$measured = $stopwatch.Elapsed
+
 Write-Information "Total Deployment time: $($measured.ToString())"
-Write-Output $deploymentResult
+Write-Output $deploymentResult -NoEnumerate
