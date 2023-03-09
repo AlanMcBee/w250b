@@ -126,6 +126,6 @@ if ($keyVaultDeploymentResult.Successful -eq $true)
         ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
         Smtp_UserPassword                           = $Smtp_UserPassword
     }
+    $mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
+    Write-Output $mainDeploymentResult
 }
-$mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
-$mainDeploymentResult | ConvertTo-Json -Depth 12
