@@ -69,7 +69,6 @@ $measured = Measure-Command {
         Import-Module .\CdphNaming.psm1
 
         $requiredParameters = @(
-            'Cdph_Organization',
             'Cdph_BusinessUnit',
             'Cdph_BusinessUnitProgram'
         )
@@ -113,15 +112,15 @@ $measured = Measure-Command {
         }
 
         # Override parameters with values from the command line
-        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') && ![string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation))
+        if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') -and ![string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation))
         {
             $flattenedParameters['Arm_MainSiteResourceLocation'] = $Arm_MainSiteResourceLocation
         }
-        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') && ![string]::IsNullOrWhiteSpace($Cdph_ResourceInstance))
+        if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -and ![string]::IsNullOrWhiteSpace($Cdph_ResourceInstance))
         {
             $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
         }
-        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') && ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
         {
             $flattenedParameters['Cdph_ClientIPAddress'] = $Cdph_ClientIPAddress
         }
@@ -144,7 +143,7 @@ $measured = Measure-Command {
 
         $templateParameters.Add('Cdph_KeyVaultResourceName', $keyVaultResourceName)
 
-        $templateParameters.Add('Arm_AdministratorObjectId', (Get-AzContext).Account.Id)
+        $templateParameters.Add('Arm_AdministratorObjectId', (Get-AzADUser -UserPrincipalName (Get-AzContext).Account.Id).Id)
 
         if (($PSBoundParameters.ContainsKey('Arm_ResourceGroupName')) -and (-not [string]::IsNullOrWhiteSpace($PSBoundParameters['Arm_ResourceGroupName'])))
         {

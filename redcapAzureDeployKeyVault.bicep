@@ -9,13 +9,6 @@
 // CDPH-specific parameters
 // ------------------------
 
-@description('CDPH Owner')
-@allowed([
-  'ITSD'
-  'CDPH'
-])
-param Cdph_Organization string = 'ITSD'
-
 @description('CDPH Business Unit (numbers & digits only)')
 @minLength(2)
 @maxLength(5)

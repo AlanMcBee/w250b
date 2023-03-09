@@ -245,7 +245,7 @@ $measured = Measure-Command {
             Start-Sleep 5
         }
 
-        if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded')
+        if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
         {
             $armDeployment.Outputs | ConvertTo-Json -Depth 8
             try
