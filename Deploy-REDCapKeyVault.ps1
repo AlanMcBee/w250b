@@ -256,7 +256,7 @@ $measured = Measure-Command {
             }
         }
 
-    } | Out-Default
+    } @PSBoundParameters | Out-Default
 }
 Write-Information "Total Deployment time: $($measured.ToString())"
 Write-Output $deploymentResult
