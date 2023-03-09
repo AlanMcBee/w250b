@@ -189,7 +189,7 @@ function Deploy-REDCapMain
         Write-Information "Using resource group name $resourceGroupName"
 
         # Make sure we're logged in. Use Connect-AzAccount if not.
-        Get-AzContext -ErrorAction Stop
+        Get-AzContext -ErrorAction Stop | Out-Null
 
         # Start deployment
         $bicepPath = 'redcapAzureDeployMain.bicep'

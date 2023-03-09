@@ -163,7 +163,7 @@ function Deploy-REDCapKeyVault
         $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$paddedInstance"
 
         # Make sure we're logged in. Use Connect-AzAccount if not.
-        Get-AzContext -ErrorAction Stop
+        Get-AzContext -ErrorAction Stop | Out-Null
 
         # Start deployment
         $bicepPath = 'redcapAzureDeployKeyVault.bicep'
