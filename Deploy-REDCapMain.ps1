@@ -245,8 +245,8 @@ function Deploy-REDCapMain
             # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
             $deploymentErrors = $null
             $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
-            $deploymentErrors | ConvertTo-Json -Depth 8
-            $deploymentResult.Error = $_
+            $e = $deploymentErrors | ConvertTo-Json -Depth 5
+            $deploymentResult.Error = $e
             $deploymentResult.DeploymentErrors = $deploymentErrors
         }
     }
