@@ -93,6 +93,9 @@ param (
 
 Set-StrictMode -Version Latest
 
+. '.\Deploy-REDCapKeyVault.ps1'
+. '.\Deploy-REDCapMain.ps1'
+
 $keyVaultDeployArgs = @{
     Arm_ResourceGroupName        = $Arm_ResourceGroupName
     Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
@@ -101,7 +104,8 @@ $keyVaultDeployArgs = @{
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
     Cdph_ClientIPAddress         = $Cdph_ClientIPAddress
 }
-$keyVaultDeploymentResult = &'.\Deploy-REDCapKeyVault.ps1' @keyVaultDeployArgs
+
+$keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
@@ -123,5 +127,5 @@ if ($keyVaultDeploymentResult.Successful -eq $true)
         Smtp_UserPassword                           = $Smtp_UserPassword
     }
 }
-$mainDeploymentResult = &'.\Deploy-REDCapMain.ps1' @mainDeployArgs
+$mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
 $mainDeploymentResult | ConvertTo-Json -Depth 12
