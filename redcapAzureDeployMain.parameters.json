@@ -48,7 +48,7 @@
       "value": "GeneralPurpose"
     },
     "DatabaseForMySql_Sku": {
-      "value": "Standard_D4ads_v5"
+      "value": "Standard_D4ds_v4"
     },
     "DatabaseForMySql_ServerName": {
       "value": ""
