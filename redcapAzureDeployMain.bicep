@@ -705,7 +705,12 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
-    canonicalName: json('null')
+    // canonicalName: appService_WebHost_FullDomainName
+    hostNames: [
+      appService_WebHost_FullDomainName
+    ]
+    keyVaultId: keyVault_Resource.id
+    keyVaultSecretName: appService_WebHost_Resource.name
     // name: appService_Certificate_ResourceName
     // keyVaultId: keyVault_Resource.id
     // keyVaultSecretName: keyVault_Secret_ResourceName
