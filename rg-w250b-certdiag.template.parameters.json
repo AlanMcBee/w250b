@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_app_w250b_certdiag_name": {
+            "value": null
+        },
+        "vaults_kv_w250b_certdiag_name": {
+            "value": null
+        },
+        "serverfarms_asp_w250b_certdiag_name": {
+            "value": null
+        },
+        "certificates_cert_w250b_certdiag_name": {
+            "value": null
+        },
+        "certificates_overthinker_blog_app_w250b_certdiag_undefined_name": {
+            "value": null
+        }
+    }
+}
