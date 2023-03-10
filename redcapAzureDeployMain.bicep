@@ -364,6 +364,17 @@ param Monitor_ApplicationInsights bool = true
 // VARIABLES
 // =========
 
+// Bicep Diagnostic variables
+// --------------------------
+
+var bicepDiag_disableStorageAccount = true
+var bicepDiag_disableDatabase = true
+var bicepDiag_disableAppServicePlan = true
+var bicepDiag_disableAppService = true
+var bicepDiag_disableAppServiceCertificate = true
+var bicepDiag_disableKeyVault = true
+var bicepDiag_disableAppInsights = true
+
 // CDPH-specific variables
 // -----------------------
 
@@ -487,7 +498,7 @@ var Azure_AppService_ApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' // f
 // Azure Storage Account
 // ---------------------
 
-resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' = if (!bicepDiag_disableStorageAccount) {
   name: storageAccount_ResourceName
   location: Arm_StorageResourceLocation
   sku: {
@@ -574,7 +585,7 @@ resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' 
 // Database for MySQL Flexible Server
 // ----------------------------------
 
-resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
+resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = if (!bicepDiag_disableDatabase) {
   name: databaseForMySql_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
@@ -634,7 +645,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-11-01' = {
+resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-11-01' = if (!bicepDiag_disableKeyVault) {
   name: 'add'
   parent: keyVault_Resource
   properties: {
@@ -676,7 +687,7 @@ Do we need this?
 // Azure App Services
 // ------------------
 
-resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = if (!bicepDiag_disableAppServicePlan) {
   name: appService_Plan_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
@@ -700,7 +711,7 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
+resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = if (!bicepDiag_disableAppServiceCertificate) {
   name: appService_Certificate_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
@@ -741,7 +752,7 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   ]
 }
 
-resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
+resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = if (!bicepDiag_disableAppService) {
   name: appService_WebHost_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: appService_Tags
@@ -964,7 +975,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if (Monitor_ApplicationInsights) {
+resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if (Monitor_ApplicationInsights && !bicepDiag_disableAppInsights) {
   name: appInsights_ResourceName
   location: Arm_MainSiteResourceLocation
   kind: 'web'
@@ -976,7 +987,7 @@ resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if (M
   }
 }
 
-resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if (Monitor_ApplicationInsights) {
+resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if (Monitor_ApplicationInsights && !bicepDiag_disableAppInsights) {
   name: logAnalytics_Workspace_ResourceName
   location: Arm_MainSiteResourceLocation
   properties: {
