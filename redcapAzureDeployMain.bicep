@@ -634,7 +634,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-11-01' = {
   name: 'add'
   parent: keyVault_Resource
   properties: {
@@ -736,6 +736,9 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // location: Arm_MainSiteResourceLocation
     // tags: cdph_CommonTags
   }
+  dependsOn: [
+    keyVault_AccessPolicies_WebHost_Resource
+  ]
 }
 
 resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
