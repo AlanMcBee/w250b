@@ -205,7 +205,7 @@ param AppServicePlan_Capacity int = 1
 // Web server with PHP 7.2.5 or higher (including support for PHP 8). 
 param AppService_LinuxFxVersion string = 'php|8.2'
 
-@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov.')
+@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphBusinessUnit}-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov, so it must vary by business unit and environment. For example, if the business unit is \'ESS\' and the environment is \'DEV\', then the subdomain name you provide could be \'REDCap01-ess-dev\' or anything else, so long as it is globally unique under the root domain cdph.ca.gov.')
 param AppService_WebHost_Subdomain string = ''
 // See variable appService_WebHost_SubdomainFinal for the final value
 
@@ -399,7 +399,7 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 // Key Vault variables
 // -------------------
 
-var keyVault_CertKey_ResourceName = toLower('certkey-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
+// var keyVault_CertKey_ResourceName = toLower('certkey-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
 
 // Database for MySQL variables
 // ----------------------------
@@ -446,13 +446,12 @@ var appService_Tags = union(
   cdph_CommonTags
 )
 
-var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap'
+// var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap'
 
-var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
-var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
-var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
-
-var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_BusinessUnit}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+// var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
+var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceName}.azurewebsites.net'
+var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
 var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
