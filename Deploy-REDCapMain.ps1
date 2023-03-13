@@ -90,6 +90,7 @@ function Deploy-REDCapMain
         Successful       = $true
         Error            = $null
         DeploymentErrors = $null
+        DeploymentOutput = $null
     }
 
     [Stopwatch] $stopwatch = [Stopwatch]::StartNew()
@@ -240,7 +241,7 @@ function Deploy-REDCapMain
 
         if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
         {
-            $armDeployment.Outputs | ConvertTo-Json -Depth 8
+            $deploymentResult.DeploymentOutput = $armDeployment.Outputs
 
             $siteName = $armDeployment.Outputs['out_WebSiteFQDN'].Value
             Start-Process "https://$($siteName)/AzDeployStatus.php"
