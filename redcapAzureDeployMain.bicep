@@ -441,7 +441,7 @@ var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? A
 // var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceName}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
-var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
+var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
@@ -706,7 +706,7 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   properties: {
     // canonicalName: appService_WebHost_FullDomainName
     hostNames: [
-      appService_WebHost_FullDomainName
+      appService_WebHost_FullCustomDomainName
     ]
     keyVaultId: keyVault_Resource.id
     keyVaultSecretName: appService_WebHost_Resource.name
@@ -762,7 +762,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     hostNamesDisabled: false
     hostNameSslStates: [
       {
-        name: appService_WebHost_FullDomainName
+        name: appService_WebHost_FullCustomDomainName
         sslState: 'SniEnabled'
         thumbprint: Cdph_SslCertificateThumbprint
         hostType: 'Standard'
@@ -937,7 +937,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
 
   resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
-    name: appService_WebHost_FullDomainName
+    name: appService_WebHost_FullCustomDomainName
     properties: {
       siteName: appService_WebHost_ResourceName
       hostNameType: 'Verified'
