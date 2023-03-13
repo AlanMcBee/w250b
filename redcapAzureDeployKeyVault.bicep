@@ -191,7 +191,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
     accessPolicies: [] // required, and will be updated by redcapAzureDeployMain.bicep
     enabledForDeployment: false
     enabledForDiskEncryption: false
-    enabledForTemplateDeployment: true
+    enabledForTemplateDeployment: false
     enablePurgeProtection: true
     enableRbacAuthorization: false
     enableSoftDelete: true
@@ -204,10 +204,12 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
         }
       ]
     }
+    publicNetworkAccess: 'Enabled'
     sku: {
       name: 'standard'
       family: 'A'
     }
+    softDeleteRetentionInDays: 90
     tenantId: subscription().tenantId
   }
 
