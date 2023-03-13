@@ -3,93 +3,102 @@
 // This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.
 // *****************************************************************************************************************************
 Deploy-REDCapMain.ps1
- #>
+
+This .PS1 is meant to be loaded using dot-sourcing (.) or using the using module command. It is not meant to be executed directly.
+
+#>
+
+using namespace System.Diagnostics
+
 #requires -Modules Az.Resources
 #requires -Version 7.1
 
+using module .\ErrorRecord.psm1
 using module .\CdphNaming.psm1
 
-param (
-    # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
-    [Parameter()]
-    [string]
-    $Arm_ResourceGroupName,
+function Deploy-REDCapMain
+{
+    param (
+        # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
+        [Parameter()]
+        [string]
+        $Arm_ResourceGroupName,
 
-    # Azure region for the main site. 
-    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
-    # Not all resources are available in all regions.
-    [Parameter(Mandatory = $true)]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]
-    [string]
-    $Arm_MainSiteResourceLocation,
+        # Azure region for the main site. 
+        # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+        # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+        # Not all resources are available in all regions.
+        [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'centralus',
+            'eastus',
+            'eastus2',
+            'northcentralus',
+            'southcentralus',
+            'westcentralus',
+            'westus',
+            'westus2',
+            'westus3'
+        )]
+        [string]
+        $Arm_MainSiteResourceLocation,
 
-    # Azure region for the storage account. 
-    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
-    # Not all resources are available in all regions.
-    [Parameter(Mandatory = $true)]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]
-    [string]
-    $Arm_StorageResourceLocation,
+        # Azure region for the storage account. 
+        # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+        # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+        # Not all resources are available in all regions.
+        [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'centralus',
+            'eastus',
+            'eastus2',
+            'northcentralus',
+            'southcentralus',
+            'westcentralus',
+            'westus',
+            'westus2',
+            'westus3'
+        )]
+        [string]
+        $Arm_StorageResourceLocation,
 
-    # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
-    [Parameter()]
-    [int]
-    $Cdph_ResourceInstance = 1,
+        # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
+        [Parameter()]
+        [int]
+        $Cdph_ResourceInstance = 1,
 
-    # Password for MySQL administrator account
-    # Recommended: Use Get-Secret to retrieve the password from a secure store.
-    [Parameter(Mandatory = $true)]
-    [securestring]
-    $DatabaseForMySql_AdministratorLoginPassword,
+        # Password for MySQL administrator account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $DatabaseForMySql_AdministratorLoginPassword,
 
-    # Password for the REDCap Community site account
-    # Recommended: Use Get-Secret to retrieve the password from a secure store.
-    [Parameter(Mandatory = $true)]
-    [securestring]
-    $ProjectRedcap_CommunityPassword,
+        # Password for the REDCap Community site account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $ProjectRedcap_CommunityPassword,
 
-    # Password for the SMTP server account
-    # Recommended: Use Get-Secret to retrieve the password from a secure store.
-    [Parameter(Mandatory = $true)]
-    [securestring]
-    $Smtp_UserPassword
-)
+        # Password for the SMTP server account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $Smtp_UserPassword
+    )
 
-Import-Module .\ErrorRecord.psm1
+    $deploymentResult = [PSCustomObject]@{
+        Successful       = $true
+        Error            = $null
+        DeploymentErrors = $null
+        DeploymentOutput = $null
+    }
 
-$deploymentResult = [PSCustomObject]@{
-    Successful       = $true
-    Error            = $null
-    DeploymentErrors = $null
-}
-$measured = Measure-Command {
-    & {
-        Write-Information "Beginning deployment at $((Get-Date).ToString())"
+    [Stopwatch] $stopwatch = [Stopwatch]::StartNew()
 
-        Import-Module .\ErrorRecord.psm1
-        Import-Module .\CdphNaming.psm1
+    Write-Information "Beginning deployment at $((Get-Date).ToString())"
+
+    try
+    {
 
         $requiredParameters = @(
             'Cdph_Organization',
@@ -107,33 +116,26 @@ $measured = Measure-Command {
         $deployParameters = Get-Content $deployParametersPath | ConvertFrom-Json -Depth 8 -AsHashtable
         if ($null -eq $deployParameters)
         {
-            $deploymentResult.Successful = $false
-            Write-Error "Unable to load deployment parameters from $deployParametersPath"
+            throw "Unable to load deployment parameters from $deployParametersPath"
         }
-        if (-not $deploymentResult.Successful) { return }
        
         if (-not $deployParameters.ContainsKey('parameters'))
         {
-            $deploymentResult.Successful = $false
-            Write-Error "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
+            throw "Deployment parameters from $deployParametersPath do not contain a 'parameters' property"
         }
-        if (-not $deploymentResult.Successful) { return }
        
         $parametersEntry = $deployParameters.parameters
         foreach ($requiredParameter in $requiredParameters)
         {
             if (-not $parametersEntry.ContainsKey($requiredParameter))
             {
-                $deploymentResult.Successful = $false
-                Write-Error "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
+                throw "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
             }
             if (0 -eq $parametersEntry[$requiredParameter].value.Length)
             {
-                $deploymentResult.Successful = $false
-                Write-Error "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
+                throw "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
             }
         }
-        if (-not $deploymentResult.Successful) { return }
 
         # Create hashtable from parametersEntry moving the value sub-property to the top level
         $flattenedParameters = @{}
@@ -155,6 +157,12 @@ $measured = Measure-Command {
         {
             $flattenedParameters['Arm_StorageResourceLocation'] = $Arm_StorageResourceLocation
         }
+
+        $mainSiteResourceLocationDisplayName = Get-AzLocation | Where-Object Location -eq $Arm_MainSiteResourceLocation | Select-Object -First 1 -ExpandProperty DisplayName
+        $flattenedParameters['Arm_MainSiteResourceLocationDisplayName'] = $mainSiteResourceLocationDisplayName
+
+        $storageResourceLocationDisplayName = Get-AzLocation | Where-Object Location -eq $Arm_StorageResourceLocation | Select-Object -First 1 -ExpandProperty DisplayName
+        $flattenedParameters['Arm_StorageResourceLocationDisplayName'] = $storageResourceLocationDisplayName
 
         # Merge parameters
         $templateParameters = $flattenedParameters + @{
@@ -188,22 +196,22 @@ $measured = Measure-Command {
         Write-Information "Using resource group name $resourceGroupName"
 
         # Make sure we're logged in. Use Connect-AzAccount if not.
-        Get-AzContext -ErrorAction Stop
+        Get-AzContext -ErrorAction Stop | Out-Null
 
         # Start deployment
         $bicepPath = 'redcapAzureDeployMain.bicep'
 
-        try
+        $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
+        if ([string]::IsNullOrWhiteSpace($resourceGroup))
         {
-            Get-AzResourceGroup -Name $resourceGroupName -ErrorAction Stop
-            Write-Information "Resource group $resourceGroupName exists. Updating deployment"
-        }
-        catch
-        {
+            Write-Information "Creating new resource group: $resourceGroupName"
             $resourceGroup = New-AzResourceGroup -Name $resourceGroupName -Location $Arm_MainSiteResourceLocation
             Write-Information "Created new resource group $resourceGroupName."
         }
-        if (-not $deploymentResult.Successful) { return }
+        else
+        {
+            Write-Information "Resource group $resourceGroupName exists. Updating deployment"
+        }
 
         $version = (Get-Date).ToString('yyyyMMddHHmmss')
         $deploymentName = "REDCapDeployMain.$version"
@@ -215,29 +223,15 @@ $measured = Measure-Command {
         }
         # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
         $armDeployment = $null
-        try
+        $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
+        if ($null -eq $armDeployment)
         {
-            $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
-            if ($null -eq $armDeployment)
-            {
-                $deploymentResult.Successful = $false
-                Write-Error 'New-AzResourceGroupDeployment returned $null'
-            }
-            else
-            {
-                Write-Information "Provisioning State = $($armDeployment.ProvisioningState)"
-            }
+            throw 'New-AzResourceGroupDeployment returned $null'
         }
-        catch
+        else
         {
-            $deploymentResult.Successful = $false
-            if ($armDeployment -ne $null)
-            {
-                $deploymentResult.DeploymentErrors = $armDeployment | ConvertTo-Json -Depth 10
-            }
-            Write-CaughtErrorRecord $_ Error -IncludeStackTrace
+            Write-Information "Provisioning State = $($armDeployment.ProvisioningState)"
         }
-        if (-not $deploymentResult.Successful) { return }
 
         while (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Running'))
         {
@@ -245,42 +239,39 @@ $measured = Measure-Command {
             Start-Sleep 5
         }
 
-        if ($null -ne $armDeployment && $armDeployment.ProvisioningState -eq 'Succeeded')
+        if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
         {
-            $armDeployment.Outputs | ConvertTo-Json -Depth 8
-            try
-            {
-                $siteName = $armDeployment.Outputs['out_WebSiteFQDN'].Value
-                Start-Process "https://$($siteName)/AzDeployStatus.php"
-            }
-            catch
-            {
-                $deploymentResult.Successful = $false
-                $deploymentResult.Error = $_
-                Write-Information 'Unable to open AzDeployStatus.php in browser.'
-            }
+            $deploymentResult.DeploymentOutput = $armDeployment.Outputs
+
+            $siteName = $armDeployment.Outputs['out_WebSiteFQDN'].Value
+            Start-Process "https://$($siteName)/AzDeployStatus.php"
         }
         else
         {
             $deploymentResult.Successful = $false
             # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentOperation]
             $deploymentErrors = $null
-            try
-            {
-                $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
-                $deploymentErrors | ConvertTo-Json -Depth 8
-                $deploymentResult.Error = $_
-                $deploymentResult.DeploymentErrors = $deploymentErrors
-            }
-            catch
-            {
-                $deploymentResult.Error = $_
-                $deploymentResult.DeploymentErrors = $deploymentErrors
-                Write-CaughtErrorRecord $_ Error -IncludeStackTrace
-            }
+            $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+            $e = $deploymentErrors | ConvertTo-Json -Depth 5
+            $deploymentResult.Error = $e
+            $deploymentResult.DeploymentErrors = $deploymentErrors
         }
-
-    } | Out-Default
+    }
+    catch
+    {
+        $x = $_
+        Write-CaughtErrorRecord $x Error -IncludeStackTrace
+        $deploymentResult.Error = $x
+        $deploymentResult.Successful = $false
+    }
+    finally
+    {
+        # Stop timer
+        $stopwatch.Stop()
+        $measured = $stopwatch.Elapsed
+    
+        Write-Information "Total Main Deployment time: $($measured.ToString())"
+        
+    }
+    return $deploymentResult
 }
-Write-Information "Total Deployment time: $($measured.ToString())"
-Write-Output $deploymentResult

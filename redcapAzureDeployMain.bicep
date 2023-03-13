@@ -124,7 +124,22 @@ Locations list for public cloud, non-US locations reference:
 ])
 param Arm_MainSiteResourceLocation string = 'eastus'
 
-@description('Location where resources will be deployed')
+@description('Location where resources will be deployed, as a display name (e.g. "East US"). This must match the value of Arm_MainSiteResourceLocation. Use Get-AzLocation to get the display name.')
+@allowed([
+  // values for US in public cloud
+  'Central US'
+  'East US'
+  'East US 2'
+  'North Central US'
+  'South Central US'
+  'West Central US'
+  'West US'
+  'West US 2'
+  'West US 3'
+])
+param Arm_MainSiteResourceLocationDisplayName string = 'East US'
+
+@description('Location where storage resources will be deployed')
 @allowed([
   // values for US in public cloud
   'centralus'
@@ -136,8 +151,23 @@ param Arm_MainSiteResourceLocation string = 'eastus'
   'westus'
   'westus2'
   'westus3'
-])
+])  
 param Arm_StorageResourceLocation string = 'westus'
+
+@description('Location where storage resources will be deployed, as a display name (e.g. "West US"). This must match the value of Arm_StorageResourceLocation. Use Get-AzLocation to get the display name.')
+@allowed([
+  // values for US in public cloud
+  'Central US'
+  'East US'
+  'East US 2'
+  'North Central US'
+  'South Central US'
+  'West Central US'
+  'West US'
+  'West US 2'
+  'West US 3'
+])
+param Arm_StorageResourceLocationDisplayName string = 'West US'
 
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
@@ -175,7 +205,7 @@ param AppServicePlan_Capacity int = 1
 // Web server with PHP 7.2.5 or higher (including support for PHP 8). 
 param AppService_LinuxFxVersion string = 'php|8.2'
 
-@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov.')
+@description('Subdomain name for the application (no spaces, no dashes, no special characters). Default = \'\' (empty string); If empty, a subdomain like REDCap-{CdphBusinessUnit}-{CdphEnvironment}-{InstanceNumber} will be used. NOTE: This needs to be unique to the root domain cdph.ca.gov, so it must vary by business unit and environment. For example, if the business unit is \'ESS\' and the environment is \'DEV\', then the subdomain name you provide could be \'REDCap01-ess-dev\' or anything else, so long as it is globally unique under the root domain cdph.ca.gov.')
 param AppService_WebHost_Subdomain string = ''
 // See variable appService_WebHost_SubdomainFinal for the final value
 
@@ -358,7 +388,7 @@ var arm_ResourceInstance_ZeroPadded = padLeft(Cdph_ResourceInstance, 2, '0')
 // Key Vault variables
 // -------------------
 
-var keyVault_CertKey_ResourceName = toLower('certkey-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
+// var keyVault_CertKey_ResourceName = toLower('certkey-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}')
 
 // Database for MySQL variables
 // ----------------------------
@@ -405,13 +435,12 @@ var appService_Tags = union(
   cdph_CommonTags
 )
 
-var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap'
+// var appService_WebHost_UniqueSubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap'
 
-var appService_WebHost_UniqueDefaultSubdomain = '${appService_WebHost_UniqueSubdomainFinal}-${uniqueString(resourceGroup().id)}'
-var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
-var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.scm.azurewebsites.net'
-
-var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? AppService_WebHost_Subdomain : 'REDCap-${Cdph_BusinessUnit}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+// var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
+var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceName}.azurewebsites.net'
+var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
 var appService_WebHost_FullDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
@@ -444,6 +473,11 @@ var appInsights_ResourceName = 'appi-${Cdph_Organization}-${Cdph_BusinessUnit}-$
 // -----------------------
 
 var logAnalytics_Workspace_ResourceName = 'log-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
+
+// Azure Resource Provider variables
+// ---------------------------------
+
+var Azure_AppService_ApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' // fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
 
 // =========
 // RESOURCES
@@ -599,71 +633,33 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-// resource keyVault_AccessPolicy_AppService_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-//   name: 'add'
-//   parent: keyVault_Resource
-//   properties: {
-//     accessPolicies: [
-//       {
-//         tenantId: subscription().tenantId
-//         applicationId: 'abfa0a7c-a6b6-4736-8310-5855508787cd' // Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-//         objectId: appService_WebHost_Resource.identity.principalId
-//         permissions: {
-//           // keys: [
-//           //   'get'
-//           //   'list'
-//           //   'create'
-//           //   'update'
-//           //   'import'
-//           //   'delete'
-//           //   'backup'
-//           //   'restore'
-//           //   'recover'
-//           //   'purge'
-//           // ]
-//           // secrets: [
-//           //   'get'
-//           //   'list'
-//           //   'set'
-//           //   'delete'
-//           //   'backup'
-//           //   'restore'
-//           //   'recover'
-//           //   'purge'
-//           // ]
-//           certificates: [
-//             'get'
-//             // 'list'
-//             // 'delete'
-//             // 'create'
-//             // 'import'
-//             // 'update'
-//             // 'managecontacts'
-//             // 'getissuers'
-//             // 'listissuers'
-//             // 'setissuers'
-//             // 'deleteissuers'
-//             // 'manageissuers'
-//             // 'recover'
-//             // 'purge'
-//           ]
-//           // storage: [
-//           //   'get'
-//           //   'list'
-//           //   'delete'
-//           //   'set'
-//           //   'update'
-//           //   'regeneratekey'
-//           //   'setsas'
-//           //   'listsas'
-//           //   'getsas'
-//           //   'deletesas'
-//           // ]
-//         }
-//       }
-//     ]
-//   }
-// }
+resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault_Resource
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        applicationId: Azure_AppService_ApplicationId
+        objectId: appService_WebHost_Resource.identity.principalId
+        permissions: {
+          certificates: [
+            'get'
+          ]
+          secrets: [
+            'get'
+          ]
+          keys: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+/* 
+Do we need this? 
 
 // resource keyVault_Keys_Resource 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 //   name: keyVault_CertKey_ResourceName
@@ -671,10 +667,10 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
 //   properties: {
 //     attributes: {
 //       enabled: true
-
 //     }
 //   }
 // }
+*/
 
 // Azure App Services
 // ------------------
@@ -708,7 +704,12 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
-    canonicalName: json('null')
+    // canonicalName: appService_WebHost_FullDomainName
+    hostNames: [
+      appService_WebHost_FullDomainName
+    ]
+    keyVaultId: keyVault_Resource.id
+    keyVaultSecretName: appService_WebHost_Resource.name
     // name: appService_Certificate_ResourceName
     // keyVaultId: keyVault_Resource.id
     // keyVaultSecretName: keyVault_Secret_ResourceName
@@ -734,6 +735,9 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // location: Arm_MainSiteResourceLocation
     // tags: cdph_CommonTags
   }
+  dependsOn: [
+    keyVault_AccessPolicies_WebHost_Resource
+  ]
 }
 
 resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
@@ -942,7 +946,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights) {
+  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
     name: 'Microsoft.ApplicationInsights.AzureWebSites'
     dependsOn: [
       appInsights_Resource

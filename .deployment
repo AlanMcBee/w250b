@@ -1,3 +1,4 @@
 ﻿[config]
+# This .deployment file will trigger Kudu (Azure App Service) to execute this shell script
 command = bash deploy.sh
 SCM_COMMAND_IDLE_TIMEOUT=600

@@ -4,7 +4,6 @@
 // *****************************************************************************************************************************
 Deploy-REDCap.ps1
  #>
-using namespace Microsoft.Azure.Commands.KeyVault.Models
 
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
@@ -93,6 +92,9 @@ param (
 
 Set-StrictMode -Version Latest
 
+. '.\Deploy-REDCapKeyVault.ps1'
+. '.\Deploy-REDCapMain.ps1'
+
 $keyVaultDeployArgs = @{
     Arm_ResourceGroupName        = $Arm_ResourceGroupName
     Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
@@ -101,12 +103,13 @@ $keyVaultDeployArgs = @{
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
     Cdph_ClientIPAddress         = $Cdph_ClientIPAddress
 }
-$keyVaultDeploymentResult = &'.\Deploy-REDCapKeyVault.ps1' @keyVaultDeployArgs
+
+$keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
     # Get the certificate from the Key Vault deployment and update the main deployment parameters file with the thumbprint of the certificate.
-    [PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
+    [Microsoft.Azure.Commands.KeyVault.Models.PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
     $mainParameters = Get-Content -Path '.\redcapAzureDeployMain.parameters.json' -Raw | ConvertFrom-Json
     $mainParameters.parameters.Cdph_SslCertificateThumbprint.value = $keyVaultCertificate.Thumbprint
     $mainParameters 
@@ -122,6 +125,6 @@ if ($keyVaultDeploymentResult.Successful -eq $true)
         ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
         Smtp_UserPassword                           = $Smtp_UserPassword
     }
+    $mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
+    Write-Output $mainDeploymentResult
 }
-$mainDeploymentResult = &'.\Deploy-REDCapMain.ps1' @mainDeployArgs
-$mainDeploymentResult | ConvertTo-Json -Depth 12
