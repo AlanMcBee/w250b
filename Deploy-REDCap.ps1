@@ -4,7 +4,6 @@
 // *****************************************************************************************************************************
 Deploy-REDCap.ps1
  #>
-using namespace Microsoft.Azure.Commands.KeyVault.Models
 
 param (
     # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
@@ -110,7 +109,7 @@ $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
     # Get the certificate from the Key Vault deployment and update the main deployment parameters file with the thumbprint of the certificate.
-    [PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
+    [Microsoft.Azure.Commands.KeyVault.Models.PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
     $mainParameters = Get-Content -Path '.\redcapAzureDeployMain.parameters.json' -Raw | ConvertFrom-Json
     $mainParameters.parameters.Cdph_SslCertificateThumbprint.value = $keyVaultCertificate.Thumbprint
     $mainParameters 
