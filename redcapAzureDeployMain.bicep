@@ -443,6 +443,12 @@ var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceN
 var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
 var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
+var appService_WebHost_HostNameBindings = [
+  {
+    
+  }
+]
+
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
 // // This 26-character value will be the same if repeatedly deployed to the same subscription and resource group
@@ -928,24 +934,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //   }
   // }
 
-  resource appService_WebHost_HostNameBinding_Default_Resource 'hostNameBindings' = {
-    name: appService_WebHost_UniqueDefaultFullDomain
-    properties: {
-      hostNameType: 'Verified'
-      siteName: appService_WebHost_ResourceName
-    }
-  }
-
-  resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
-    name: appService_WebHost_FullCustomDomainName
-    properties: {
-      siteName: appService_WebHost_ResourceName
-      hostNameType: 'Verified'
-      sslState: 'SniEnabled'
-      thumbprint: Cdph_SslCertificateThumbprint
-    }
-  }
-
   resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
     name: 'Microsoft.ApplicationInsights.AzureWebSites'
     dependsOn: [
@@ -960,6 +948,27 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       isManualIntegration: true
       repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
     }
+  }
+}
+
+@batchSize(1)
+resource appService_WebHost_HostNameBinding_Default_Resource 'Microsoft.Web/sites/hostNameBindings@2022-03-01' = [for i in range(0, length(appService_WebHost_HostNameBindings)): {
+  name: appService_WebHost_HostNameBindings[i].Name
+  properties: {
+    siteName: appService_WebHost_ResourceName
+    hostNameType: 'Verified'
+    sslState: 'SniEnabled'
+    thumbprint: Cdph_SslCertificateThumbprint
+  }
+}]
+
+resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
+  name: appService_WebHost_FullCustomDomainName
+  properties: {
+    siteName: appService_WebHost_ResourceName
+    hostNameType: 'Verified'
+    sslState: 'SniEnabled'
+    thumbprint: Cdph_SslCertificateThumbprint
   }
 }
 
