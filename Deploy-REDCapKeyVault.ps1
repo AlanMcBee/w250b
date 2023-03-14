@@ -160,7 +160,7 @@ function Deploy-REDCapKeyVault
         }
         Write-Information "Using resource group name $resourceGroupName"
 
-        $appServicePlanName = "asp-$organization-$businessUnit-$program-$environment-$paddedInstance"
+        $appServiceResourceName = "app-$organization-$businessUnit-$program-$environment-$paddedInstance"
 
         # Make sure we're logged in. Use Connect-AzAccount if not.
         Get-AzContext -ErrorAction Stop | Out-Null
@@ -213,7 +213,7 @@ function Deploy-REDCapKeyVault
             $certificate = $null
             $certificate = Get-AzKeyVaultCertificate `
                 -VaultName $keyVaultResourceName `
-                -Name $appServicePlanName `
+                -Name $appServiceResourceName `
                 -ErrorAction SilentlyContinue
 
             if ($null -eq $certificate)
@@ -221,13 +221,13 @@ function Deploy-REDCapKeyVault
                 Write-Information "Importing certificate $Cdph_PfxCertificatePath into Key Vault $keyVaultResourceName"
                 $certificate = Import-AzKeyVaultCertificate `
                     -VaultName $keyVaultResourceName `
-                    -Name $appServicePlanName `
+                    -Name $appServiceResourceName `
                     -FilePath $Cdph_PfxCertificatePath `
                     -Password $Cdph_PfxCertificatePassword
             }
             else
             {
-                Write-Information "Certificate $appServicePlanName already exists in Key Vault $keyVaultResourceName"
+                Write-Information "Certificate $appServiceResourceName already exists in Key Vault $keyVaultResourceName"
             }
             $deploymentResult.Certificate = $certificate
         }
