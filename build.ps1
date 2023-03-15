@@ -1,1 +1,0 @@
-& dotnet publish -c Debug -o ./bin/Publish
