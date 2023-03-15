@@ -634,7 +634,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+/* resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
   name: 'add'
   parent: keyVault_Resource
   properties: {
@@ -658,7 +658,7 @@ resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/acc
     ]
   }
 }
-
+ */
 /* 
 Do we need this? 
 
