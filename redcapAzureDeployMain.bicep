@@ -976,8 +976,8 @@ resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/acc
 */
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
-// output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
-output out_AzAppService_CustomDomainVerification string = 'disabled'
+output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
+//output out_AzAppService_CustomDomainVerification string = 'disabled'
 
 // Keep these output variables named the same as original until dependencies are identified and refactored
 output out_MySQLHostName string = databaseForMySql_HostName
@@ -986,3 +986,4 @@ output out_WebSiteFQDN string = appService_WebHost_UniqueDefaultFullDomain
 output out_StorageAccountKey string = storageAccount_Key
 output out_StorageAccountName string = storageAccount_ResourceName
 output out_StorageContainerName string = storageAccount_ContainerName
+output out_WebHost_IpAddress string = appService_WebHost_Resource.properties.inboundIpAddress // Ignore this warning: "The property 'inboundIpAddress' does not exist on type 'SiteConfigResource'. Make sure to only use property names that are defined by the type."
