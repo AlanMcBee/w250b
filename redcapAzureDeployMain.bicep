@@ -577,29 +577,17 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     name: DatabaseForMySql_Sku
     tier: DatabaseForMySql_Tier
   }
-  //  identity: json('null')
   properties: {
     administratorLogin: DatabaseForMySql_AdministratorLoginName
     administratorLoginPassword: DatabaseForMySql_AdministratorLoginPassword
-    // availabilityZone: ''
     backup: {
       backupRetentionDays: DatabaseForMySql_BackupRetentionDays
       geoRedundantBackup: 'Disabled'
     }
     createMode: 'Default'
-    // dataEncryption: json('null')
-    // highAvailability: {
-    //   mode: 'Disabled'
-    // }
-    // maintenanceWindow: {
-    //   customWindow: 'Disabled'
-    // }
-    // network: json('null')
     replicationRole: 'None'
     storage: {
       storageSizeGB: DatabaseForMySql_StorageGB
-      // iops: 360
-      // autoGrow: 'Enabled'
     }
     version: '8.0.21'
   }
@@ -629,20 +617,6 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-/* 
-Do we need this? 
-
-// resource keyVault_Keys_Resource 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
-//   name: keyVault_CertKey_ResourceName
-//   parent: keyVault_Resource
-//   properties: {
-//     attributes: {
-//       enabled: true
-//     }
-//   }
-// }
-*/
-
 // Azure App Services
 // ------------------
 
@@ -656,17 +630,7 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
   kind: 'app,linux' // see https://stackoverflow.com/a/62400396/100596 for acceptable values
   properties: {
-    // name: appServicePlanResourceName
-    // perSiteScaling: false
-    // elasticScaleEnabled: false
-    // maximumElasticWorkerCount: 1
-    // isSpot: false
     reserved: true
-    // isXenon: false
-    // hyperV: false
-    // targetWorkerCount: 0
-    // targetWorkerSizeId: 0
-    // zoneRedundant: false
   }
 }
 
@@ -683,48 +647,12 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
   properties: {
     clientAffinityEnabled: false
-
-    // clientCertEnabled: false
-    // clientCertMode: 'Required'
-    // containerSize: 0
-    // customDomainVerificationId: appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
-    // dailyMemoryTimeQuota: 0
-/*     hostNamesDisabled: false
-    hostNameSslStates: [
-      {
-        name: appService_WebHost_FullCustomDomainName
-        sslState: 'SniEnabled'
-        thumbprint: Cdph_SslCertificateThumbprint
-        hostType: 'Standard'
-      }
-      {
-        name: appService_WebHost_UniqueDefaultFullDomain
-        sslState: 'Disabled'
-        hostType: 'Standard'
-      }
-      {
-        name: appService_WebHost_UniqueDefaultKuduFullDomain
-        sslState: 'Disabled'
-        hostType: 'Repository'
-      }
-    ]
- */
     httpsOnly: true
-    // hyperV: false
-    // isXenon: false
-/*     keyVaultReferenceIdentity: 'SystemAssigned'
- */    // redundancyMode: 'None'
-    // reserved: false
-    // scmSiteAlsoStopped: false
     serverFarmId: appService_Plan_Resource.id
     siteConfig: {
       alwaysOn: true
       linuxFxVersion: AppService_LinuxFxVersion
     }
-    // storageAccountRequired: false
-    // vnetContentShareEnabled: false
-    // vnetImagePullEnabled: false
-    // vnetRouteAllEnabled: false
   }
 
   resource appService_WebHost_HostNameBindings 'hostNameBindings' = {
@@ -735,14 +663,11 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-/*   resource appService_WebHost_Config_Resource 'config' = {
+   resource appService_WebHost_Config_Resource 'config' = {
     name: 'web'
     properties: {
-      // acrUseManagedIdentityCreds: false
       alwaysOn: true
       appCommandLine: '/home/startup.sh'
-      // autoHealEnabled: false
-      // azureStorageAccounts: {}
       connectionStrings: [
         {
           name: 'defaultConnection'
@@ -756,53 +681,14 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
         'index.php'
         'hostingstart.html'
       ]
-      // detailedErrorLoggingEnabled: false
       ftpsState: 'Disabled'
-      // functionsRuntimeScaleMonitoringEnabled: false
-      // http20Enabled: false
-      // httpLoggingEnabled: false
-      // ipSecurityRestrictions: [
-      //   {
-      //     ipAddress: 'Any'
-      //     action: 'Allow'
-      //     priority: 2147483647
-      //     name: 'Allow all'
-      //     description: 'Allow all access'
-      //   }
-      // ]
       loadBalancing: 'LeastRequests'
-      // localMySqlEnabled: false
-      // logsDirectorySizeLimit: 35
-      // managedPipelineMode: 'Integrated'
-      // minimumElasticInstanceCount: 0
-      // minTlsVersion: '1.2'
       numberOfWorkers: 1
-      // preWarmedInstanceCount: 0
-      // publishingUsername: ''
-      // remoteDebuggingEnabled: false
-      // remoteDebuggingVersion: 'VS2019'
-      // requestTracingEnabled: false
-      // scmIpSecurityRestrictions: [
-      //   {
-      //     ipAddress: 'Any'
-      //     action: 'Allow'
-      //     priority: 2147483647
-      //     name: 'Allow all'
-      //     description: 'Allow all access'
-      //   }
-      // ]
-      // scmIpSecurityRestrictionsUseMain: false
-      // scmMinTlsVersion: '1.2'
       scmType: 'None'
-      // use32BitWorkerProcess: true
-      // vnetPrivatePortsCount: 0
-      // vnetRouteAllEnabled: false
-      // webSocketsEnabled: false
-      // }
     }
   }
 
-  resource appService_WebHost_Config_AppSettings_Resource 'config' = {
+  /* resource appService_WebHost_Config_AppSettings_Resource 'config' = {
     name: 'appsettings'
     properties: {
       // SCM (Kudu)
@@ -841,7 +727,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     dependsOn: [
       appService_WebHost_SiteExtensions_AppInsightsResource
     ]
-  }
+  } */
 
   // resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
   //   name: appService_WebHost_Certificate_Redcap_ResourceName
@@ -852,7 +738,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //   }
   // }
 
-  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
+/*   resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
     name: 'Microsoft.ApplicationInsights.AzureWebSites'
     dependsOn: [
       appInsights_Resource
@@ -867,44 +753,19 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
     }
   } */
-}
+ */}
 
 resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
   name: appService_Certificate_ResourceName
   location: Arm_MainSiteResourceLocation
   tags: cdph_CommonTags
   properties: {
-    // canonicalName: appService_WebHost_FullDomainName
     hostNames: [
       appService_WebHost_FullCustomDomainName
     ]
     keyVaultId: keyVault_Resource.id
     keyVaultSecretName: appService_WebHost_Resource.name
     serverFarmId: appService_Plan_Resource.id
-    // name: appService_Certificate_ResourceName
-    // keyVaultId: keyVault_Resource.id
-    // keyVaultSecretName: keyVault_Secret_ResourceName
-    // password: keyVault_Secret_ResourceName
-    // pfxBlob: keyVault_Secret_ResourceName
-    // serverFarmId: appService_Plan_Resource.id
-    // siteName: appService_WebHost_ResourceName
-    // subjectName: appService_WebHost_FullDomainName
-    // valid: true
-    // hostNames: [
-    //   appService_WebHost_FullDomainName
-    // ]
-    // issueDate: '2021-08-01T00:00:00Z'
-    // expirationDate: '2022-08-01T00:00:00Z'
-    // thumbprint: Cdph_SslCertificateThumbprint
-    // selfLink: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
-    // kind: 'app'
-    // hostingEnvironmentProfile: json('null')
-    // resourceGroup: '00000000-0000-0000-0000-000000000000'
-    // subscription: '00000000-0000-0000-0000-000000000000'
-    // id: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
-    // type: 'Microsoft.Web/certificates'
-    // location: Arm_MainSiteResourceLocation
-    // tags: cdph_CommonTags
   }
 }
 
@@ -926,6 +787,7 @@ resource appService_WebHost_BasicPublishingCredentialsPolicies_Ftp_Resource 'Mic
     allow: false
   }
 }
+*/
 
 resource appInsights_Resource 'Microsoft.Insights/components@2020-02-02' = if (Monitor_ApplicationInsights) {
   name: appInsights_ResourceName
@@ -948,7 +810,7 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
     }
   }
 }
-*/
+
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
 output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
