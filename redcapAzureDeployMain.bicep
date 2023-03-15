@@ -745,7 +745,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //   }
   // }
 
-/*  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
+ resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
     name: 'web'
     properties: {
       branch: 'main'
@@ -753,7 +753,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
     }
   }
- */
+
 }
 
 resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
