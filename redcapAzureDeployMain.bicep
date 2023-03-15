@@ -441,13 +441,8 @@ var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? A
 // var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceName}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
-var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
-
-var appService_WebHost_HostNameBindings = [
-  {
-    
-  }
-]
+// var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
+var appService_WebHost_FullCustomDomainName = 'overthinker.blog'
 
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
@@ -803,20 +798,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // vnetRouteAllEnabled: false
   }
 
-  resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'basicPublishingCredentialsPolicies' = {
-    name: 'scm'
-    properties: {
-      allow: true
-    }
-  }
-
-  resource appService_WebHost_BasicPublishingCredentialsPolicies_Ftp_Resource 'basicPublishingCredentialsPolicies' = {
-    name: 'ftp'
-    properties: {
-      allow: false
-    }
-  }
-
   resource appService_WebHost_Config_Resource 'config' = {
     name: 'web'
     properties: {
@@ -951,24 +932,21 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-@batchSize(1)
-resource appService_WebHost_HostNameBinding_Default_Resource 'Microsoft.Web/sites/hostNameBindings@2022-03-01' = [for i in range(0, length(appService_WebHost_HostNameBindings)): {
-  name: appService_WebHost_HostNameBindings[i].Name
+resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+  name: 'scm'
+  parent: appService_WebHost_Resource
+  location: Arm_MainSiteResourceLocationDisplayName
   properties: {
-    siteName: appService_WebHost_ResourceName
-    hostNameType: 'Verified'
-    sslState: 'SniEnabled'
-    thumbprint: Cdph_SslCertificateThumbprint
+    allow: true
   }
-}]
+}
 
-resource appService_WebHost_HostNameBinding_Resource 'hostNameBindings' = {
-  name: appService_WebHost_FullCustomDomainName
+resource appService_WebHost_BasicPublishingCredentialsPolicies_Ftp_Resource 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
+  name: 'ftp'
+  parent: appService_WebHost_Resource
+  location: Arm_MainSiteResourceLocationDisplayName
   properties: {
-    siteName: appService_WebHost_ResourceName
-    hostNameType: 'Verified'
-    sslState: 'SniEnabled'
-    thumbprint: Cdph_SslCertificateThumbprint
+    allow: false
   }
 }
 
