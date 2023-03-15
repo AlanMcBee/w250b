@@ -903,12 +903,12 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // location: Arm_MainSiteResourceLocation
     // tags: cdph_CommonTags
   }
-  dependsOn: [
-    keyVault_AccessPolicies_WebHost_Resource
-  ]
+  // dependsOn: [
+  //   keyVault_AccessPolicies_WebHost_Resource
+  // ]
 }
 
-/**/
+/*
 resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
   name: 'scm'
   parent: appService_WebHost_Resource
