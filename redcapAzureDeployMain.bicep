@@ -903,9 +903,9 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // location: Arm_MainSiteResourceLocation
     // tags: cdph_CommonTags
   }
-  // dependsOn: [
-  //   keyVault_AccessPolicies_WebHost_Resource
-  // ]
+  dependsOn: [
+    keyVault_AccessPolicies_WebHost_Resource
+  ]
 }
 
 /*
@@ -948,7 +948,7 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
     }
   }
 }
-
+*/
 resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
   name: 'add'
   parent: keyVault_Resource
@@ -973,7 +973,7 @@ resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/acc
     ]
   }
 }
-*/
+
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
 output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
