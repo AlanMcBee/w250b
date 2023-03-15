@@ -151,7 +151,7 @@ param Arm_MainSiteResourceLocationDisplayName string = 'East US'
   'westus'
   'westus2'
   'westus3'
-])  
+])
 param Arm_StorageResourceLocation string = 'westus'
 
 @description('Location where storage resources will be deployed, as a display name (e.g. "West US"). This must match the value of Arm_StorageResourceLocation. Use Get-AzLocation to get the display name.')
@@ -696,7 +696,17 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
 
       // Application Insights
       APPINSIGHTS_INSTRUMENTATIONKEY: Monitor_ApplicationInsights ? appInsights_Resource.properties.InstrumentationKey : ''
-
+      APPINSIGHTS_PROFILERFEATURE_VERSION: Monitor_ApplicationInsights ? '1.0.0' : ''
+      APPINSIGHTS_SNAPSHOTFEATURE_VERSION: Monitor_ApplicationInsights ? '1.0.0' : ''
+      APPLICATIONINSIGHTS_CONNECTION_STRING: Monitor_ApplicationInsights ? appInsights_Resource.properties.ConnectionString : ''
+      ApplicationInsightsAgent_EXTENSION_VERSION: Monitor_ApplicationInsights ? '~2' : ''
+      DiagnosticServices_EXTENSION_VERSION: Monitor_ApplicationInsights ? '~3' : ''
+      InstrumentationEngine_EXTENSION_VERSION: Monitor_ApplicationInsights ? 'disabled' : ''
+      SnapshotDebugger_EXTENSION_VERSION: Monitor_ApplicationInsights ? 'disabled' : ''
+      XDT_MicrosoftApplicationInsights_BaseExtensions: Monitor_ApplicationInsights ? 'disabled' : ''
+      XDT_MicrosoftApplicationInsights_Mode: Monitor_ApplicationInsights ? 'recommended' : ''
+      XDT_MicrosoftApplicationInsights_PreemptSdk: Monitor_ApplicationInsights ? 'disabled' : ''
+    
       // PHP
       PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
 
@@ -724,9 +734,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       smtp_user_name: Smtp_UserLogin
       smtp_password: Smtp_UserPassword
     }
-    dependsOn: [
-      appService_WebHost_SiteExtensions_AppInsightsResource
-    ]
   }
 
   // resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
@@ -737,13 +744,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //     keyVaultSecretName: appService_WebHost_ResourceName
   //   }
   // }
-
-  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
-    name: 'Microsoft.ApplicationInsights.AzureWebSites'
-    dependsOn: [
-      appInsights_Resource
-    ]
-  }
 
 /*  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
     name: 'web'
@@ -811,7 +811,6 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
     }
   }
 }
-
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
 output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
