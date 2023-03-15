@@ -700,6 +700,7 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
+/*
 resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
   name: appService_Certificate_ResourceName
   location: Arm_MainSiteResourceLocation
@@ -972,8 +973,11 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
   }
 }
 
+*/
+
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
-output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
+// output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
+output out_AzAppService_CustomDomainVerification string = 'disabled'
 
 // Keep these output variables named the same as original until dependencies are identified and refactored
 output out_MySQLHostName string = databaseForMySql_HostName
