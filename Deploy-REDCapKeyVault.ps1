@@ -208,7 +208,19 @@ function Deploy-REDCapKeyVault
 
         if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
         {
-            Write-Information $armDeployment.Outputs | ConvertTo-Json -Depth 8
+            Write-Information "Succeeded. Outputs: $($armDeployment.Outputs)"
+
+            Write-Information 'Setting access policy to allow App Service to read from Key Vault'
+            $azureAppServiceApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' # fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
+            
+            Set-AzKeyVaultAccessPolicy `
+            -VaultName $keyVaultResourceName `
+            -ServicePrincipalName $azureAppServiceApplicationId `
+            -PermissionsToCertificates get `
+            -PermissionsToKeys get `
+            -PermissionsToSecrets get
+
+            Write-Information 'Successful set access policy'
 
             $certificate = $null
             $certificate = Get-AzKeyVaultCertificate `
