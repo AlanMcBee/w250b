@@ -957,7 +957,7 @@ resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/acc
       {
         tenantId: subscription().tenantId
         applicationId: Azure_AppService_ApplicationId
-        objectId: appService_WebHost_Resource.identity.principalId
+        // objectId: appService_WebHost_Resource.identity.principalId // DO NOT USE
         permissions: {
           certificates: [
             'get'
