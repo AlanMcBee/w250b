@@ -866,7 +866,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   } */
 }
 
-/*
 resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
   name: appService_Certificate_ResourceName
   location: Arm_MainSiteResourceLocation
@@ -878,6 +877,7 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     ]
     keyVaultId: keyVault_Resource.id
     keyVaultSecretName: appService_WebHost_Resource.name
+    serverFarmId: appService_Plan_Resource.id
     // name: appService_Certificate_ResourceName
     // keyVaultId: keyVault_Resource.id
     // keyVaultSecretName: keyVault_Secret_ResourceName
@@ -908,6 +908,7 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
   ]
 }
 
+/**/
 resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
   name: 'scm'
   parent: appService_WebHost_Resource
