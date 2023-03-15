@@ -475,11 +475,6 @@ var appInsights_ResourceName = 'appi-${Cdph_Organization}-${Cdph_BusinessUnit}-$
 
 var logAnalytics_Workspace_ResourceName = 'log-${Cdph_Organization}-${Cdph_BusinessUnit}-${Cdph_BusinessUnitProgram}-${Cdph_Environment}-${arm_ResourceInstance_ZeroPadded}'
 
-// Azure Resource Provider variables
-// ---------------------------------
-
-var Azure_AppService_ApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' // fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-
 // =========
 // RESOURCES
 // =========
@@ -903,9 +898,6 @@ resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01'
     // location: Arm_MainSiteResourceLocation
     // tags: cdph_CommonTags
   }
-  dependsOn: [
-    keyVault_AccessPolicies_WebHost_Resource
-  ]
 }
 
 /*
@@ -949,31 +941,6 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
   }
 }
 */
-resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault_Resource
-  properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        applicationId: Azure_AppService_ApplicationId
-        // objectId: appService_WebHost_Resource.identity.principalId // DO NOT USE
-        permissions: {
-          certificates: [
-            'get'
-          ]
-          secrets: [
-            'get'
-          ]
-          keys: [
-            'get'
-          ]
-        }
-      }
-    ]
-  }
-}
-
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
 output out_AzAppService_CustomDomainVerification string = appService_WebHost_Resource.properties.customDomainVerificationId
