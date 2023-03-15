@@ -727,6 +727,14 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // vnetRouteAllEnabled: false
   }
 
+  resource appService_WebHost_HostNameBindings 'hostNameBindings' = {
+    name: appService_WebHost_FullCustomDomainName
+    properties: {
+      sslState: 'SniEnabled'
+      thumbprint: appService_Certificate_Resource.properties.thumbprint
+    }
+  }
+
 /*   resource appService_WebHost_Config_Resource 'config' = {
     name: 'web'
     properties: {
