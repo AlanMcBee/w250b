@@ -223,7 +223,7 @@ function Deploy-REDCapMain
         }
         # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
         $armDeployment = $null
-        $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent | Select-Object -First 1
+        $armDeployment = New-AzResourceGroupDeployment @deployArgs -Force -Verbose -DeploymentDebugLogLevel ResponseContent -ErrorAction Continue | Select-Object -First 1
         if ($null -eq $armDeployment)
         {
             throw 'New-AzResourceGroupDeployment returned $null'
@@ -260,7 +260,7 @@ function Deploy-REDCapMain
     catch
     {
         $x = $_
-        Write-CaughtErrorRecord $x Error -IncludeStackTrace
+        Write-CaughtErrorRecord -CaughtError $x -ErrorLevel Error -IncludeStackTrace
         $deploymentResult.Error = $x
         $deploymentResult.Successful = $false
     }
