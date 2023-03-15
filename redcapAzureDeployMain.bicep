@@ -752,8 +752,9 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       isManualIntegration: true
       repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
     }
-  } */
- */}
+  }
+ */
+}
 
 resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
   name: appService_Certificate_ResourceName
