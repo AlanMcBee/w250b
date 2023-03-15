@@ -688,7 +688,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-  /* resource appService_WebHost_Config_AppSettings_Resource 'config' = {
+  resource appService_WebHost_Config_AppSettings_Resource 'config' = {
     name: 'appsettings'
     properties: {
       // SCM (Kudu)
@@ -727,7 +727,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     dependsOn: [
       appService_WebHost_SiteExtensions_AppInsightsResource
     ]
-  } */
+  }
 
   // resource appService_WebHost_Certificates_Resource 'publicCertificates' = {
   //   name: appService_WebHost_Certificate_Redcap_ResourceName
@@ -738,14 +738,14 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   //   }
   // }
 
-/*   resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
+  resource appService_WebHost_SiteExtensions_AppInsightsResource 'siteextensions' = if (Monitor_ApplicationInsights)  {
     name: 'Microsoft.ApplicationInsights.AzureWebSites'
     dependsOn: [
       appInsights_Resource
     ]
   }
 
-  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
+/*  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
     name: 'web'
     properties: {
       branch: 'main'
