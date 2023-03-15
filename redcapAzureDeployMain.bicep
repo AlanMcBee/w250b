@@ -634,31 +634,6 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: Cdph_KeyVaultResourceName
 }
 
-/* resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault_Resource
-  properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        applicationId: Azure_AppService_ApplicationId
-        objectId: appService_WebHost_Resource.identity.principalId
-        permissions: {
-          certificates: [
-            'get'
-          ]
-          secrets: [
-            'get'
-          ]
-          keys: [
-            'get'
-          ]
-        }
-      }
-    ]
-  }
-}
- */
 /* 
 Do we need this? 
 
@@ -700,48 +675,6 @@ resource appService_Plan_Resource 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
-/*
-resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
-  name: appService_Certificate_ResourceName
-  location: Arm_MainSiteResourceLocation
-  tags: cdph_CommonTags
-  properties: {
-    // canonicalName: appService_WebHost_FullDomainName
-    hostNames: [
-      appService_WebHost_FullCustomDomainName
-    ]
-    keyVaultId: keyVault_Resource.id
-    keyVaultSecretName: appService_WebHost_Resource.name
-    // name: appService_Certificate_ResourceName
-    // keyVaultId: keyVault_Resource.id
-    // keyVaultSecretName: keyVault_Secret_ResourceName
-    // password: keyVault_Secret_ResourceName
-    // pfxBlob: keyVault_Secret_ResourceName
-    // serverFarmId: appService_Plan_Resource.id
-    // siteName: appService_WebHost_ResourceName
-    // subjectName: appService_WebHost_FullDomainName
-    // valid: true
-    // hostNames: [
-    //   appService_WebHost_FullDomainName
-    // ]
-    // issueDate: '2021-08-01T00:00:00Z'
-    // expirationDate: '2022-08-01T00:00:00Z'
-    // thumbprint: Cdph_SslCertificateThumbprint
-    // selfLink: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
-    // kind: 'app'
-    // hostingEnvironmentProfile: json('null')
-    // resourceGroup: '00000000-0000-0000-0000-000000000000'
-    // subscription: '00000000-0000-0000-0000-000000000000'
-    // id: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
-    // type: 'Microsoft.Web/certificates'
-    // location: Arm_MainSiteResourceLocation
-    // tags: cdph_CommonTags
-  }
-  dependsOn: [
-    keyVault_AccessPolicies_WebHost_Resource
-  ]
-}
-
 resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
   name: appService_WebHost_ResourceName
   location: Arm_MainSiteResourceLocation
@@ -761,7 +694,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // containerSize: 0
     // customDomainVerificationId: appService_WebHost_CustomDomainDnsTxtRecordVerificationDefault
     // dailyMemoryTimeQuota: 0
-    hostNamesDisabled: false
+/*     hostNamesDisabled: false
     hostNameSslStates: [
       {
         name: appService_WebHost_FullCustomDomainName
@@ -780,12 +713,12 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
         hostType: 'Repository'
       }
     ]
-
+ */
     httpsOnly: true
     // hyperV: false
     // isXenon: false
-    keyVaultReferenceIdentity: 'SystemAssigned'
-    // redundancyMode: 'None'
+/*     keyVaultReferenceIdentity: 'SystemAssigned'
+ */    // redundancyMode: 'None'
     // reserved: false
     // scmSiteAlsoStopped: false
     serverFarmId: appService_Plan_Resource.id
@@ -799,7 +732,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     // vnetRouteAllEnabled: false
   }
 
-  resource appService_WebHost_Config_Resource 'config' = {
+/*   resource appService_WebHost_Config_Resource 'config' = {
     name: 'web'
     properties: {
       // acrUseManagedIdentityCreds: false
@@ -930,7 +863,49 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       isManualIntegration: true
       repoUrl: AppService_WebHost_SourceControl_GitHubRepositoryUri
     }
+  } */
+}
+
+/*
+resource appService_Certificate_Resource 'Microsoft.Web/certificates@2022-03-01' = {
+  name: appService_Certificate_ResourceName
+  location: Arm_MainSiteResourceLocation
+  tags: cdph_CommonTags
+  properties: {
+    // canonicalName: appService_WebHost_FullDomainName
+    hostNames: [
+      appService_WebHost_FullCustomDomainName
+    ]
+    keyVaultId: keyVault_Resource.id
+    keyVaultSecretName: appService_WebHost_Resource.name
+    // name: appService_Certificate_ResourceName
+    // keyVaultId: keyVault_Resource.id
+    // keyVaultSecretName: keyVault_Secret_ResourceName
+    // password: keyVault_Secret_ResourceName
+    // pfxBlob: keyVault_Secret_ResourceName
+    // serverFarmId: appService_Plan_Resource.id
+    // siteName: appService_WebHost_ResourceName
+    // subjectName: appService_WebHost_FullDomainName
+    // valid: true
+    // hostNames: [
+    //   appService_WebHost_FullDomainName
+    // ]
+    // issueDate: '2021-08-01T00:00:00Z'
+    // expirationDate: '2022-08-01T00:00:00Z'
+    // thumbprint: Cdph_SslCertificateThumbprint
+    // selfLink: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
+    // kind: 'app'
+    // hostingEnvironmentProfile: json('null')
+    // resourceGroup: '00000000-0000-0000-0000-000000000000'
+    // subscription: '00000000-0000-0000-0000-000000000000'
+    // id: 'https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/00000000-0000-0000-0000-000000000000/providers/Microsoft.Web/certificates/00000000-0000-0000-0000-000000000000?api-version=2021-02-01'
+    // type: 'Microsoft.Web/certificates'
+    // location: Arm_MainSiteResourceLocation
+    // tags: cdph_CommonTags
   }
+  dependsOn: [
+    keyVault_AccessPolicies_WebHost_Resource
+  ]
 }
 
 resource appService_WebHost_BasicPublishingCredentialsPolicies_Scm_Resource 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-03-01' = {
@@ -973,6 +948,30 @@ resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspac
   }
 }
 
+resource keyVault_AccessPolicies_WebHost_Resource 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault_Resource
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        applicationId: Azure_AppService_ApplicationId
+        objectId: appService_WebHost_Resource.identity.principalId
+        permissions: {
+          certificates: [
+            'get'
+          ]
+          secrets: [
+            'get'
+          ]
+          keys: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
+}
 */
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output
