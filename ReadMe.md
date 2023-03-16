@@ -63,19 +63,19 @@
 | Cdph_ResourceInstance                                       | `1`                 | `01`                                     |
 | Cdph_ClientIPAddress                                        | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | Cdph_SslCertificateThumbprint                               | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
-|
+|                                                             |                     |                                          |
 | Arm_MainSiteResourceLocation                                | `eastus`            | `eastus`                                 |
 | Arm_StorageResourceLocation                                 | `westus`            | `westus`                                 |
 | Arm_DeploymentCreationDateTime                              | *(empty)*           | Current UTC date/time                    |
-|
+|                                                             |                     |                                          |
 | AppServicePlan_SkuName                                      | `S1`                | `S1`                                     |
 | AppServicePlan_Capacity                                     | `1`                 | `1` instance                             |
-|
+|                                                             |                     |                                          |
 | AppService_LinuxFxVersion                                   | `php\               |8.2`                                      | `php\|8.2` |
 | AppService_WebApp_Subdomain                                 | *(empty)*           | `redcap-dev-01.cdph.ca.gov`              |
 | AppService_WebApp_CustomDomainDnsTxtRecordVerificationValue | *(empty)*           | A random value (shared in output)        |
 | AppService_WebHost_SourceControl_GitHubRepositoryUri        | *(empty)*           | `https://github.com/AlanMcBee/w250b.git` |
-|
+|                                                             |                     |                                          |
 | DatabaseForMySql_Tier                                       | `GeneralPurpose`    | `GeneralPurpose`                         |
 | DatabaseForMySql_Sku                                        | `Standard_D4ads_v5` | `Standard_D4ads_v5`                      |
 | DatabaseForMySql_ServerName                                 | *(empty)*           | `REDCap-Dev-01.mysql.database.azure.com` |
@@ -84,20 +84,20 @@
 | DatabaseForMySql_StorageGB                                  | `20`                | `20` GiB                                 |
 | DatabaseForMySql_BackupRetentionDays                        | `7`                 | `7` days                                 |
 | DatabaseForMySql_DbName                                     | `redcap`            | `redcap_db`                              |
-|
+|                                                             |                     |                                          |
 | StorageAccount_Redundancy                                   | `Standard_LRS`      | `Standard_LRS`                           |
-|
+|                                                             |                     |                                          |
 | ProjectRedcap_CommunityUsername                             | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | <del>*ProjectRedcap_CommunityPassword*</del>                |                     | *DO NOT SET IN THIS FILE*                |
 | ProjectRedcap_DownloadAppZipUri                             | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | ProjectRedcap_DownloadAppZipVersion                         | `latest`            | `latest`                                 |
-|
+|                                                             |                     |                                          |
 | Smtp_FQDN                                                   | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | Smtp_Port                                                   | `587`               | `587`                                    |
 | Smtp_UserLogin                                              | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
 | <del>*Smtp_UserPassword*</del>                              |                     | *DO NOT SET IN THIS FILE*                |
 | Smtp_FromEmailAddress                                       | *(empty)*           | *OVERRIDE IS REQUIRED*                   |
-|
+| -----                                                       |                     |                                          |
 | Monitor_ApplicationInsights                                 | `true`              | `true`                                   |
 
 For any parameters that are marked as *OVERRIDE IS REQUIRED*, you must provide a value, either by saving it in the `redcapAzureDeploy.parameters.json` file or by passing it in on the command line (which can include modifying the `Deploy-REDCapKeyVault.ps1` or `Deploy-REDCapMain.ps1` files).
