@@ -441,8 +441,7 @@ var appService_WebHost_SubdomainFinal = !empty(AppService_WebHost_Subdomain) ? A
 // var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_UniqueDefaultSubdomain}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultFullDomain = '${appService_WebHost_ResourceName}.azurewebsites.net'
 var appService_WebHost_UniqueDefaultKuduFullDomain = '${appService_WebHost_ResourceName}.scm.azurewebsites.net'
-// var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
-var appService_WebHost_FullCustomDomainName = 'overthinker.blog'
+var appService_WebHost_FullCustomDomainName = '${appService_WebHost_SubdomainFinal}.cdph.ca.gov'
 
 // var appService_WebHost_Certificate_Redcap_ResourceName = 'redcap'
 
