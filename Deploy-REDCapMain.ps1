@@ -106,8 +106,6 @@ function Deploy-REDCapMain
             'Cdph_BusinessUnitProgram',
             'Cdph_SslCertificateThumbprint',
             'AppService_WebHost_SourceControl_GitHubRepositoryUri',
-            'ProjectRedcap_CommunityUsername',
-            'ProjectRedcap_DownloadAppZipUri',
             'Smtp_FQDN',
             'Smtp_UserLogin',
             'Smtp_FromEmailAddress'
