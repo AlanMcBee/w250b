@@ -711,14 +711,14 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
 
       // REDCap
       redcapAppZip: ProjectRedcap_DownloadAppZipUri
-      redcapCommunityUsername: ProjectRedcap_CommunityUsername
-      redcapCommunityPassword: ProjectRedcap_CommunityPassword
-      redcapAppZipVersion: ProjectRedcap_DownloadAppZipVersion
+      zipUsername: ProjectRedcap_CommunityUsername
+      zipPassword: ProjectRedcap_CommunityPassword
+      zipVersion: ProjectRedcap_DownloadAppZipVersion
 
       // Azure Storage
-      StorageContainerName: storageAccount_ContainerName
       StorageAccount: storageAccount_ResourceName
       StorageKey: storageAccount_Key
+      StorageContainerName: storageAccount_ContainerName
 
       // MySQL
       DBHostName: databaseForMySql_HostName
@@ -727,9 +727,9 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       DBPassword: DatabaseForMySql_AdministratorLoginPassword
 
       // SMTP
-      from_email_address: Smtp_FromEmailAddress
-      smtp_fqdn_name: Smtp_FQDN
-      smtp_port: '${Smtp_Port}'
+      fromEmailAddress: Smtp_FromEmailAddress
+      smtpFqdn: Smtp_FQDN
+      smtpPort: '${Smtp_Port}'
       smtp_user_name: Smtp_UserLogin
       smtp_password: Smtp_UserPassword
     }
