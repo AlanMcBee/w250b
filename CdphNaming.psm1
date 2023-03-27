@@ -1,7 +1,16 @@
-function New-KeyVaultResourceName
+function New-CdphResourceName
 {
     [CmdletBinding()]
     param (
+        # Resource Provider Name
+        [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'Microsoft.KeyVault/vaults',
+            'Microsoft.Storage/storageAccounts'
+        )]
+        [string]
+        $Arm_ResourceProvider,
+
         # CDPH Owner
         [Parameter(Mandatory = $true)]
         [ValidateSet('ITSD', 'CDPH')]
@@ -22,7 +31,7 @@ function New-KeyVaultResourceName
 
         # Targeted deployment environment
         [Parameter(Mandatory = $true)]
-        [ValidateSet('DEV', 'TEST', 'PROD')]
+        [ValidateSet('DEV', 'TEST', 'STAGE', 'PROD')]
         [string]
         $Cdph_Environment,
 
@@ -34,7 +43,9 @@ function New-KeyVaultResourceName
     )
 
     begin
-    { }
+    { 
+        $newResourceName = $null
+    }
 
     process
     {
@@ -43,22 +54,48 @@ function New-KeyVaultResourceName
         $unitLength = $Cdph_BusinessUnit.Length
         $programLength = $Cdph_BusinessUnitProgram.Length
         $envLength = $Cdph_Environment.Length
-        $minBaseLength = 'kv00'.Length + 4 # 'kv' + 2-digit instance + 4 hyphens (not including the last hyphen which is optional)
-        $maxKeyVaultNameLength = 24
         $inputNameLength = $orgLength + $unitLength + $programLength + $envLength
-        $inputOverBaseLength = $inputNameLength + $minBaseLength
-        $isOneOverMax = $inputOverBaseLength -eq $maxKeyVaultNameLength # if one over, will just remove the last hyphen
-        $isOverMax = $inputOverBaseLength -gt $maxKeyVaultNameLength # if over, will remove the last hyphen anyway
-        $lastHyphen = ($isOneOverMax -or $isOverMax) ? '' : '-'
-        $lengthOverMax = [Math]::Max(0, $inputOverBaseLength - $maxKeyVaultNameLength) # adjust for the removed hyphen
-        $newProgramLength = $programLength - $lengthOverMax
-        $newProgram = $Cdph_BusinessUnitProgram.Substring(0, $newProgramLength)
-        $keyVault_ResourceName = "kv-$Cdph_Organization-$Cdph_BusinessUnit-$newProgram-$Cdph_Environment$lastHyphen$arm_ResourceInstance_ZeroPadded"
-        Write-Output $keyVault_ResourceName
+        switch ($Arm_ResourceProvider)
+        {
+            'Microsoft.KeyVault/vaults'
+            {
+                $prefix = 'kv'
+                $minBaseLength = $prefix.Length + 6 # 'kv' + 2-digit instance + 4 hyphens (not including the last hyphen which is optional)
+                $maxKeyVaultNameLength = 24
+                $inputOverBaseLength = $inputNameLength + $minBaseLength
+                $isOneOverMax = $inputOverBaseLength -eq $maxKeyVaultNameLength # if one over, will just remove the last hyphen
+                $isOverMax = $inputOverBaseLength -gt $maxKeyVaultNameLength # if over, will remove the last hyphen anyway
+                $lastHyphen = ($isOneOverMax -or $isOverMax) ? '' : '-'
+                $lengthOverMax = [Math]::Max(0, $inputOverBaseLength - $maxKeyVaultNameLength) # adjust for the removed hyphen
+                $newProgramLength = $programLength - $lengthOverMax
+                $newProgram = $Cdph_BusinessUnitProgram.Substring(0, $newProgramLength)
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$newProgram-$Cdph_Environment$lastHyphen$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.Storage/storageAccounts'
+            {
+                $prefix = 'st'
+                $minBaseLength = $prefix.Length + 2 # 'st' + 2-digit instance
+                $maxStorageAccountNameLength = 24
+                $inputOverBaseLength = $inputNameLength + $minBaseLength
+                $isOvermax = $inputOverBaseLength -gt $maxStorageAccountNameLength
+                $lengthOverMax = [Math]::Max(0, $inputOverBaseLength - $maxStorageAccountNameLength)
+                $newProgramLength = $programLength - $lengthOverMax
+                $newProgram = $Cdph_BusinessUnitProgram.Substring(0, $newProgramLength)
+                $newResourceName = "$prefix$Cdph_Organization$Cdph_BusinessUnit$newProgram$Cdph_Environment$arm_ResourceInstance_ZeroPadded".ToLower()
+                break
+            }
+            default
+            {
+                throw "Unsupported resource provider: $Arm_ResourceProvider"
+            }
+        }
     }
-
+    
     end
-    { }
+    { 
+        Write-Output $newResourceName
+    }
 }
-Export-ModuleMember -Function 'New-KeyVaultResourceName'
+Export-ModuleMember -Function 'New-CdphResourceName'
 
