@@ -1,0 +1,731 @@
+{
+  "australiacentral": {
+    "Location": "australiacentral",
+    "DisplayName": "Australia Central",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Canberra",
+    "Latitude": "-35.3075",
+    "Longitude": "149.1244",
+    "PairedRegion": [
+      {
+        "Name": "australiacentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/australiacentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "australiacentral2": {
+    "Location": "australiacentral2",
+    "DisplayName": "Australia Central 2",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Canberra",
+    "Latitude": "-35.3075",
+    "Longitude": "149.1244",
+    "PairedRegion": [
+      {
+        "Name": "australiacentral2",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/australiacentral2",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "australiaeast": {
+    "Location": "australiaeast",
+    "DisplayName": "Australia East",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "New South Wales",
+    "Latitude": "-33.86",
+    "Longitude": "151.2094",
+    "PairedRegion": [
+      {
+        "Name": "australiasoutheast",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/australiasoutheast",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "australiasoutheast": {
+    "Location": "australiasoutheast",
+    "DisplayName": "Australia Southeast",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Victoria",
+    "Latitude": "-37.8136",
+    "Longitude": "144.9631",
+    "PairedRegion": [
+      {
+        "Name": "australiaeast",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/australiaeast",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "brazilsouth": {
+    "Location": "brazilsouth",
+    "DisplayName": "Brazil South",
+    "GeographyGroup": "South America",
+    "PhysicalLocation": "Sao Paulo State",
+    "Latitude": "-23.55",
+    "Longitude": "-46.633",
+    "PairedRegion": [
+      {
+        "Name": "southcentralus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southcentralus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "brazilsoutheast": {
+    "Location": "brazilsoutheast",
+    "DisplayName": "Brazil Southeast",
+    "GeographyGroup": "South America",
+    "PhysicalLocation": "Rio",
+    "Latitude": "-22.90278",
+    "Longitude": "-43.2075",
+    "PairedRegion": [
+      {
+        "Name": "brazilsouth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/brazilsouth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "canadacentral": {
+    "Location": "canadacentral",
+    "DisplayName": "Canada Central",
+    "GeographyGroup": "Canada",
+    "PhysicalLocation": "Toronto",
+    "Latitude": "43.653",
+    "Longitude": "-79.383",
+    "PairedRegion": [
+      {
+        "Name": "canadaeast",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/canadaeast",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "canadaeast": {
+    "Location": "canadaeast",
+    "DisplayName": "Canada East",
+    "GeographyGroup": "Canada",
+    "PhysicalLocation": "Quebec",
+    "Latitude": "46.817",
+    "Longitude": "-71.217",
+    "PairedRegion": [
+      {
+        "Name": "canadacentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/canadacentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "centralindia": {
+    "Location": "centralindia",
+    "DisplayName": "Central India",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Pune",
+    "Latitude": "18.5822",
+    "Longitude": "73.9197",
+    "PairedRegion": [
+      {
+        "Name": "southindia",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southindia",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "centralus": {
+    "Location": "centralus",
+    "DisplayName": "Central US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Iowa",
+    "Latitude": "41.5908",
+    "Longitude": "-93.6208",
+    "PairedRegion": [
+      {
+        "Name": "eastus2",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/eastus2",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "centraluseuap": {
+    "Location": "centraluseuap",
+    "DisplayName": "Central US EUAP",
+    "GeographyGroup": "US",
+    "PhysicalLocation": null,
+    "Latitude": "41.5908",
+    "Longitude": "-93.6208",
+    "PairedRegion": [
+      {
+        "Name": "eastus2euap",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/eastus2euap",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "eastasia": {
+    "Location": "eastasia",
+    "DisplayName": "East Asia",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Hong Kong",
+    "Latitude": "22.267",
+    "Longitude": "114.188",
+    "PairedRegion": [
+      {
+        "Name": "southeastasia",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southeastasia",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "eastus": {
+    "Location": "eastus",
+    "DisplayName": "East US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Virginia",
+    "Latitude": "37.3719",
+    "Longitude": "-79.8164",
+    "PairedRegion": [
+      {
+        "Name": "westus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/westus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "eastus2": {
+    "Location": "eastus2",
+    "DisplayName": "East US 2",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Virginia",
+    "Latitude": "36.6681",
+    "Longitude": "-78.3889",
+    "PairedRegion": [
+      {
+        "Name": "centralus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/centralus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "eastus2euap": {
+    "Location": "eastus2euap",
+    "DisplayName": "East US 2 EUAP",
+    "GeographyGroup": "US",
+    "PhysicalLocation": null,
+    "Latitude": "36.6681",
+    "Longitude": "-78.3889",
+    "PairedRegion": [
+      {
+        "Name": "centraluseuap",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/centraluseuap",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "eastusstg": {
+    "Location": "eastusstg",
+    "DisplayName": "East US STG",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Virginia",
+    "Latitude": "37.3719",
+    "Longitude": "-79.8164",
+    "PairedRegion": [
+      {
+        "Name": "southcentralusstg",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southcentralusstg",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "francecentral": {
+    "Location": "francecentral",
+    "DisplayName": "France Central",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Paris",
+    "Latitude": "46.3772",
+    "Longitude": "2.3730",
+    "PairedRegion": [
+      {
+        "Name": "francesouth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/francesouth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "francesouth": {
+    "Location": "francesouth",
+    "DisplayName": "France South",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Marseille",
+    "Latitude": "43.8345",
+    "Longitude": "2.1972",
+    "PairedRegion": [
+      {
+        "Name": "francecentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/francecentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "germanynorth": {
+    "Location": "germanynorth",
+    "DisplayName": "Germany North",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Berlin",
+    "Latitude": "53.073635",
+    "Longitude": "8.806422",
+    "PairedRegion": [
+      {
+        "Name": "germanywestcentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/germanywestcentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "germanywestcentral": {
+    "Location": "germanywestcentral",
+    "DisplayName": "Germany West Central",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Frankfurt",
+    "Latitude": "50.110924",
+    "Longitude": "8.682127",
+    "PairedRegion": [
+      {
+        "Name": "germanynorth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/germanynorth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "japaneast": {
+    "Location": "japaneast",
+    "DisplayName": "Japan East",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Tokyo, Saitama",
+    "Latitude": "35.68",
+    "Longitude": "139.77",
+    "PairedRegion": [
+      {
+        "Name": "japanwest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/japanwest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "japanwest": {
+    "Location": "japanwest",
+    "DisplayName": "Japan West",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Osaka",
+    "Latitude": "34.6939",
+    "Longitude": "135.5022",
+    "PairedRegion": [
+      {
+        "Name": "japaneast",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/japaneast",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "jioindiacentral": {
+    "Location": "jioindiacentral",
+    "DisplayName": "Jio India Central",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Nagpur",
+    "Latitude": "21.146633",
+    "Longitude": "79.08886",
+    "PairedRegion": [
+      {
+        "Name": "jioindiawest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/jioindiawest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "jioindiawest": {
+    "Location": "jioindiawest",
+    "DisplayName": "Jio India West",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Jamnagar",
+    "Latitude": "22.470701",
+    "Longitude": "70.05773",
+    "PairedRegion": [
+      {
+        "Name": "jioindiacentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/jioindiacentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "koreacentral": {
+    "Location": "koreacentral",
+    "DisplayName": "Korea Central",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Seoul",
+    "Latitude": "37.5665",
+    "Longitude": "126.9780",
+    "PairedRegion": [
+      {
+        "Name": "koreasouth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/koreasouth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "koreasouth": {
+    "Location": "koreasouth",
+    "DisplayName": "Korea South",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Busan",
+    "Latitude": "35.1796",
+    "Longitude": "129.0756",
+    "PairedRegion": [
+      {
+        "Name": "koreacentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/koreacentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "northcentralus": {
+    "Location": "northcentralus",
+    "DisplayName": "North Central US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Illinois",
+    "Latitude": "41.8819",
+    "Longitude": "-87.6278",
+    "PairedRegion": [
+      {
+        "Name": "southcentralus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southcentralus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "northeurope": {
+    "Location": "northeurope",
+    "DisplayName": "North Europe",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Ireland",
+    "Latitude": "53.3478",
+    "Longitude": "-6.2597",
+    "PairedRegion": [
+      {
+        "Name": "westeurope",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/westeurope",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "norwayeast": {
+    "Location": "norwayeast",
+    "DisplayName": "Norway East",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Norway",
+    "Latitude": "59.913868",
+    "Longitude": "10.752245",
+    "PairedRegion": [
+      {
+        "Name": "norwaywest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/norwaywest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "norwaywest": {
+    "Location": "norwaywest",
+    "DisplayName": "Norway West",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Norway",
+    "Latitude": "58.969975",
+    "Longitude": "5.733107",
+    "PairedRegion": [
+      {
+        "Name": "norwayeast",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/norwayeast",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "qatarcentral": {
+    "Location": "qatarcentral",
+    "DisplayName": "Qatar Central",
+    "GeographyGroup": "Middle East",
+    "PhysicalLocation": "Doha",
+    "Latitude": "25.551462",
+    "Longitude": "51.439327",
+    "PairedRegion": []
+  },
+  "southafricanorth": {
+    "Location": "southafricanorth",
+    "DisplayName": "South Africa North",
+    "GeographyGroup": "Africa",
+    "PhysicalLocation": "Johannesburg",
+    "Latitude": "-25.731340",
+    "Longitude": "28.218370",
+    "PairedRegion": [
+      {
+        "Name": "southafricawest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southafricawest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "southafricawest": {
+    "Location": "southafricawest",
+    "DisplayName": "South Africa West",
+    "GeographyGroup": "Africa",
+    "PhysicalLocation": "Cape Town",
+    "Latitude": "-34.075691",
+    "Longitude": "18.843266",
+    "PairedRegion": [
+      {
+        "Name": "southafricanorth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southafricanorth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "southcentralus": {
+    "Location": "southcentralus",
+    "DisplayName": "South Central US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Texas",
+    "Latitude": "29.4167",
+    "Longitude": "-98.5",
+    "PairedRegion": [
+      {
+        "Name": "northcentralus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/northcentralus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "southeastasia": {
+    "Location": "southeastasia",
+    "DisplayName": "Southeast Asia",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Singapore",
+    "Latitude": "1.283",
+    "Longitude": "103.833",
+    "PairedRegion": [
+      {
+        "Name": "eastasia",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/eastasia",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "southindia": {
+    "Location": "southindia",
+    "DisplayName": "South India",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Chennai",
+    "Latitude": "12.9822",
+    "Longitude": "80.1636",
+    "PairedRegion": [
+      {
+        "Name": "centralindia",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/centralindia",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "swedencentral": {
+    "Location": "swedencentral",
+    "DisplayName": "Sweden Central",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Gävle",
+    "Latitude": "60.67488",
+    "Longitude": "17.14127",
+    "PairedRegion": [
+      {
+        "Name": "swedensouth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/swedensouth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "switzerlandnorth": {
+    "Location": "switzerlandnorth",
+    "DisplayName": "Switzerland North",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Zurich",
+    "Latitude": "47.451542",
+    "Longitude": "8.564572",
+    "PairedRegion": [
+      {
+        "Name": "switzerlandwest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/switzerlandwest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "switzerlandwest": {
+    "Location": "switzerlandwest",
+    "DisplayName": "Switzerland West",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Geneva",
+    "Latitude": "46.204391",
+    "Longitude": "6.143158",
+    "PairedRegion": [
+      {
+        "Name": "switzerlandnorth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/switzerlandnorth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "uaecentral": {
+    "Location": "uaecentral",
+    "DisplayName": "UAE Central",
+    "GeographyGroup": "Middle East",
+    "PhysicalLocation": "Abu Dhabi",
+    "Latitude": "24.466667",
+    "Longitude": "54.366669",
+    "PairedRegion": [
+      {
+        "Name": "uaenorth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/uaenorth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "uaenorth": {
+    "Location": "uaenorth",
+    "DisplayName": "UAE North",
+    "GeographyGroup": "Middle East",
+    "PhysicalLocation": "Dubai",
+    "Latitude": "25.266666",
+    "Longitude": "55.316666",
+    "PairedRegion": [
+      {
+        "Name": "uaecentral",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/uaecentral",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "uksouth": {
+    "Location": "uksouth",
+    "DisplayName": "UK South",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "London",
+    "Latitude": "50.941",
+    "Longitude": "-0.799",
+    "PairedRegion": [
+      {
+        "Name": "ukwest",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/ukwest",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "ukwest": {
+    "Location": "ukwest",
+    "DisplayName": "UK West",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Cardiff",
+    "Latitude": "53.427",
+    "Longitude": "-3.084",
+    "PairedRegion": [
+      {
+        "Name": "uksouth",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/uksouth",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westcentralus": {
+    "Location": "westcentralus",
+    "DisplayName": "West Central US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Wyoming",
+    "Latitude": "40.890",
+    "Longitude": "-110.234",
+    "PairedRegion": [
+      {
+        "Name": "westus2",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/westus2",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westeurope": {
+    "Location": "westeurope",
+    "DisplayName": "West Europe",
+    "GeographyGroup": "Europe",
+    "PhysicalLocation": "Netherlands",
+    "Latitude": "52.3667",
+    "Longitude": "4.9",
+    "PairedRegion": [
+      {
+        "Name": "northeurope",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/northeurope",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westindia": {
+    "Location": "westindia",
+    "DisplayName": "West India",
+    "GeographyGroup": "Asia Pacific",
+    "PhysicalLocation": "Mumbai",
+    "Latitude": "19.088",
+    "Longitude": "72.868",
+    "PairedRegion": [
+      {
+        "Name": "southindia",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/southindia",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westus": {
+    "Location": "westus",
+    "DisplayName": "West US",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "California",
+    "Latitude": "37.783",
+    "Longitude": "-122.417",
+    "PairedRegion": [
+      {
+        "Name": "eastus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/eastus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westus2": {
+    "Location": "westus2",
+    "DisplayName": "West US 2",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Washington",
+    "Latitude": "47.233",
+    "Longitude": "-119.852",
+    "PairedRegion": [
+      {
+        "Name": "westcentralus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/westcentralus",
+        "SubscriptionId": null
+      }
+    ]
+  },
+  "westus3": {
+    "Location": "westus3",
+    "DisplayName": "West US 3",
+    "GeographyGroup": "US",
+    "PhysicalLocation": "Phoenix",
+    "Latitude": "33.448376",
+    "Longitude": "-112.074036",
+    "PairedRegion": [
+      {
+        "Name": "eastus",
+        "Id": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/locations/eastus",
+        "SubscriptionId": null
+      }
+    ]
+  }
+}
