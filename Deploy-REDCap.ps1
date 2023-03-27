@@ -54,6 +54,11 @@ param (
     [int]
     $Cdph_ResourceInstance = 1,
 
+    # Optional CDPH environment name to allow multiple deployments to the same subscription. If not specified, the default value of 'dev' will be used.
+    [Parameter()]
+    [string]
+    $Cdph_Environment = 'dev',
+
     # Path to PFX certificate file to upload to Key Vault for App Service SSL binding
     [Parameter(Mandatory = $true)]
     [ValidateScript({Test-Path $_})]

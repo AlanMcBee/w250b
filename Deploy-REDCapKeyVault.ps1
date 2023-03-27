@@ -48,6 +48,11 @@ function Deploy-REDCapKeyVault
         [int]
         $Cdph_ResourceInstance = 1,
     
+        # Optional CDPH environment name to allow multiple deployments to the same subscription. If not specified, the default value of 'dev' will be used.
+        [Parameter()]
+        [string]
+        $Cdph_Environment = 'dev',
+
         # Path to PFX certificate file to upload to Key Vault for App Service SSL binding
         [Parameter(Mandatory = $true)]
         [ValidateScript({Test-Path $_})]
@@ -97,7 +102,7 @@ function Deploy-REDCapKeyVault
         }
 
         $parametersEntry = $deployParameters.parameters
-        foreach ($requiredParameter in $requiredParameters)
+        foreach ($requiredParameter in $requiredParameters) 
         {
             if (-not $parametersEntry.ContainsKey($requiredParameter))
             {
@@ -124,6 +129,10 @@ function Deploy-REDCapKeyVault
         if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -and ![string]::IsNullOrWhiteSpace($Cdph_ResourceInstance))
         {
             $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+        }
+        if ($PSBoundParameters.ContainsKey('Cdph_Environment') -or -not([string]::IsNullOrWhiteSpace($Cdph_Environment)))
+        {
+            $flattenedParameters['Cdph_Environment'] = $Cdph_Environment
         }
         if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
         {

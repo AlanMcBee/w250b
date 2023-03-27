@@ -67,6 +67,11 @@ function Deploy-REDCapMain
         [int]
         $Cdph_ResourceInstance = 1,
 
+        # Optional CDPH environment name to allow multiple deployments to the same subscription. If not specified, the default value of 'dev' will be used.
+        [Parameter()]
+        [string]
+        $Cdph_Environment = 'dev',
+
         # Password for MySQL administrator account
         # Recommended: Use Get-Secret to retrieve the password from a secure store.
         [Parameter(Mandatory = $true)]
@@ -146,6 +151,10 @@ function Deploy-REDCapMain
         if ($PSBoundParameters.ContainsKey('Cdph_ResourceInstance') -or $Cdph_ResourceInstance -gt 1)
         {
             $flattenedParameters['Cdph_ResourceInstance'] = $Cdph_ResourceInstance
+        }
+        if ($PSBoundParameters.ContainsKey('Cdph_Environment') -or -not([string]::IsNullOrWhiteSpace($Cdph_Environment)))
+        {
+            $flattenedParameters['Cdph_Environment'] = $Cdph_Environment
         }
         if ($PSBoundParameters.ContainsKey('Arm_MainSiteResourceLocation') -or -not([string]::IsNullOrWhiteSpace($Arm_MainSiteResourceLocation)))
         {
