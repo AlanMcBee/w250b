@@ -6,6 +6,12 @@ Deploy-REDCap.ps1
  #>
 
 param (
+    # CDPH Owner
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('ITSD', 'CDPH')]
+    [string]
+    $Cdph_Organization,
+
     # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
     [Parameter()]
     [int]
@@ -59,11 +65,12 @@ Set-StrictMode -Version Latest
 . '.\Deploy-REDCapMain.ps1'
 
 $keyVaultDeployArgs = @{
-    Cdph_Environment             = $Cdph_Environment
-    Cdph_ResourceInstance        = $Cdph_ResourceInstance
-    Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
-    Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
-    Cdph_ClientIPAddress         = $Cdph_ClientIPAddress
+    Cdph_Organization           = $Cdph_Organization
+    Cdph_Environment            = $Cdph_Environment
+    Cdph_ResourceInstance       = $Cdph_ResourceInstance
+    Cdph_PfxCertificatePath     = $Cdph_PfxCertificatePath
+    Cdph_PfxCertificatePassword = $Cdph_PfxCertificatePassword
+    Cdph_ClientIPAddress        = $Cdph_ClientIPAddress
 }
 
 $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
@@ -71,6 +78,7 @@ $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
     $mainDeployArgs = @{
+        Cdph_Organization                           = $Cdph_Organization
         Cdph_Environment                            = $Cdph_Environment
         Cdph_ResourceInstance                       = $Cdph_ResourceInstance
         DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
