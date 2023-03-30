@@ -6,160 +6,44 @@
 // PARAMETERS
 // ==========
 
-// CDPH-specific parameters
-// ------------------------
-@description('CDPH Owner')
-@allowed([
-  'ITSD'
-  'CDPH'
-])
-param Cdph_Organization string = 'ITSD'
-
-@description('CDPH Business Unit (numbers & digits only)')
-@minLength(2)
-@maxLength(5)
-param Cdph_BusinessUnit string = 'ESS'
-
-@description('CDPH Business Unit Program (numbers & digits only)')
-@minLength(2)
-@maxLength(7)
-param Cdph_BusinessUnitProgram string = 'RedCap'
-
-@description('Targeted deployment environment')
-@maxLength(4)
-@minLength(1)
-@allowed([
-  'Dev'
-  'Test'
-  'Prod'
-])
-param Cdph_Environment string = 'Dev'
-
-@description('Instance number (when deploying multiple instances of this template into one environment)')
-@minValue(1)
-@maxValue(99)
-param Cdph_ResourceInstance int = 1
-
-// @description('Client IP address (IPv4 or IPv6) to allow access to the application. Default = \'\' (empty string); If empty, access will be allowed from anywhere. NOTE: This needs to be a valid IP address. If you want to allow access from anywhere, use \'*\' (asterisk).')
-@description('Client IP address (IPv4 or IPv6) to allow access to the application for this script.')
-@minLength(7)
-@maxLength(45)
-param Cdph_ClientIPAddress string
-
-@description('Key Vault resource name (must be globally unique). Use the CdphNaming.psm1 PowerShell module to generate a unique name.')
-@minLength(3)
-@maxLength(24)
-param Cdph_KeyVaultResourceName string
-
-/* 
-@description('Thumbprint for SSL SNI server certificate. A custom domain name is a required part of this template.')
-@minLength(40)
-@maxLength(40)
-param Cdph_SslCertificateThumbprint string
- */
-
-// General Azure Resource Manager parameters
-// -----------------------------------------
-
-/*
-Get current list of all possible locations for your subscription:
-  PowerShell: 
-    $locations = Get-AzLocation -ExtendedLocation:$true
-    $locations | ? RegionType -eq 'Physical' | ? PhysicalLocation | ft
-  AZ CLI: 
-    az account list-locations
-
-Get current list of all possible SKUs for a specific resource type in a specific location:
-  PowerShell:
-    Storage Account
-    App Service Plan
-    Database for MySQL Flexible Server
-      
-Locations list for public cloud, non-US locations reference:
-  'australiacentral'
-  'australiacentral2'
-  'australiaeast'
-  'australiasoutheast'
-  'brazilsouth'
-  'brazilsoutheast'
-  'canadacentral'
-  'canadaeast'
-  'centralindia'
-  'eastasia'
-  'francecentral'
-  'francesouth'
-  'germanynorth'
-  'germanywestcentral'
-  'japaneast'
-  'japanwest'
-  'jioindiacentral'
-  'jioindiawest'
-  'koreacentral'
-  'koreasouth'
-  'northeurope'
-  'norwayeast'
-  'norwaywest'
-  'qatarcentral'
-  'southafricanorth'
-  'southafricawest'
-  'southeastasia'
-  'southindia'
-  'swedencentral'
-  'switzerlandnorth'
-  'switzerlandwest'
-  'uaecentral'
-  'uaenorth'
-  'uksouth'
-  'ukwest'
-  'westeurope'
-  'westindia'
-
-*/
-
-@description('Location where most resources (website, database) will be deployed')
-@allowed([
-  // values for US in public cloud
-  'centralus'
-  'eastus'
-  'eastus2'
-  'northcentralus'
-  'southcentralus'
-  'westcentralus'
-  'westus'
-  'westus2'
-  'westus3'
-])
-param Arm_MainSiteResourceLocation string = 'eastus'
-
-/* 
-@description('Location where resources will be deployed')
-@allowed([
-  // values for US in public cloud
-  'centralus'
-  'eastus'
-  'eastus2'
-  'northcentralus'
-  'southcentralus'
-  'westcentralus'
-  'westus'
-  'westus2'
-  'westus3'
-])
-param Arm_StorageResourceLocation string = 'westus'
- */
-
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
 
 @description('Administrator object ID (GUID) for the Azure Active Directory user or group that will be granted access to the Key Vault. Default = current user')
 param Arm_AdministratorObjectId string
 
+// CDPH-specific parameters
+// ------------------------
+@description('CDPH Business Unit (numbers & digits only)')
+@minLength(2)
+@maxLength(5)
+param Cdph_BusinessUnit string
+
+@description('CDPH Business Unit Program (numbers & digits only)')
+@minLength(2)
+@maxLength(7)
+param Cdph_BusinessUnitProgram string
+
+@description('Targeted deployment environment')
+@maxLength(5)
+@minLength(1)
+@allowed([
+  'Dev'
+  'Test'
+  'Stage'
+  'Prod'
+])
+param Cdph_Environment string = 'Dev'
+
+// Key Vault parameters
+// --------------------
+
+@description('Settings for the Key Vault resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
+param MicrosoftKeyVault_vaults object
 
 // =========
 // VARIABLES
 // =========
-
-var clientIpAddressCidr = Cdph_ClientIPAddress == '' ? '' : '${Cdph_ClientIPAddress}/32'
 
 // CDPH-specific variables
 // -----------------------
@@ -176,6 +60,14 @@ var cdph_CommonTags = {
   ENVIRONMENT: Cdph_Environment
 }
 
+// Key Vault variables
+
+var keyVault_ResourceName = MicrosoftKeyVault_vaults.Arm_ResourceName
+
+var keyVault_ResourceLocation = MicrosoftKeyVault_vaults.Arm_ResourceLocation
+
+var keyVault_NetworkAcls_IpRules = MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].NetworkAcls_IpRules ?? MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].ALL.NetworkAcls_IpRules
+
 // =========
 // RESOURCES
 // =========
@@ -184,8 +76,8 @@ var cdph_CommonTags = {
 // ---------------
 
 resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: Cdph_KeyVaultResourceName
-  location: Arm_MainSiteResourceLocation
+  name: keyVault_ResourceName
+  location: keyVault_ResourceLocation
   tags: cdph_CommonTags
   properties: {
     accessPolicies: [] // required, and will be updated by redcapAzureDeployMain.bicep
@@ -198,11 +90,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      ipRules: [
-        {
-          value: clientIpAddressCidr
-        }
-      ]
+      ipRules: keyVault_NetworkAcls_IpRules
     }
     publicNetworkAccess: 'Enabled'
     sku: {

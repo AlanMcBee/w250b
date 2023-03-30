@@ -166,7 +166,115 @@ Describe 'New-CdphResourceName' {
                 $storageName = New-CdphResourceName @defaultSplattingArgs
                 $storageName | Should -BeExactly 'stitsd12123dev01'
             }
-                
+
+        }
+    }
+
+    Context 'Resource Groups' {
+        BeforeEach {
+            $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Resources/resourceGroups'
+        }
+
+        Context 'When the input is valid' {
+            It 'Should return a valid Resource Group resource name' {
+                $resourceGroupName = New-CdphResourceName @defaultSplattingArgs
+                $resourceGroupName | Should -BeExactly 'rg-ITSD-123-1234567-Dev-01'
+            }
+        }
+    }
+
+    Context 'MySQL Flexible Server' {
+        BeforeEach {
+            $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.DBforMySQL/flexibleServers'
+        }
+
+        Context 'When the input is valid' {
+            It 'Should return a valid MySQL Flexible Server resource name' {
+                $mysqlName = New-CdphResourceName @defaultSplattingArgs
+                $mysqlName | Should -BeExactly 'mysql-itsd-123-1234567-dev-01'
+            }
+        }
+    }
+
+    Context 'Virtual Network' {
+        BeforeEach {
+            $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Network/virtualNetworks'
+        }
+
+        Context 'When the input is valid' {
+            It 'Should return a valid Virtual Network resource name' {
+                $vnetName = New-CdphResourceName @defaultSplattingArgs
+                $vnetName | Should -BeExactly 'vnet-ITSD-123-1234567-Dev-01'
+            }
+        }
+    }
+
+    Context 'App Service' {
+        Context 'App Service Plan' {
+            BeforeEach {
+                $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Web/serverfarms'
+            }
+
+            Context 'When the input is valid' {
+                It 'Should return a valid App Service Plan resource name' {
+                    $appServicePlanName = New-CdphResourceName @defaultSplattingArgs
+                    $appServicePlanName | Should -BeExactly 'asp-ITSD-123-1234567-Dev-01'
+                }
+            }
+        }
+
+        Context 'Web App' {
+            BeforeEach {
+                $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Web/sites'
+            }
+
+            Context 'When the input is valid' {
+                It 'Should return a valid Web App resource name' {
+                    $webAppName = New-CdphResourceName @defaultSplattingArgs
+                    $webAppName | Should -BeExactly 'app-ITSD-123-1234567-Dev-01'
+                }
+            }
+        }
+
+        Context 'Certificate' {
+            BeforeEach {
+                $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Web/certificates'
+            }
+
+            Context 'When the input is valid' {
+                It 'Should return a valid Certificate resource name' {
+                    $certificateName = New-CdphResourceName @defaultSplattingArgs
+                    $certificateName | Should -BeExactly 'cert-ITSD-123-1234567-Dev-01'
+                }
+            }
+        }
+    }
+
+    Context 'App Insights' {
+        Context 'App Insights component' {
+            BeforeEach {
+                $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.Insights/components'
+            }
+
+            Context 'When the input is valid' {
+                It 'Should return a valid App Insights component resource name' {
+                    $appInsightsName = New-CdphResourceName @defaultSplattingArgs
+                    $appInsightsName | Should -BeExactly 'ai-ITSD-123-1234567-Dev-01'
+                }
+            }
+        }
+
+        Context 'Log Analytics Workspace' {
+            BeforeEach {
+                $defaultSplattingArgs.Arm_ResourceProvider = 'Microsoft.OperationalInsights/workspaces'
+            }
+
+            Context 'When the input is valid' {
+                It 'Should return a valid Log Analytics Workspace resource name' {
+                    $logAnalyticsWorkspaceName = New-CdphResourceName @defaultSplattingArgs
+                    $logAnalyticsWorkspaceName | Should -BeExactly 'law-ITSD-123-1234567-Dev-01'
+                }
+            }
         }
     }
 }

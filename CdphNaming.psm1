@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Creates the CDPH-compliant resource name for the specified resource provider.
+
+.DESCRIPTION
+Choose a resource provider from the list of supported resource providers and provide the required parameters to generate a CDPH-compliant resource name.
+#>
 function New-CdphResourceName
 {
     [CmdletBinding()]
@@ -5,8 +12,14 @@ function New-CdphResourceName
         # Resource Provider Name
         [Parameter(Mandatory = $true)]
         [ValidateSet(
+            'Microsoft.DBforMySQL/flexibleServers',
             'Microsoft.KeyVault/vaults',
-            'Microsoft.Storage/storageAccounts'
+            'Microsoft.Network/virtualNetworks',
+            'Microsoft.Resources/resourceGroups',
+            'Microsoft.Storage/storageAccounts',
+            'Microsoft.Web/serverfarms',
+            'Microsoft.Web/sites',
+            'Microsoft.Web/certificates'
         )]
         [string]
         $Arm_ResourceProvider,
@@ -19,13 +32,13 @@ function New-CdphResourceName
 
         # CDPH Business Unit (numbers & digits only)
         [Parameter(Mandatory = $true)]
-        [ValidateLength(2, 5)]
+        [ValidatePattern('^[a-zA-Z0-9]{2,5}$')]
         [string]
         $Cdph_BusinessUnit,
-
+        
         # CDPH Business Unit Program (numbers & digits only)
         [Parameter(Mandatory = $true)]
-        [ValidateLength(2, 7)]
+        [ValidatePattern('^[a-zA-Z0-9]{2,7}$')]
         [string]
         $Cdph_BusinessUnitProgram,
 
@@ -57,8 +70,16 @@ function New-CdphResourceName
         $inputNameLength = $orgLength + $unitLength + $programLength + $envLength
         switch ($Arm_ResourceProvider)
         {
+            'Microsoft.Resources/resourceGroups'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftresources
+                $prefix = 'rg'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
             'Microsoft.KeyVault/vaults'
             {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftkeyvault
                 $prefix = 'kv'
                 $minBaseLength = $prefix.Length + 6 # 'kv' + 2-digit instance + 4 hyphens (not including the last hyphen which is optional)
                 $maxKeyVaultNameLength = 24
@@ -74,6 +95,7 @@ function New-CdphResourceName
             }
             'Microsoft.Storage/storageAccounts'
             {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
                 $prefix = 'st'
                 $minBaseLength = $prefix.Length + 2 # 'st' + 2-digit instance
                 $maxStorageAccountNameLength = 24
@@ -83,6 +105,41 @@ function New-CdphResourceName
                 $newProgramLength = $programLength - $lengthOverMax
                 $newProgram = $Cdph_BusinessUnitProgram.Substring(0, $newProgramLength)
                 $newResourceName = "$prefix$Cdph_Organization$Cdph_BusinessUnit$newProgram$Cdph_Environment$arm_ResourceInstance_ZeroPadded".ToLower()
+                break
+            }
+            'Microsoft.DBforMySQL/flexibleServers'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql
+                $prefix = 'mysql'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded".ToLower()
+                break
+            }
+            'Microsoft.Network/virtualNetworks'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftnetwork
+                $prefix = 'vnet'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.Web/serverfarms'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb
+                $prefix = 'asp'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.Web/sites'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb
+                $prefix = 'app'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.Web/certificates'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb
+                $prefix = 'cert'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
                 break
             }
             default

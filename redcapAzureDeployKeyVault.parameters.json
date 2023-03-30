@@ -2,26 +2,84 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Cdph_Organization": {
-            "value": "ITSD" // Not actually used by the Bicep script, but it's a required parameter for the .PS1 script
+        "Arm_DeploymentCreationDateTime": {
+            "metadata": {
+                "description": [
+                    "The date and time the deployment was created. Generally don't change this value. It is used to ensure that the deployment name is unique.",
+                    "",
+                    "All byEnvironment parameters take the form of a JSON object with a property for each environment, and an optional 'ALL' property for values that apply to all environments.",
+                    "The 'ALL' property is only used if no environment-specific value is provided.",
+                    "The allowed environments are:",
+                    "- Dev",
+                    "- Test",
+                    "- Stage",
+                    "- Prod"
+                ]
+            },
+            "value": null
+        },
+        "Arm_AdministratorObjectId": {
+            "metadata": {
+                "description": [
+                    "The object ID of the user or service principal that will be assigned the 'Owner' role on the resource group and granted all access to the Key Vault. This value can be obtained from the Azure Portal, or by running the following PowerShell command: Get-AzADUser -UserPrincipalName <user principal name> | Select-Object -Property Id"
+                ]
+            },
+            "value": null
         },
         "Cdph_BusinessUnit": {
-            "value": "w250b"
+            "value": null
         },
         "Cdph_BusinessUnitProgram": {
-            "value": "RedCap"
+            "value": null
         },
         "Cdph_Environment": {
             "value": "Dev"
         },
-        "Cdph_ResourceInstance": {
-            "value": 1
-        },
-        "Arm_MainSiteResourceLocation": {
-            "value": "eastus"
-        },
-        "Arm_DeploymentCreationDateTime": {
-            "value": "" // Okay to leave this empty; it will be filled in by the script
+        "MicrosoftKeyVault_vaults": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the Key Vault resource to create. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.KeyVault/vaults' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftkeyvault."
+                ]
+            },
+            "value": {
+                "$metadata": {
+                    "description": [
+                        "NetworkAcls_IpRules: The array of IP rules to allow access to the Key Vault. By default, this will allow access from the Azure Cloud. These are Client IP address CIDR expressions (IPv4 or IPv6) to allow access to the application. Default = '' (empty string); If empty, access will be allowed from anywhere. NOTE: This needs to be a valid IP address. If you want to allow access from anywhere, use '*' (asterisk)."
+                    ]
+                },
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "Dev": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "Stage": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "Prod": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    }
+                }
+            }
         }
     }
 }

@@ -1,102 +1,387 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "Cdph_Organization": {
-      "value": "ITSD"
-    },
-    "Cdph_BusinessUnit": {
-      "value": "w250b"
-    },
-    "Cdph_BusinessUnitProgram": {
-      "value": "RedCap"
-    },
-    "Cdph_Environment": {
-      "value": "Dev"
-    },
-    "Cdph_ResourceInstance": {
-      "value": 1
-    },
-    "Cdph_SslCertificateThumbprint": {
-      "value": "6DAB9C4E2A3CB683E0BD84F9B56A8B823F258548"
-    },
-    "Arm_MainSiteResourceLocation": {
-      "value": "eastus"
-    },
-    "Arm_MainSiteResourceLocationDisplayName": {
-      "value": "East US"
-    },
-    "Arm_StorageResourceLocation": {
-      "value": "westus"
-    },
-    "Arm_StorageResourceLocationDisplayName": {
-      "value": "West US"
-    },
-    "Arm_DeploymentCreationDateTime": {
-      "value": ""
-    },
-    "AppServicePlan_SkuName": {
-      "value": "S1"
-    },
-    "AppServicePlan_Capacity": {
-      "value": 1
-    },
-    "AppService_LinuxFxVersion": {
-      "value": "php|8.2"
-    },
-    "AppService_WebHost_Subdomain": {
-      "value": ""
-    },
-    "AppService_WebHost_SourceControl_GitHubRepositoryUri": {
-      "value": "https://github.com/AlanMcBee/w250b.git"
-    },
-    "DatabaseForMySql_Tier": {
-      "value": "GeneralPurpose"
-    },
-    "DatabaseForMySql_Sku": {
-      "value": "Standard_D4ds_v4"
-    },
-    "DatabaseForMySql_ServerName": {
-      "value": ""
-    },
-    "DatabaseForMySql_AdministratorLoginName": {
-      "value": "redcap_app"
-    },
-    "DatabaseForMySql_StorageGB": {
-      "value": 20
-    },
-    "DatabaseForMySql_BackupRetentionDays": {
-      "value": 7
-    },
-    "DatabaseForMySql_DbName": {
-      "value": "redcap"
-    },
-    "StorageAccount_Redundancy": {
-      "value": "Standard_LRS"
-    },
-    "ProjectRedcap_CommunityUsername": {
-      "value": "alan"
-    },
-    "ProjectRedcap_DownloadAppZipUri": {
-      "value": "https://projectredcap.org/redcap_v11.0.0.zip"
-    },
-    "ProjectRedcap_DownloadAppZipVersion": {
-      "value": "latest"
-    },
-    "Smtp_FQDN": {
-      "value": "smtp.office365.com"
-    },
-    "Smtp_Port": {
-      "value": 587
-    },
-    "Smtp_UserLogin": {
-      "value": "alan.mcbee@microsoft.com"
-    },
-    "Smtp_FromEmailAddress": {
-      "value": "alan.mcbee@microsoft.com"
-    },
-    "Monitor_ApplicationInsights": {
-      "value": true
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Arm_DeploymentCreationDateTime": {
+            "metadata": {
+                "description": [
+                    "The date and time the deployment was created. Generally don't change this value. It is used to ensure that the deployment name is unique.",
+                    "",
+                    "All byEnvironment parameters take the form of a JSON object with a property for each environment, and an optional 'ALL' property for values that apply to all environments.",
+                    "The 'ALL' property is only used if no environment-specific value is provided.",
+                    "The allowed environments are:",
+                    "- Dev",
+                    "- Test",
+                    "- Stage",
+                    "- Prod"
+                ]
+            },
+            "value": null
+        },
+        "Cdph_BusinessUnit": {
+            "value": null
+        },
+        "Cdph_BusinessUnitProgram": {
+            "value": null
+        },
+        "Cdph_Environment": {
+            "value": "Dev"
+        },
+        "MicrosoftNetwork_virtualNetworks": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the virtual network. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Network/virtualNetworks' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftnetwork."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "AddressSpace: The address space that is used by the virtual network. You can supply more than one address space. Check details at https://learn.microsoft.com/azure/virtual-network/.",
+                            "DnsServers: The IP addresses of DNS servers to be used by virtual machines in the virtual network. Check details at https://learn.microsoft.com/azure/virtual-network/."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "DnsServers": [
+                            "10.226.224.70",
+                            "10.231.47.69"
+                        ]
+                    },
+                    "Dev": {
+                        "AddressSpace": [
+                            "10.114.53.0/24"
+                        ]
+                    },
+                    "Stage": {
+                        "AddressSpace": [
+                            "10.114.54.0/24"
+                        ]
+                    },
+                    "Prod": {
+                        "AddressSpace": [
+                            "10.114.55.0/24"
+                        ]
+                    }
+                }
+            }
+        },
+        "MicrosoftKeyVault_vaults": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the existing key vault.",
+                    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName: The name of the secret that was created in the key vault for the current environment.",
+                    "ProjectREDCap_CommunityPassword_SecretName: The name of the secret that was created in the key vault for the current environment",
+                    "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName: The name of the secret that was created in the key vault for the current environment.",
+                    "Smtp_UserPassword_SecretName: The name of the secret that was created in the key vault for the current environment."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName": null,
+                "ProjectREDCap_CommunityPassword_SecretName": null,
+                "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName": null,
+                "Smtp_UserPassword_SecretName": null
+            }
+        },
+        "MicrosoftStorage_storageAccounts": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the storage account. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Storage/storageAccounts' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "Redundancy: The storage account type. Check details at https://learn.microsoft.com/azure/storage/common/storage-redundancy.",
+                            "ContainerName: The name of the container to create in the storage account. The name must be unique to the storage account, only. Check details for 'Microsoft.Storage/storageAccounts/blobServices/containers' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "westus",
+                        "Redundancy": "Standard_LRS",
+                        "ContainerName": "redcap"
+                    },
+                    "Dev": {
+                        "Redundancy": "Standard_LRS"
+                    },
+                    "Stage": {
+                        "Redundancy": "Standard_LRS"
+                    },
+                    "Prod": {
+                        "Redundancy": "Standard_LRS"
+                    }
+                }
+            }
+        },
+        "MicrosoftDBforMySQL_flexibleServers": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the MySQL server. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.DBforMySQL/flexibleServers' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "DatabaseName: The name of the MySQL database to create. The name must be unique to the server, only. Check details for 'Microsoft.DBforMySQL/servers/databases' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql.",
+                            "AdministratorLoginName: The name of the MySQL administrator user for the entire server.",
+                            "Tier: The pricing tier of the server. Check details at https://learn.microsoft.com/azure/mysql/flexible-server/concepts-service-tiers-storage.",
+                            "Sku: The compute and memory capacity of the server. Check details at https://learn.microsoft.com/azure/mysql/flexible-server/concepts-service-tiers-storage.",
+                            "StorageGB: The storage capacity of the server. General recommendation from REDCap is 10GB initially. The Azure Portal defaults to minimum of 20GB. Check details at https://learn.microsoft.com/azure/mysql/flexible-server/concepts-service-tiers-storage.",
+                            "BackupRetentionDays: The number of days to retain backups for. Check details at https://docs.microsoft.com/en-us/azure/mysql/flexible-server/concepts-backup."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "DatabaseName": "redcap_db",
+                        "AdministratorLoginName": "redcap_app",
+                        "Tier": "GeneralPurpose",
+                        "Sku": "Standard_D4ds_v4",
+                        "StorageGB": 20,
+                        "BackupRetentionDays": 7,
+                        "FirewallRules": {
+                            "AllowAllAzureServicesAndResourcesWithinAzureIps": {
+                                "StartIpAddress": "0.0.0.0",
+                                "EndIpAddress": "0.0.0.0"
+                            }
+                        }
+                    },
+                    "Dev": {
+                        "Tier": "Burstable",
+                        "Sku": "Standard_B4ms",
+                        "StorageGB": 20,
+                        "BackupRetentionDays": 7
+                    },
+                    "Stage": {
+                        "Tier": "GeneralPurpose",
+                        "Sku": "Standard_D4ds_v4",
+                        "StorageGB": 20,
+                        "BackupRetentionDays": 7
+                    },
+                    "Prod": {
+                        "Tier": "GeneralPurpose",
+                        "Sku": "Standard_D4ds_v4",
+                        "StorageGB": 20,
+                        "BackupRetentionDays": 7
+                    }
+                }
+            }
+        },
+        "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
+                },
+                "secretName": "[parameters('MicrosoftKeyVault_vaults.MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName')]"
+            }
+        },
+        "MicrosoftWeb_serverfarms": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the App Service Plan. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/serverfarms' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "LinuxFxVersion: The version of PHP to use. Check details at https://learn.microsoft.com/azure/app-service/configure-language-php?pivots=platform-linux#show-php-version",
+                            "SkuName: App Service Plan's pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/.",
+                            "Capacity: Number of instances of the App Service Plan (i.e. \"How many running, distinct web servers will be deployed in the farm at a minimum at all times?\") This can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "LinuxFxVersion": "php|8.2"
+                    },
+                    "Dev": {
+                        "Tier": "Basic",
+                        "SkuName": "B1",
+                        "Capacity": 1
+                    },
+                    "Stage": {
+                        "Tier": "Standard",
+                        "SkuName": "S1",
+                        "Capacity": 1
+                    },
+                    "Prod": {
+                        "Tier": "Standard",
+                        "SkuName": "S1",
+                        "Capacity": 1
+                    }
+                }
+            }
+        },
+        "MicrosoftWeb_sites": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the App Service. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Web/sites' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "SourceControl_GitHubRepositoryUrl: The URL of the GitHub repository to deploy from. Check details at https://docs.microsoft.com/en-us/azure/app-service/deploy-continuous-deployment#github. The GitHub repository is expected to contain a file named \".deployment\" which, after the repository is cloned into the App Service, will be used to complete the installation of the REDCap software. Check details at https://github.com/projectkudu/kudu/wiki/Deployment-hooks",
+                            "CustomFullyQualifiedDomainName: The fully qualified custom domain name (FQDN) to use for the App Service. This domain name is expected to match the SNI certificate's subject name. Check details at https://docs.microsoft.com/en-us/azure/app-service/configure-ssl-certificate#sni."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "SourceControl_GitHubRepositoryUrl": "https://github.com/microsoft/azure-redcap-paas.git"
+                    },
+                    "Dev": {
+                        "CustomFullyQualifiedDomainName": "redcap-dev.cdph.ca.gov"
+                    },
+                    "Stage": {
+                        "CustomFullyQualifiedDomainName": "redcap-stage.cdph.ca.gov"
+                    },
+                    "Prod": {
+                        "CustomFullyQualifiedDomainName": "redcap.cdph.ca.gov"
+                    }
+                }
+            }
+        },
+        "MicrosoftWeb_certificates": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the App Service Certificate. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/certificates' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "ALL": {
+                        "Arm_Location": "eastus"
+                    }
+                }
+            }
+        },
+        "MicrosoftInsights_components": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the Application Insights component. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Insights/components' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftinsights."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "enabled: If true, the Application Insights component will be deployed. If false, the Application Insights component will not be deployed."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus"
+                    },
+                    "Dev": {
+                        "enabled": true
+                    },
+                    "Stage": {
+                        "enabled": true
+                    },
+                    "Prod": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        "MicrosoftOperationalInsights_workspaces": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the Log Analytics workspace. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.OperationalInsights/workspaces' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftoperationalinsights."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "ALL": {
+                        "Arm_Location": "eastus"
+                    }
+                }
+            }
+        },
+        "ProjectREDCap": {
+            "metadata": {
+                "description": [
+                    "OverrideAutomaticDownloadUrlBuilder: If true, the automatic download URL builder will be ignored and the OverrideAppZipDownloadFullUrl will be used instead.",
+                    "OverrideAppZipDownloadFullUrl: The full URL of the REDCap zip file to download. This is expected to be a URL that will probably include your username and potentially a password, and is not recommended as a default, especially if that value is stored in this repository.",
+                    "AutomaticDownloadUrlBuilder: The automatic download URL builder will be used to build the full URL of the REDCap zip file to download. Check details at https://community.projectredcap.org/articles/118/download-redcap.html."
+                ]
+            },
+            "value": {
+                "OverrideAutomaticDownloadUrlBuilder": false,
+                "AutomaticDownloadUrlBuilder": {
+                    "$metadata": {
+                        "description": [
+                            "CommunityUserName: The username of the REDCap community user. Check details at https://community.projectredcap.org/articles/118/download-redcap.html.",
+                            "AppZipVersion: The version of the REDCap zip file to download, or the word \"latest\". Check details at https://community.projectredcap.org/articles/118/download-redcap.html."
+                        ]
+                    },
+                    "CommunityUserName": null,
+                    "AppZipVersion": "latest"
+                }
+            }
+        },
+        "ProjectREDCap_CommunityPassword": {
+            "metadata": {
+                "description": [
+                    "Use this entry in the parameters file to link to the password of the REDCap community user that is stored in Key Vault, rather than storing the password as plaintext in the parameters file. This password is only needed and used if the AutomaticDownloadUriBuilder is used. If the OverrideAppZipDownloadFullUrl value is used, then this password is not needed and will not be used."
+                ]
+            },
+            "reference": {
+                "keyVault": {
+                    "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
+                },
+                "secretName": "[parameters('MicrosoftKeyVault_vaults.ProjectREDCap_CommunityPassword_SecretName')]"
+            }
+        },
+        "ProjectREDCap_OverrideAppZipDownloadFullUrl": {
+            "metadata": {
+                "description": [
+                    "Use this entry in the parameters file to link to the full URL of the REDCap zip file to download, rather than storing the URL as plaintext in the parameters file. This URL is only needed and used if the OverrideAutomaticDownloadUrlBuilder is set to true. If the OverrideAutomaticDownloadUrlBuilder is set to false, then this URL is not needed and will not be used."
+                ]},
+            "reference": {
+                "keyVault": {
+                    "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
+                },
+                "secretName": "[parameters('MicrosoftKeyVault_vaults.ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName')]"
+            }
+        },
+        "Smtp": {
+            "value": {
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "HostFqdn: The fully qualified domain name (FQDN) of the SMTP server.",
+                            "Port: The port number of the SMTP server.",
+                            "UserLogin: The username to use to authenticate to the SMTP server. If null, no authentication will be used.",
+                            "FromEmailAddress: The email address to use as the \"From\" address when sending emails. If null, the email address will be the same as the UserLogin."
+                        ]
+                    },
+                    "ALL": {
+                        "HostFqdn": "smtp.office365.com",
+                        "Port": 587,
+                        "UserLogin": null,
+                        "FromEmailAddress": null
+                    }
+                }
+            }
+        },
+        "Smtp_UserPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
+                },
+                "secretName": "[parameters('MicrosoftKeyVault_vaults.Smtp_UserPassword')]"
+            }
+        }
     }
-  }
 }

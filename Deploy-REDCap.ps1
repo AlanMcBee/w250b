@@ -56,6 +56,7 @@ param (
 
     # Optional CDPH environment name to allow multiple deployments to the same subscription. If not specified, the default value of 'dev' will be used.
     [Parameter()]
+    [ValidateSet('dev', 'test', 'stage', 'prod')]
     [string]
     $Cdph_Environment = 'dev',
 
@@ -103,6 +104,7 @@ Set-StrictMode -Version Latest
 $keyVaultDeployArgs = @{
     Arm_ResourceGroupName        = $Arm_ResourceGroupName
     Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
+    Cdph_Environment             = $Cdph_Environment
     Cdph_ResourceInstance        = $Cdph_ResourceInstance
     Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
     Cdph_PfxCertificatePassword  = $Cdph_PfxCertificatePassword
@@ -113,18 +115,11 @@ $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
-    # Get the certificate from the Key Vault deployment and update the main deployment parameters file with the thumbprint of the certificate.
-    [Microsoft.Azure.Commands.KeyVault.Models.PSKeyVaultCertificate] $keyVaultCertificate = $keyVaultDeploymentResult.Certificate
-    $mainParameters = Get-Content -Path '.\redcapAzureDeployMain.parameters.json' -Raw | ConvertFrom-Json
-    $mainParameters.parameters.Cdph_SslCertificateThumbprint.value = $keyVaultCertificate.Thumbprint
-    $mainParameters 
-    | ConvertTo-Json -Depth 10 
-    | Set-Content -Path '.\redcapAzureDeployMain.parameters.json' -Encoding UTF8 -Force
-
     $mainDeployArgs = @{
         Arm_ResourceGroupName                       = $Arm_ResourceGroupName
         Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
         Arm_StorageResourceLocation                 = $Arm_StorageResourceLocation
+        Cdph_Environment                            = $Cdph_Environment
         Cdph_ResourceInstance                       = $Cdph_ResourceInstance
         DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
         ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
