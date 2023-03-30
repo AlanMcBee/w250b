@@ -216,7 +216,7 @@ function Deploy-REDCapKeyVault
             $keyVault_byEnvironment[$cdph_Environment_actual] = $null
             $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         }
-        $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironmen.ALL
+        $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment.ALL
         if ($null -eq $keyVault_byEnvironment_allEnvironments)
         {
             $keyVault_byEnvironment.ALL = $null
