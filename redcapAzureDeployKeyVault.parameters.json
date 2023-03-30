@@ -21,8 +21,11 @@
         "Arm_AdministratorObjectId": {
             "metadata": {
                 "description": [
-                    "The object ID of the user or service principal that will be assigned the 'Owner' role on the resource group and granted all access to the Key Vault. This value can be obtained from the Azure Portal, or by running the following PowerShell command: Get-AzADUser -UserPrincipalName <user principal name> | Select-Object -Property Id"
-                ]
+                    "The object ID of the user or service principal that will be assigned the 'Owner' role on the resource group and granted all access to the Key Vault. This value can be obtained from the Azure Portal, or by running the following PowerShell command: Get-AzADUser -UserPrincipalName <user principal name> | Select-Object -Property Id",
+                    "NOTE: Normally leave this null. The PowerShell script will fill in the value for the current user dynamically at runtime when deploying."
+                ],
+                "type": "GUID string",
+                "defaultValue": null
             },
             "value": null
         },
