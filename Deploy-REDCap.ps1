@@ -6,49 +6,6 @@ Deploy-REDCap.ps1
  #>
 
 param (
-    # Optional Azure resource group name. If not specified, a default name will be used based on the parameters.json file and the instance number.
-    [Parameter()]
-    [string]
-    $Arm_ResourceGroupName,
-
-    # Azure region for the main site. 
-    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
-    # Not all resources are available in all regions.
-    [Parameter()]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]    
-    [string]
-    $Arm_MainSiteResourceLocation = 'eastus',
-
-    # Azure region for the storage account. 
-    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
-    # Not all resources are available in all regions.
-    [Parameter()]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]    
-    [string]
-    $Arm_StorageResourceLocation = 'westus',
-
     # Optional CDPH resource instance number to allow multiple deployments to the same subscription. If not specified, the default value of 1 will be used.
     [Parameter()]
     [int]
@@ -102,8 +59,6 @@ Set-StrictMode -Version Latest
 . '.\Deploy-REDCapMain.ps1'
 
 $keyVaultDeployArgs = @{
-    Arm_ResourceGroupName        = $Arm_ResourceGroupName
-    Arm_MainSiteResourceLocation = $Arm_MainSiteResourceLocation
     Cdph_Environment             = $Cdph_Environment
     Cdph_ResourceInstance        = $Cdph_ResourceInstance
     Cdph_PfxCertificatePath      = $Cdph_PfxCertificatePath
@@ -116,9 +71,6 @@ $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
     $mainDeployArgs = @{
-        Arm_ResourceGroupName                       = $Arm_ResourceGroupName
-        Arm_MainSiteResourceLocation                = $Arm_MainSiteResourceLocation
-        Arm_StorageResourceLocation                 = $Arm_StorageResourceLocation
         Cdph_Environment                            = $Cdph_Environment
         Cdph_ResourceInstance                       = $Cdph_ResourceInstance
         DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
