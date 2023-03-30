@@ -70,7 +70,26 @@ function Deploy-REDCapKeyVault
         [Parameter(Mandatory = $true)]
         [ValidatePattern('^(\d{1,3}\.){3}\d{1,3}$')]
         [string]
-        $Cdph_ClientIPAddress
+        $Cdph_ClientIPAddress,
+
+        # Azure region for the resource group. 
+        # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+        # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+        # Not all resources are available in all regions.
+        [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'centralus',
+            'eastus',
+            'eastus2',
+            'northcentralus',
+            'southcentralus',
+            'westcentralus',
+            'westus',
+            'westus2',
+            'westus3'
+        )]    
+        [string]
+        $Arm_ResourceGroup_Location
     )
 
     $deploymentResult = [PSCustomObject]@{
@@ -177,12 +196,12 @@ function Deploy-REDCapKeyVault
         }
 
         $resourceNameArgs = @{
-            Arm_ResourceProvider = $null
-            Cdph_Organization = $Cdph_Organization
-            Cdph_BusinessUnit = $cdph_BusinessUnit_actual
+            Arm_ResourceProvider     = $null
+            Cdph_Organization        = $Cdph_Organization
+            Cdph_BusinessUnit        = $cdph_BusinessUnit_actual
             Cdph_BusinessUnitProgram = $cdph_BusinessUnitProgram_actual
-            Cdph_Environment = $cdph_Environment_actual
-            Cdph_ResourceInstance = $Cdph_ResourceInstance
+            Cdph_Environment         = $cdph_Environment_actual
+            Cdph_ResourceInstance    = $Cdph_ResourceInstance
         }
 
         # Resource Group
@@ -239,7 +258,7 @@ function Deploy-REDCapKeyVault
         }
         if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
         {
-            $keyVault_NetworkAcls_IpRules.Add([PSCustomObject]@{value = "$Cdph_ClientIPAddress/32"})
+            $keyVault_NetworkAcls_IpRules = $keyVault_NetworkAcls_IpRules + ([PSCustomObject]@{value = "$Cdph_ClientIPAddress/32"})
         }
 
         $resourceNameArgs.Arm_ResourceProvider = 'Microsoft.Web/sites'
@@ -258,7 +277,7 @@ function Deploy-REDCapKeyVault
         if ([string]::IsNullOrWhiteSpace($resourceGroup))
         {
             Write-Information "Creating new resource group: $resourceGroup_Arm_ResourceName"
-            $resourceGroup = New-AzResourceGroup -Name $resourceGroup_Arm_ResourceName -Location $Arm_MainSiteResourceLocation
+            $resourceGroup = New-AzResourceGroup -Name $resourceGroup_Arm_ResourceName -Location $Arm_ResourceGroup_Location
             Write-Information "Created new resource group $resourceGroup_Arm_ResourceName."
         }
         else

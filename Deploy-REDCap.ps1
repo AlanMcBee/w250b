@@ -56,7 +56,26 @@ param (
     # Recommended: Use Get-Secret to retrieve the password from a secure store.
     [Parameter(Mandatory = $true)]
     [securestring]
-    $Smtp_UserPassword
+    $Smtp_UserPassword,
+
+    # Azure region for the resource group. 
+    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
+    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
+    # Not all resources are available in all regions.
+    [Parameter(Mandatory = $true)]
+    [ValidateSet(
+        'centralus',
+        'eastus',
+        'eastus2',
+        'northcentralus',
+        'southcentralus',
+        'westcentralus',
+        'westus',
+        'westus2',
+        'westus3'
+    )]    
+    [string]
+    $Arm_ResourceGroup_Location
 )
 
 Set-StrictMode -Version Latest
@@ -71,6 +90,7 @@ $keyVaultDeployArgs = @{
     Cdph_PfxCertificatePath     = $Cdph_PfxCertificatePath
     Cdph_PfxCertificatePassword = $Cdph_PfxCertificatePassword
     Cdph_ClientIPAddress        = $Cdph_ClientIPAddress
+    Arm_ResourceGroup_Location  = $Arm_ResourceGroup_Location
 }
 
 $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
