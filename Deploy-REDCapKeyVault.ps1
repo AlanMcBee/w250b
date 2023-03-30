@@ -216,20 +216,20 @@ function Deploy-REDCapKeyVault
             $keyVault_byEnvironment[$cdph_Environment_actual] = $null
             $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         }
-        $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment.ALL
+        $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         if ($null -eq $keyVault_byEnvironment_allEnvironments)
         {
-            $keyVault_byEnvironment.ALL = $null
-            $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment.ALL
+            $keyVault_byEnvironment['ALL'] = $null
+            $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         }
 
-        $keyVault_Arm_Location = $keyVault_byEnvironment_thisEnvironment.Arm_Location ?? $keyVault_byEnvironment_allEnvironments.Arm_Location
+        $keyVault_Arm_Location = $keyVault_byEnvironment_thisEnvironment['Arm_Location'] ?? $keyVault_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($keyVault_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftKeyVault_vaults.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftKeyVault_vaults.value.byEnvironment.ALL.Arm_Location' property"
         }
 
-        $keyVault_NetworkAcls_IpRules = keyVault_byEnvironment_thisEnvironment.NetworkAcls_IpRules ?? keyVault_byEnvironment_allEnvironments.NetworkAcls_IpRules
+        $keyVault_NetworkAcls_IpRules = $keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] ?? $keyVault_byEnvironment_allEnvironments['NetworkAcls_IpRules']
         if ($null -eq $keyVault_NetworkAcls_IpRules)
         {
             keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] = [PSCustomObject]@(

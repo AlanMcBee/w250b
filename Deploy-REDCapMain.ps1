@@ -238,26 +238,26 @@ function Deploy-REDCapMain
             $storageAccount_byEnvironment[$cdph_Environment_actual] = $null
             $storageAccount_byEnvironment_thisEnvironment = $storageAccount_byEnvironment[$cdph_Environment_actual]
         }
-        $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment.ALL
+        $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment['ALL']
         if ($null -eq $storageAccount_byEnvironment_allEnvironments)
         {
-            $storageAccount_byEnvironment.ALL = $null
-            $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment.ALL
+            $storageAccount_byEnvironment['ALL'] = $null
+            $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment['ALL']
         }
 
-        $storageAccount_Arm_Location = $storageAccount_byEnvironment_thisEnvironment.Arm_Location ?? $storageAccount_byEnvironment_allEnvironments.Arm_Location
+        $storageAccount_Arm_Location = $storageAccount_byEnvironment_thisEnvironment['Arm_Location'] ?? $storageAccount_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($storageAccount_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftStorage_storageAccounts.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftStorage_storageAccounts.value.byEnvironment.ALL.Arm_Location' property"
         }
 
-        $storageAccount_Redundancy = $storageAccount_byEnvironment_thisEnvironment.Redundancy ?? $storageAccount_byEnvironment_allEnvironments.Redundancy
+        $storageAccount_Redundancy = $storageAccount_byEnvironment_thisEnvironment['Redundancy'] ?? $storageAccount_byEnvironment_allEnvironments['Redundancy']
         if ([string]::IsNullOrWhiteSpace($storageAccount_Redundancy))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftStorage_storageAccounts.value.byEnvironment.$cdph_Environment_actual.Redundancy' property or the 'MicrosoftStorage_storageAccounts.value.byEnvironment.ALL.Redundancy' property"
         }
 
-        $storageAccount_ContainerName = $storageAccount_byEnvironment_thisEnvironment.ContainerName ?? $storageAccount_byEnvironment_allEnvironments.ContainerName
+        $storageAccount_ContainerName = $storageAccount_byEnvironment_thisEnvironment['ContainerName'] ?? $storageAccount_byEnvironment_allEnvironments['ContainerName']
         if ([string]::IsNullOrWhiteSpace($storageAccount_ContainerName))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftStorage_storageAccounts.value.byEnvironment.$cdph_Environment_actual.ContainerName' property or the 'MicrosoftStorage_storageAccounts.value.byEnvironment.ALL.ContainerName' property"
@@ -287,50 +287,50 @@ function Deploy-REDCapMain
             $mySqlDatabase_byEnvironment[$cdph_Environment_actual] = $null
             $mySqlDatabase_byEnvironment_thisEnvironment = $mySqlDatabase_byEnvironment[$cdph_Environment_actual]
         }
-        $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment.ALL
+        $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment['ALL']
         if ($null -eq $mySqlDatabase_byEnvironment_allEnvironments)
         {
-            $mySqlDatabase_byEnvironment.ALL = $null
-            $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment.ALL
+            $mySqlDatabase_byEnvironment['ALL'] = $null
+            $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment['ALL']
         }
 
-        $mySqlDatabase_Arm_Location = $mySqlDatabase_byEnvironment_thisEnvironment.Arm_Location ?? $mySqlDatabase_byEnvironment_allEnvironments.Arm_Location
+        $mySqlDatabase_Arm_Location = $mySqlDatabase_byEnvironment_thisEnvironment['Arm_Location'] ?? $mySqlDatabase_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.Arm_Location' property"
         }
 
-        $mySqlDatabase_Tier = $mySqlDatabase_byEnvironment_thisEnvironment.Tier ?? $mySqlDatabase_byEnvironment_allEnvironments.Tier
+        $mySqlDatabase_Tier = $mySqlDatabase_byEnvironment_thisEnvironment['Tier'] ?? $mySqlDatabase_byEnvironment_allEnvironments['Tier']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_Tier))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.Tier' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.Tier' property"
         }
-        $mySqlDatabase_Sku = $mySqlDatabase_byEnvironment_thisEnvironment.Sku ?? $mySqlDatabase_byEnvironment_allEnvironments.Sku
+        $mySqlDatabase_Sku = $mySqlDatabase_byEnvironment_thisEnvironment['Sku'] ?? $mySqlDatabase_byEnvironment_allEnvironments['Sku']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_Sku))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.Sku' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.Sku' property"
         }
-        $mySqlDatabase_StorageGB = $mySqlDatabase_byEnvironment_thisEnvironment.StorageGB ?? $mySqlDatabase_byEnvironment_allEnvironments.StorageGB
+        $mySqlDatabase_StorageGB = $mySqlDatabase_byEnvironment_thisEnvironment['StorageGB'] ?? $mySqlDatabase_byEnvironment_allEnvironments['StorageGB']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_StorageGB))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.StorageGB' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.StorageGB' property"
         }
-        $mySqlDatabase_BackupRetentionDays = $mySqlDatabase_byEnvironment_thisEnvironment.BackupRetentionDays ?? $mySqlDatabase_byEnvironment_allEnvironments.BackupRetentionDays
+        $mySqlDatabase_BackupRetentionDays = $mySqlDatabase_byEnvironment_thisEnvironment['BackupRetentionDays'] ?? $mySqlDatabase_byEnvironment_allEnvironments['BackupRetentionDays']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_BackupRetentionDays))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.BackupRetentionDays' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.BackupRetentionDays' property"
         }
-        $mySqlDatabase_DatabaseName = $mySqlDatabase_byEnvironment_thisEnvironment.DatabaseName ?? $mySqlDatabase_byEnvironment_allEnvironments.DatabaseName
+        $mySqlDatabase_DatabaseName = $mySqlDatabase_byEnvironment_thisEnvironment['DatabaseName'] ?? $mySqlDatabase_byEnvironment_allEnvironments['DatabaseName']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_DatabaseName))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.DatabaseName' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.DatabaseName' property"
         }
-        $mySqlDatabase_AdministratorLoginName = $mySqlDatabase_byEnvironment_thisEnvironment.AdministratorLoginName ?? $mySqlDatabase_byEnvironment_allEnvironments.AdministratorLoginName
+        $mySqlDatabase_AdministratorLoginName = $mySqlDatabase_byEnvironment_thisEnvironment['AdministratorLoginName'] ?? $mySqlDatabase_byEnvironment_allEnvironments['AdministratorLoginName']
         if ([string]::IsNullOrWhiteSpace($mySqlDatabase_AdministratorLoginName))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.AdministratorLoginName' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.AdministratorLoginName' property"
         }
-        $mySqlDatabase_FirewallRules = $mySqlDatabase_byEnvironment_thisEnvironment.FirewallRules ?? $mySqlDatabase_byEnvironment_allEnvironments.FirewallRules
+        $mySqlDatabase_FirewallRules = $mySqlDatabase_byEnvironment_thisEnvironment['FirewallRules'] ?? $mySqlDatabase_byEnvironment_allEnvironments['FirewallRules']
         if ($null -eq $mySqlDatabase_FirewallRules)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.FirewallRules' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.FirewallRules' property"
@@ -378,35 +378,35 @@ function Deploy-REDCapMain
             $appServicePlan_byEnvironment[$cdph_Environment_actual] = $null
             $appServicePlan_byEnvironment_thisEnvironment = $appServicePlan_byEnvironment[$cdph_Environment_actual]
         }
-        $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment.ALL
+        $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment['ALL']
         if ($null -eq $appServicePlan_byEnvironment_allEnvironments)
         {
-            $appServicePlan_byEnvironment.ALL = $null
-            $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment.ALL
+            $appServicePlan_byEnvironment['ALL'] = $null
+            $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment['ALL']
         }
 
-        $appServicePlan_Arm_Location = $appServicePlan_byEnvironment_thisEnvironment.Arm_Location ?? $appServicePlan_byEnvironment_allEnvironments.Arm_Location
+        $appServicePlan_Arm_Location = $appServicePlan_byEnvironment_thisEnvironment['Arm_Location'] ?? $appServicePlan_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($appServicePlan_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_serverfarms.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftWeb_serverfarms.value.byEnvironment.ALL.Arm_Location' property"
         }
 
-        $appServicePlan_Tier = $appServicePlan_byEnvironment_thisEnvironment.Tier ?? $appServicePlan_byEnvironment_allEnvironments.Tier
+        $appServicePlan_Tier = $appServicePlan_byEnvironment_thisEnvironment['Tier'] ?? $appServicePlan_byEnvironment_allEnvironments['Tier']
         if ([string]::IsNullOrWhiteSpace($appServicePlan_Tier))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_serverfarms.value.byEnvironment.$cdph_Environment_actual.Tier' property or the 'MicrosoftWeb_serverfarms.value.byEnvironment.ALL.Tier' property"
         }
-        $appServicePlan_SkuName = $appServicePlan_byEnvironment_thisEnvironment.SkuName ?? $appServicePlan_byEnvironment_allEnvironments.SkuName
+        $appServicePlan_SkuName = $appServicePlan_byEnvironment_thisEnvironment['SkuName'] ?? $appServicePlan_byEnvironment_allEnvironments['SkuName']
         if ([string]::IsNullOrWhiteSpace($appServicePlan_SkuName))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_serverfarms.value.byEnvironment.$cdph_Environment_actual.SkuName' property or the 'MicrosoftWeb_serverfarms.value.byEnvironment.ALL.SkuName' property"
         }
-        $appServicePlan_Capacity = $appServicePlan_byEnvironment_thisEnvironment.Capacity ?? $appServicePlan_byEnvironment_allEnvironments.Capacity
+        $appServicePlan_Capacity = $appServicePlan_byEnvironment_thisEnvironment['Capacity'] ?? $appServicePlan_byEnvironment_allEnvironments['Capacity']
         if ([string]::IsNullOrWhiteSpace($appServicePlan_Capacity))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_serverfarms.value.byEnvironment.$cdph_Environment_actual.Capacity' property or the 'MicrosoftWeb_serverfarms.value.byEnvironment.ALL.Capacity' property"
         }
-        $appServicePlan_LinuxFxVersion = $appServicePlan_byEnvironment_thisEnvironment.LinuxFxVersion ?? $appServicePlan_byEnvironment_allEnvironments.LinuxFxVersion
+        $appServicePlan_LinuxFxVersion = $appServicePlan_byEnvironment_thisEnvironment['LinuxFxVersion'] ?? $appServicePlan_byEnvironment_allEnvironments['LinuxFxVersion']
         if ([string]::IsNullOrWhiteSpace($appServicePlan_LinuxFxVersion))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_serverfarms.value.byEnvironment.$cdph_Environment_actual.LinuxFxVersion' property or the 'MicrosoftWeb_serverfarms.value.byEnvironment.ALL.LinuxFxVersion' property"
@@ -437,19 +437,19 @@ function Deploy-REDCapMain
             $appService_byEnvironment[$cdph_Environment_actual] = $null
             $appService_byEnvironment_thisEnvironment = $appService_byEnvironment[$cdph_Environment_actual]
         }
-        $appService_byEnvironment_allEnvironments = $appService_byEnvironment.ALL
+        $appService_byEnvironment_allEnvironments = $appService_byEnvironment['ALL']
         if ($null -eq $appService_byEnvironment_allEnvironments)
         {
-            $appService_byEnvironment.ALL = $null
-            $appService_byEnvironment_allEnvironments = $appService_byEnvironment.ALL
+            $appService_byEnvironment['ALL'] = $null
+            $appService_byEnvironment_allEnvironments = $appService_byEnvironment['ALL']
         }
 
-        $appService_SourceControl_GitHubRepositoryUrl = $appService_byEnvironment_thisEnvironment.SourceControl_GitHubRepositoryUrl ?? $appService_byEnvironment_allEnvironments.SourceControl_GitHubRepositoryUrl
+        $appService_SourceControl_GitHubRepositoryUrl = $appService_byEnvironment_thisEnvironment['SourceControl_GitHubRepositoryUrl'] ?? $appService_byEnvironment_allEnvironments['SourceControl_GitHubRepositoryUrl']
         if ([string]::IsNullOrWhiteSpace($appService_SourceControl_GitHubRepositoryUrl))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_sites.value.byEnvironment.$cdph_Environment_actual.SourceControl_GitHubRepositoryUrl' property or the 'MicrosoftWeb_sites.value.byEnvironment.ALL.SourceControl_GitHubRepositoryUrl' property"
         }
-        $appService_CustomFullyQualifiedDomainName = $appService_byEnvironment_thisEnvironment.CustomFullyQualifiedDomainName ?? $appService_byEnvironment_allEnvironments.CustomFullyQualifiedDomainName
+        $appService_CustomFullyQualifiedDomainName = $appService_byEnvironment_thisEnvironment['CustomFullyQualifiedDomainName'] ?? $appService_byEnvironment_allEnvironments['CustomFullyQualifiedDomainName']
         if ([string]::IsNullOrWhiteSpace($appService_CustomFullyQualifiedDomainName))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_sites.value.byEnvironment.$cdph_Environment_actual.CustomFullyQualifiedDomainName' property or the 'MicrosoftWeb_sites.value.byEnvironment.ALL.CustomFullyQualifiedDomainName' property"
@@ -480,14 +480,14 @@ function Deploy-REDCapMain
             $appServiceCertificate_byEnvironment[$cdph_Environment_actual] = $null
             $appServiceCertificate_byEnvironment_thisEnvironment = $appServiceCertificate_byEnvironment[$cdph_Environment_actual]
         }
-        $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment.ALL
+        $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment['ALL']
         if ($null -eq $appServiceCertificate_byEnvironment_allEnvironments)
         {
-            $appServiceCertificate_byEnvironment.ALL = $null
-            $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment.ALL
+            $appServiceCertificate_byEnvironment['ALL'] = $null
+            $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment['ALL']
         }
 
-        $appServiceCertificate_Arm_Location = $appServiceCertificate_byEnvironment_thisEnvironment.Arm_Location ?? $appServiceCertificate_byEnvironment_allEnvironments.Arm_Location
+        $appServiceCertificate_Arm_Location = $appServiceCertificate_byEnvironment_thisEnvironment['Arm_Location'] ?? $appServiceCertificate_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($appServiceCertificate_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftWeb_certificates.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftWeb_certificates.value.byEnvironment.ALL.Arm_Location' property"
@@ -518,20 +518,20 @@ function Deploy-REDCapMain
             $appInsights_byEnvironment[$cdph_Environment_actual] = $null
             $appInsights_byEnvironment_thisEnvironment = $appInsights_byEnvironment[$cdph_Environment_actual]
         }
-        $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment.ALL
+        $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment['ALL']
         if ($null -eq $appInsights_byEnvironment_allEnvironments)
         {
-            $appInsights_byEnvironment.ALL = $null
-            $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment.ALL
+            $appInsights_byEnvironment['ALL'] = $null
+            $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment['ALL']
         }
 
-        $appInsights_Arm_Location = $appInsights_byEnvironment_thisEnvironment.Arm_Location ?? $appInsights_byEnvironment_allEnvironments.Arm_Location
+        $appInsights_Arm_Location = $appInsights_byEnvironment_thisEnvironment['Arm_Location'] ?? $appInsights_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($appInsights_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftInsights_components.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftInsights_components.value.byEnvironment.ALL.Arm_Location' property"
         }
 
-        $appInsights_Enabled = $appInsights_byEnvironment_thisEnvironment.enabled ?? $appInsights_byEnvironment_allEnvironments.enabled
+        $appInsights_Enabled = $appInsights_byEnvironment_thisEnvironment['enabled'] ?? $appInsights_byEnvironment_allEnvironments['enabled']
         if ($null -eq $appInsights_Enabled)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftInsights_components.value.byEnvironment.$cdph_Environment_actual.enabled' property or the 'MicrosoftInsights_components.value.byEnvironment.ALL.enabled' property"
@@ -562,14 +562,14 @@ function Deploy-REDCapMain
             $operationalInsights_byEnvironment[$cdph_Environment_actual] = $null
             $operationalInsights_byEnvironment_thisEnvironment = $operationalInsights_byEnvironment[$cdph_Environment_actual]
         }
-        $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment.ALL
+        $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment['ALL']
         if ($null -eq $operationalInsights_byEnvironment_allEnvironments)
         {
-            $operationalInsights_byEnvironment.ALL = $null
-            $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment.ALL
+            $operationalInsights_byEnvironment['ALL'] = $null
+            $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment['ALL']
         }
 
-        $operationalInsights_Arm_Location = $operationalInsights_byEnvironment_thisEnvironment.Arm_Location ?? $operationalInsights_byEnvironment_allEnvironments.Arm_Location
+        $operationalInsights_Arm_Location = $operationalInsights_byEnvironment_thisEnvironment['Arm_Location'] ?? $operationalInsights_byEnvironment_allEnvironments['Arm_Location']
         if ([string]::IsNullOrWhiteSpace($operationalInsights_Arm_Location))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftOperationalInsights_workspaces.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftOperationalInsights_workspaces.value.byEnvironment.ALL.Arm_Location' property"
@@ -629,29 +629,29 @@ function Deploy-REDCapMain
             $smtp_byEnvironment[$cdph_Environment_actual] = $null
             $smtp_byEnvironment_thisEnvironment = $smtp_byEnvironment[$cdph_Environment_actual]
         }
-        $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment.ALL
+        $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment['ALL']
         if ($null -eq $smtp_byEnvironment_allEnvironments)
         {
-            $smtp_byEnvironment.ALL = $null
-            $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment.ALL
+            $smtp_byEnvironment['ALL'] = $null
+            $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment['ALL']
         }
 
-        $smtp_HostFqdn = $smtp_byEnvironment_thisEnvironment.HostFqdn ?? $smtp_byEnvironment_allEnvironments.HostFqdn
+        $smtp_HostFqdn = $smtp_byEnvironment_thisEnvironment['HostFqdn'] ?? $smtp_byEnvironment_allEnvironments['HostFqdn']
         if ([string]::IsNullOrWhiteSpace($smtp_HostFqdn))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp.value.byEnvironment.$cdph_Environment_actual.HostFqdn' property or the 'Smtp.value.byEnvironment.ALL.HostFqdn' property"
         }
-        $smtp_Port = $smtp_byEnvironment_thisEnvironment.Port ?? $smtp_byEnvironment_allEnvironments.Port
+        $smtp_Port = $smtp_byEnvironment_thisEnvironment['Port'] ?? $smtp_byEnvironment_allEnvironments['Port']
         if ($null -eq $smtp_Port)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp.value.byEnvironment.$cdph_Environment_actual.Port' property or the 'Smtp.value.byEnvironment.ALL.Port' property"
         }
-        $smtp_UserLogin = $smtp_byEnvironment_thisEnvironment.UserLogin ?? $smtp_byEnvironment_allEnvironments.UserLogin
+        $smtp_UserLogin = $smtp_byEnvironment_thisEnvironment['UserLogin'] ?? $smtp_byEnvironment_allEnvironments['UserLogin']
         if ([string]::IsNullOrWhiteSpace($smtp_UserLogin))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp.value.byEnvironment.$cdph_Environment_actual.UserLogin' property or the 'Smtp.value.byEnvironment.ALL.UserLogin' property"
         }
-        $smtp_FromEmailAddress = $smtp_byEnvironment_thisEnvironment.FromEmailAddress ?? $smtp_byEnvironment_allEnvironments.FromEmailAddress
+        $smtp_FromEmailAddress = $smtp_byEnvironment_thisEnvironment['FromEmailAddress'] ?? $smtp_byEnvironment_allEnvironments['FromEmailAddress']
         if ([string]::IsNullOrWhiteSpace($smtp_FromEmailAddress))
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp.value.byEnvironment.$cdph_Environment_actual.FromEmailAddress' property or the 'Smtp.value.byEnvironment.ALL.FromEmailAddress' property"
