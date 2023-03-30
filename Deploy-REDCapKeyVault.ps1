@@ -126,7 +126,7 @@ function Deploy-REDCapKeyVault
             $arm_AdministratorObjectId_parameters = $parametersEntry.Arm_AdministratorObjectId
         }
         $currentUserObjectId = (Get-AzADUser -UserPrincipalName (Get-AzContext).Account.Id).Id
-        $arm_AdministratorObjectId.value = $currentUserObjectId
+        $arm_AdministratorObjectId_parameters.value = $currentUserObjectId
 
         $cdph_BusinessUnit_parameters = $parametersEntry.Cdph_BusinessUnit
         if ($null -eq $cdph_BusinessUnit_parameters)
