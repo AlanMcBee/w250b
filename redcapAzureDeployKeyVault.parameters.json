@@ -10,10 +10,12 @@
                     "All byEnvironment parameters take the form of a JSON object with a property for each environment, and an optional 'ALL' property for values that apply to all environments.",
                     "The 'ALL' property is only used if no environment-specific value is provided.",
                     "The allowed environments are:",
-                    "- Dev",
-                    "- Test",
-                    "- Stage",
-                    "- Prod"
+                    "- dev",
+                    "- test",
+                    "- stage",
+                    "- prod",
+                    "",
+                    "NOTE that the environment names ARE case-sensitive."
                 ]
             },
             "value": null
@@ -36,7 +38,7 @@
             "value": null
         },
         "Cdph_Environment": {
-            "value": "Dev"
+            "value": "dev"
         },
         "MicrosoftKeyVault_vaults": {
             "metadata": {
@@ -60,21 +62,21 @@
                             }
                         ]
                     },
-                    "Dev": {
+                    "dev": {
                         "NetworkAcls_IpRules": [
                             {
                                 "value": null
                             }
                         ]
                     },
-                    "Stage": {
+                    "stage": {
                         "NetworkAcls_IpRules": [
                             {
                                 "value": null
                             }
                         ]
                     },
-                    "Prod": {
+                    "prod": {
                         "NetworkAcls_IpRules": [
                             {
                                 "value": null
