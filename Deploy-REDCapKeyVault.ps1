@@ -110,7 +110,7 @@ function Deploy-REDCapKeyVault
             {
                 throw "Deployment parameters from $deployParametersPath do not contain a required '$requiredParameter' property"
             }
-            if (($null -eq $parametersEntry[$requiredParameter].value) -or (0 -eq $parametersEntry[$requiredParameter].value.Length))
+            if ([string]::IsNullOrWhiteSpace($parametersEntry[$requiredParameter].value))
             {
                 throw "Deployment parameters from $deployParametersPath do not contain a required value for the '$requiredParameter' property"
             }
