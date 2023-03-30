@@ -30,7 +30,8 @@
         "MicrosoftNetwork_virtualNetworks": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the virtual network. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Network/virtualNetworks' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftnetwork."
+                    "Arm_ResourceName: The name of the virtual network. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Network/virtualNetworks' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftnetwork.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -71,10 +72,11 @@
             "metadata": {
                 "description": [
                     "Arm_ResourceName: The name of the existing key vault.",
-                    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName: The name of the secret that was created in the key vault for the current environment.",
-                    "ProjectREDCap_CommunityPassword_SecretName: The name of the secret that was created in the key vault for the current environment",
-                    "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName: The name of the secret that was created in the key vault for the current environment.",
-                    "Smtp_UserPassword_SecretName: The name of the secret that was created in the key vault for the current environment."
+                    " - Normally leave this set to null and let the PowerShell script create the name for you.",
+                    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment.",
+                    "ProjectREDCap_CommunityPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment",
+                    "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName: (optional) The name of the secret that was created in the key vault for the current environment.",
+                    "Smtp_UserPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment."
                 ]
             },
             "value": {
@@ -88,7 +90,8 @@
         "MicrosoftStorage_storageAccounts": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the storage account. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Storage/storageAccounts' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage."
+                    "Arm_ResourceName: The name of the storage account. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Storage/storageAccounts' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -120,7 +123,8 @@
         "MicrosoftDBforMySQL_flexibleServers": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the MySQL server. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.DBforMySQL/flexibleServers' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql."
+                    "Arm_ResourceName: The name of the MySQL server. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.DBforMySQL/flexibleServers' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftdbformysql.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -183,7 +187,8 @@
         "MicrosoftWeb_serverfarms": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the App Service Plan. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/serverfarms' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                    "Arm_ResourceName: The name of the App Service Plan. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/serverfarms' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -221,7 +226,8 @@
         "MicrosoftWeb_sites": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the App Service. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Web/sites' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                    "Arm_ResourceName: The name of the App Service. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.Web/sites' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -252,7 +258,8 @@
         "MicrosoftWeb_certificates": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the App Service Certificate. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/certificates' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb."
+                    "Arm_ResourceName: The name of the App Service Certificate. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Web/certificates' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -267,7 +274,8 @@
         "MicrosoftInsights_components": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the Application Insights component. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Insights/components' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftinsights."
+                    "Arm_ResourceName: The name of the Application Insights component. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Insights/components' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftinsights.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
@@ -296,7 +304,8 @@
         "MicrosoftOperationalInsights_workspaces": {
             "metadata": {
                 "description": [
-                    "Arm_ResourceName: The name of the Log Analytics workspace. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.OperationalInsights/workspaces' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftoperationalinsights."
+                    "Arm_ResourceName: The name of the Log Analytics workspace. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.OperationalInsights/workspaces' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftoperationalinsights.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
                 ]
             },
             "value": {
