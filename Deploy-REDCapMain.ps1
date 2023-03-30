@@ -701,7 +701,7 @@ function Deploy-REDCapMain
             ResourceGroupName       = $resourceGroupName
             TemplateFile            = $bicepPath
             Name                    = $deploymentName
-            TemplateParameterObject = $templateParameters
+            TemplateParameterObject = $parametersEntry
         }
         # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
         $armDeployment = $null

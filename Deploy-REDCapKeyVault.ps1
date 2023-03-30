@@ -291,7 +291,7 @@ function Deploy-REDCapKeyVault
             ResourceGroupName       = $resourceGroup_Arm_ResourceName
             TemplateFile            = $bicepPath
             Name                    = $deploymentName
-            TemplateParameterObject = $templateParameters
+            TemplateParameterObject = $parametersEntry
         }
         # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
         $armDeployment = $null
