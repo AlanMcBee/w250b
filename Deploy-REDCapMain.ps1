@@ -596,6 +596,17 @@ function Deploy-REDCapMain
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'ProjectREDCap_CommunityPassword' property"
         }
+        $projectREDCap_CommunityPassword_Reference = $null -ne $projectREDCap_CommunityPassword.reference
+
+        if (-not [string]::IsNullOrWhiteSpace($ProjectRedcap_CommunityPassword)){
+            if ($projectREDCap_CommunityPassword_Reference) {
+                $projectREDCap_CommunityPassword.reference = $null
+            }
+            $projectREDCap_CommunityPassword.value = $ProjectRedcap_CommunityPassword
+        }
+        elseif (-not $projectREDCap_CommunityPassword_Reference) {
+            throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'ProjectREDCap_CommunityPassword' property. The value should be a reference to a secret in the Key Vault or a secure string value."
+        }
 
         # SMTP
         # ----
@@ -650,6 +661,17 @@ function Deploy-REDCapMain
         if ($null -eq $smtp_UserPassword)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp_UserPassword' property"
+        }
+        $smtp_UserPassword_Reference = $null -ne $smtp_UserPassword.reference
+
+        if (-not [string]::IsNullOrWhiteSpace($Smtp_UserPassword)){
+            if ($smtp_UserPassword_Reference) {
+                $smtp_UserPassword.reference = $null
+            }
+            $smtp_UserPassword.value = $Smtp_UserPassword
+        }
+        elseif (-not $smtp_UserPassword_Reference) {
+            throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'Smtp_UserPassword' property. The value should be a reference to a secret in the Key Vault or a secure string value."
         }
 
         # Deploy
