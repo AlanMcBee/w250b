@@ -267,6 +267,13 @@ function Deploy-REDCapKeyVault
         # Deploy
         # ------
 
+        # Flatten parameters
+        $parameters = @{}
+        foreach ($parameterKey in $parametersEntry.Keys)
+        {
+            $parameters[$parameterKey] = $parametersEntry[$parameterKey].value
+        }
+
         # Make sure we're logged in. Use Connect-AzAccount if not.
         Get-AzContext -ErrorAction Stop | Out-Null
 
@@ -291,7 +298,7 @@ function Deploy-REDCapKeyVault
             ResourceGroupName       = $resourceGroup_Arm_ResourceName
             TemplateFile            = $bicepPath
             Name                    = $deploymentName
-            TemplateParameterObject = $parametersEntry
+            TemplateParameterObject = $parameters
         }
         # [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment]
         $armDeployment = $null
