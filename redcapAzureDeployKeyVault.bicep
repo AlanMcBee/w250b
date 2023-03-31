@@ -64,9 +64,9 @@ var cdph_CommonTags = {
 
 var keyVault_ResourceName = MicrosoftKeyVault_vaults.Arm_ResourceName
 
-var keyVault_ResourceLocation = MicrosoftKeyVault_vaults.Arm_ResourceLocation
+var keyVault_ResourceLocation = MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].Arm_ResourceLocation ?? MicrosoftKeyVault_vaults.byEnvironment.ALL.Arm_ResourceLocation
 
-var keyVault_NetworkAcls_IpRules = MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].NetworkAcls_IpRules ?? MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].ALL.NetworkAcls_IpRules
+var keyVault_NetworkAcls_IpRules = MicrosoftKeyVault_vaults.byEnvironment[Cdph_Environment].NetworkAcls_IpRules ?? MicrosoftKeyVault_vaults.byEnvironment.ALL.NetworkAcls_IpRules
 
 // =========
 // RESOURCES
