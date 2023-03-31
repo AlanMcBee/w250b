@@ -28,12 +28,12 @@ param Cdph_BusinessUnitProgram string
 @maxLength(5)
 @minLength(1)
 @allowed([
-  'Dev'
-  'Test'
-  'Stage'
-  'Prod'
+  'dev'
+  'test'
+  'stage'
+  'prod'
 ])
-param Cdph_Environment string = 'Dev'
+param Cdph_Environment string = 'dev'
 
 // Key Vault parameters
 // --------------------

@@ -24,10 +24,10 @@ param Cdph_BusinessUnitProgram string
 
 @description('Targeted deployment environment')
 @allowed([
-  'Dev'
-  'Test'
-  'Stage'
-  'Prod'
+  'dev'
+  'test'
+  'stage'
+  'prod'
 ])
 param Cdph_Environment string
 
