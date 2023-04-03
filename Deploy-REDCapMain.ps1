@@ -235,13 +235,13 @@ function Deploy-REDCapMain
         $storageAccount_byEnvironment_thisEnvironment = $storageAccount_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $storageAccount_byEnvironment_thisEnvironment)
         {
-            $storageAccount_byEnvironment[$cdph_Environment_actual] = @()
+            $storageAccount_byEnvironment[$cdph_Environment_actual] = @{}
             $storageAccount_byEnvironment_thisEnvironment = $storageAccount_byEnvironment[$cdph_Environment_actual]
         }
         $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment['ALL']
         if ($null -eq $storageAccount_byEnvironment_allEnvironments)
         {
-            $storageAccount_byEnvironment['ALL'] = @()
+            $storageAccount_byEnvironment['ALL'] = @{}
             $storageAccount_byEnvironment_allEnvironments = $storageAccount_byEnvironment['ALL']
         }
 
@@ -284,13 +284,13 @@ function Deploy-REDCapMain
         $mySqlDatabase_byEnvironment_thisEnvironment = $mySqlDatabase_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $mySqlDatabase_byEnvironment_thisEnvironment)
         {
-            $mySqlDatabase_byEnvironment[$cdph_Environment_actual] = @()
+            $mySqlDatabase_byEnvironment[$cdph_Environment_actual] = @{}
             $mySqlDatabase_byEnvironment_thisEnvironment = $mySqlDatabase_byEnvironment[$cdph_Environment_actual]
         }
         $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment['ALL']
         if ($null -eq $mySqlDatabase_byEnvironment_allEnvironments)
         {
-            $mySqlDatabase_byEnvironment['ALL'] = @()
+            $mySqlDatabase_byEnvironment['ALL'] = @{}
             $mySqlDatabase_byEnvironment_allEnvironments = $mySqlDatabase_byEnvironment['ALL']
         }
 
@@ -375,13 +375,13 @@ function Deploy-REDCapMain
         $appServicePlan_byEnvironment_thisEnvironment = $appServicePlan_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $appServicePlan_byEnvironment_thisEnvironment)
         {
-            $appServicePlan_byEnvironment[$cdph_Environment_actual] = @()
+            $appServicePlan_byEnvironment[$cdph_Environment_actual] = @{}
             $appServicePlan_byEnvironment_thisEnvironment = $appServicePlan_byEnvironment[$cdph_Environment_actual]
         }
         $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment['ALL']
         if ($null -eq $appServicePlan_byEnvironment_allEnvironments)
         {
-            $appServicePlan_byEnvironment['ALL'] = @()
+            $appServicePlan_byEnvironment['ALL'] = @{}
             $appServicePlan_byEnvironment_allEnvironments = $appServicePlan_byEnvironment['ALL']
         }
 
@@ -434,13 +434,13 @@ function Deploy-REDCapMain
         $appService_byEnvironment_thisEnvironment = $appService_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $appService_byEnvironment_thisEnvironment)
         {
-            $appService_byEnvironment[$cdph_Environment_actual] = @()
+            $appService_byEnvironment[$cdph_Environment_actual] = @{}
             $appService_byEnvironment_thisEnvironment = $appService_byEnvironment[$cdph_Environment_actual]
         }
         $appService_byEnvironment_allEnvironments = $appService_byEnvironment['ALL']
         if ($null -eq $appService_byEnvironment_allEnvironments)
         {
-            $appService_byEnvironment['ALL'] = @()
+            $appService_byEnvironment['ALL'] = @{}
             $appService_byEnvironment_allEnvironments = $appService_byEnvironment['ALL']
         }
 
@@ -477,13 +477,13 @@ function Deploy-REDCapMain
         $appServiceCertificate_byEnvironment_thisEnvironment = $appServiceCertificate_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $appServiceCertificate_byEnvironment_thisEnvironment)
         {
-            $appServiceCertificate_byEnvironment[$cdph_Environment_actual] = @()
+            $appServiceCertificate_byEnvironment[$cdph_Environment_actual] = @{}
             $appServiceCertificate_byEnvironment_thisEnvironment = $appServiceCertificate_byEnvironment[$cdph_Environment_actual]
         }
         $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment['ALL']
         if ($null -eq $appServiceCertificate_byEnvironment_allEnvironments)
         {
-            $appServiceCertificate_byEnvironment['ALL'] = @()
+            $appServiceCertificate_byEnvironment['ALL'] = @{}
             $appServiceCertificate_byEnvironment_allEnvironments = $appServiceCertificate_byEnvironment['ALL']
         }
 
@@ -515,13 +515,13 @@ function Deploy-REDCapMain
         $appInsights_byEnvironment_thisEnvironment = $appInsights_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $appInsights_byEnvironment_thisEnvironment)
         {
-            $appInsights_byEnvironment[$cdph_Environment_actual] = @()
+            $appInsights_byEnvironment[$cdph_Environment_actual] = @{}
             $appInsights_byEnvironment_thisEnvironment = $appInsights_byEnvironment[$cdph_Environment_actual]
         }
         $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment['ALL']
         if ($null -eq $appInsights_byEnvironment_allEnvironments)
         {
-            $appInsights_byEnvironment['ALL'] = @()
+            $appInsights_byEnvironment['ALL'] = @{}
             $appInsights_byEnvironment_allEnvironments = $appInsights_byEnvironment['ALL']
         }
 
@@ -559,13 +559,13 @@ function Deploy-REDCapMain
         $operationalInsights_byEnvironment_thisEnvironment = $operationalInsights_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $operationalInsights_byEnvironment_thisEnvironment)
         {
-            $operationalInsights_byEnvironment[$cdph_Environment_actual] = @()
+            $operationalInsights_byEnvironment[$cdph_Environment_actual] = @{}
             $operationalInsights_byEnvironment_thisEnvironment = $operationalInsights_byEnvironment[$cdph_Environment_actual]
         }
         $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment['ALL']
         if ($null -eq $operationalInsights_byEnvironment_allEnvironments)
         {
-            $operationalInsights_byEnvironment['ALL'] = @()
+            $operationalInsights_byEnvironment['ALL'] = @{}
             $operationalInsights_byEnvironment_allEnvironments = $operationalInsights_byEnvironment['ALL']
         }
 
@@ -626,13 +626,13 @@ function Deploy-REDCapMain
         $smtp_byEnvironment_thisEnvironment = $smtp_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $smtp_byEnvironment_thisEnvironment)
         {
-            $smtp_byEnvironment[$cdph_Environment_actual] = @()
+            $smtp_byEnvironment[$cdph_Environment_actual] = @{}
             $smtp_byEnvironment_thisEnvironment = $smtp_byEnvironment[$cdph_Environment_actual]
         }
         $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment['ALL']
         if ($null -eq $smtp_byEnvironment_allEnvironments)
         {
-            $smtp_byEnvironment['ALL'] = @()
+            $smtp_byEnvironment['ALL'] = @{}
             $smtp_byEnvironment_allEnvironments = $smtp_byEnvironment['ALL']
         }
 

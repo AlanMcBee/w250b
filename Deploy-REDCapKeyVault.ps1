@@ -234,13 +234,13 @@ function Deploy-REDCapKeyVault
         $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $keyVault_byEnvironment_thisEnvironment)
         {
-            $keyVault_byEnvironment[$cdph_Environment_actual] = @()
+            $keyVault_byEnvironment[$cdph_Environment_actual] = @{}
             $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         }
         $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         if ($null -eq $keyVault_byEnvironment_allEnvironments)
         {
-            $keyVault_byEnvironment['ALL'] = @()
+            $keyVault_byEnvironment['ALL'] = @{}
             $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         }
 
