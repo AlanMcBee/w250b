@@ -214,11 +214,13 @@ function Deploy-REDCapKeyVault
         # Resource-specific parameters
 
         $microsoftKeyVault_vaults = $parametersEntry['MicrosoftKeyVault_vaults']
-        $keyVault_Arguments = $microsoftKeyVault_vaults.value
+        $keyVault_Arguments = [hashtable]$microsoftKeyVault_vaults.value
         if ($null -eq $keyVault_Arguments)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftKeyVault_vaults.value' property"
         }
+
+        $keyVault_Arguments.Remove('$metadata')
 
         $resourceNameArgs.Arm_ResourceProvider = 'Microsoft.KeyVault/vaults'
         $keyVault_Arm_ResourceName = New-CdphResourceName @resourceNameArgs
@@ -232,13 +234,13 @@ function Deploy-REDCapKeyVault
         $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         if ($null -eq $keyVault_byEnvironment_thisEnvironment)
         {
-            $keyVault_byEnvironment[$cdph_Environment_actual] = $null
+            $keyVault_byEnvironment[$cdph_Environment_actual] = @()
             $keyVault_byEnvironment_thisEnvironment = $keyVault_byEnvironment[$cdph_Environment_actual]
         }
         $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         if ($null -eq $keyVault_byEnvironment_allEnvironments)
         {
-            $keyVault_byEnvironment['ALL'] = $null
+            $keyVault_byEnvironment['ALL'] = @()
             $keyVault_byEnvironment_allEnvironments = $keyVault_byEnvironment['ALL']
         }
 
@@ -248,17 +250,36 @@ function Deploy-REDCapKeyVault
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftKeyVault_vaults.value.byEnvironment.$cdph_Environment_actual.Arm_Location' property or the 'MicrosoftKeyVault_vaults.value.byEnvironment.ALL.Arm_Location' property"
         }
 
+        $keyVault_NetworkAcls_IpRules_inThisEnvironment = $null -ne $keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules']
+        $keyVault_NetworkAcls_IpRules_inAllEnvironments = $null -ne $keyVault_byEnvironment_allEnvironments['NetworkAcls_IpRules']
         $keyVault_NetworkAcls_IpRules = $keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] ?? $keyVault_byEnvironment_allEnvironments['NetworkAcls_IpRules']
         if ($null -eq $keyVault_NetworkAcls_IpRules)
         {
-            keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] = [PSCustomObject]@(
-                @{value = $null}
-            )
-            $keyVault_NetworkAcls_IpRules = keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules']
+            if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+            {
+                keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] = [PSCustomObject]@(
+                    @{value = "$Cdph_ClientIPAddress/32"}
+                )
+            }        
         }
-        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+        elseif ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
         {
-            $keyVault_NetworkAcls_IpRules = $keyVault_NetworkAcls_IpRules + ([PSCustomObject]@{value = "$Cdph_ClientIPAddress/32"})
+            $combinedIpRules = [System.Collections.ArrayList]::new()
+            $null = $combinedIpRules.Add([ordered]@{value = "$Cdph_ClientIPAddress/32"})
+            foreach ($ipRule in $keyVault_NetworkAcls_IpRules)
+            {
+                if ($null -ne $ipRule.value)
+                {
+                    $combinedIpRules.Add($ipRule)
+                }
+            }
+            $combinedIpRulesArray = $combinedIpRules.ToArray()
+            if ($keyVault_NetworkAcls_IpRules_inThisEnvironment){
+                $keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] = $combinedIpRulesArray
+            }
+            elseif ($keyVault_NetworkAcls_IpRules_inAllEnvironments){
+                $keyVault_byEnvironment_allEnvironments['NetworkAcls_IpRules'] = $combinedIpRulesArray
+            }
         }
 
         $resourceNameArgs.Arm_ResourceProvider = 'Microsoft.Web/sites'
