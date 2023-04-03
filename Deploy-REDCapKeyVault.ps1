@@ -89,7 +89,25 @@ function Deploy-REDCapKeyVault
             'westus3'
         )]    
         [string]
-        $Arm_ResourceGroup_Location
+        $Arm_ResourceGroup_Location,
+
+        # Password for MySQL administrator account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword,
+
+        # Password for the REDCap Community site account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter()]
+        [securestring]
+        $ProjectREDCap_CommunityPassword,
+
+        # Password for the SMTP server account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $Smtp_UserPassword
     )
 
     $deploymentResult = [PSCustomObject]@{
@@ -274,10 +292,12 @@ function Deploy-REDCapKeyVault
                 }
             }
             $combinedIpRulesArray = $combinedIpRules.ToArray()
-            if ($keyVault_NetworkAcls_IpRules_inThisEnvironment){
+            if ($keyVault_NetworkAcls_IpRules_inThisEnvironment)
+            {
                 $keyVault_byEnvironment_thisEnvironment['NetworkAcls_IpRules'] = $combinedIpRulesArray
             }
-            elseif ($keyVault_NetworkAcls_IpRules_inAllEnvironments){
+            elseif ($keyVault_NetworkAcls_IpRules_inAllEnvironments)
+            {
                 $keyVault_byEnvironment_allEnvironments['NetworkAcls_IpRules'] = $combinedIpRulesArray
             }
         }
@@ -342,6 +362,19 @@ function Deploy-REDCapKeyVault
         if (($null -ne $armDeployment) -and ($armDeployment.ProvisioningState -eq 'Succeeded'))
         {
             Write-Information "Succeeded. Outputs: $($armDeployment.Outputs)"
+
+if ($PSBoundParameters.ContainsKey('MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword'))
+{
+$null = Set-AzKeyVaultSecret -VaultName $keyVault_Arm_ResourceName -Name 'MicrosoftDBforMySQLAdministratorLoginPassword' -SecretValue $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+}
+if ($PSBoundParameters.ContainsKey('ProjectREDCap_CommunityPassword'))
+{
+$null = Set-AzKeyVaultSecret -VaultName $keyVault_Arm_ResourceName -Name 'ProjectREDCapCommunityPassword' -SecretValue $ProjectREDCap_CommunityPassword
+}
+if ($PSBoundParameters.ContainsKey('Smtp_UserPassword'))
+{
+$null = Set-AzKeyVaultSecret -VaultName $keyVault_Arm_ResourceName -Name 'SmtpUserPassword' -SecretValue $Smtp_UserPassword
+}
 
             Write-Information 'Setting access policy to allow App Service to read from Key Vault'
             $azureAppServiceApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' # fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)

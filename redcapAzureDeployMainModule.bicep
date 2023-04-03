@@ -54,11 +54,6 @@ param MicrosoftStorage_storageAccounts object
 @description('Settings for the Database for MySQL resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
 param MicrosoftDBforMySQL_flexibleServers object
 
-@description('Database for MySQL: Administrator password')
-@minLength(8)
-@secure()
-param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword string
-
 // App Service Plan parameters
 // ---------------------------
 
@@ -92,23 +87,11 @@ param MicrosoftOperationalInsights_workspaces object
 @description('Settings for the REDCap community site. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
 param ProjectREDCap object
 
-@description('REDCap Community site password for downloading the REDCap zip file')
-@secure()
-param ProjectREDCap_CommunityPassword string
-
-@description('Override the URL used to download the REDCap zip file from the REDCap Community site (e.g., if you have a local mirror of the REDCap Community site)')
-@secure()
-param ProjectREDCap_OverrideAppZipDownloadFullUrl string
-
 // SMTP configuration parameters
 // -----------------------------
 
 @description('Settings for the SMTP connection. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
 param Smtp object
-
-@description('Login password for your SMTP relay')
-@secure()
-param Smtp_UserPassword string
 
 // =========
 // VARIABLES
@@ -181,7 +164,7 @@ var databaseForMySQL_BackupRetentionDays = MicrosoftDBforMySQL_flexibleServers.b
 
 var databaseForMySql_FirewallRules = MicrosoftDBforMySQL_flexibleServers.byEnvironment[Cdph_Environment].FirewallRules ?? MicrosoftDBforMySQL_flexibleServers.byEnvironment.ALL.FirewallRules
 
-var databaseForMySql_AdministratorLoginPassword = MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+var databaseForMySql_AdministratorLoginPassword = keyVault_Resource.getSecret('MicrosoftDBforMySQL-flexibleServers-AdministratorLoginPassword-Secret')
 
 // App Service Plan variables
 // --------------------------
@@ -342,6 +325,17 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2021-04-01-preview' existi
   name: keyVault_ResourceName
 }
 
+module keyVault_Secrets 'redcapAzureDeployMainSecrets.bicep' = {
+  name: 'redcapAzureDeployKeyVaultSecrets'
+  scope: resourceGroup()
+  params: {
+    KeyVault_ResourceName: keyVault_ResourceName
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: keyVault_Resource.getSecret('MicrosoftDBforMySQL-flexibleServers-AdministratorLoginPassword-Secret')
+    ProjectREDCap_CommunityPassword: keyVault_Resource.getSecret('ProjectREDCap-CommunityPassword-Secret')
+    Smtp_UserPassword: keyVault_Resource.getSecret('Smtp-UserPassword-Secret')
+  }
+}
+
 // Azure App Services
 // ------------------
 
@@ -437,7 +431,6 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
 
       // REDCap
-      redcapAppZip: projectREDCap_OverrideAutomaticDownloadUrlBuilder ? ProjectREDCap_OverrideAppZipDownloadFullUrl : ''
       zipUsername: projectREDCap_OverrideAutomaticDownloadUrlBuilder ? '' : projectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName
       zipPassword: projectREDCap_OverrideAutomaticDownloadUrlBuilder ? '' : ProjectREDCap_CommunityPassword
       zipVersion: projectREDCap_OverrideAutomaticDownloadUrlBuilder ? '' : projectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion

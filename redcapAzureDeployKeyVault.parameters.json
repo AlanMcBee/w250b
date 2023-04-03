@@ -5,7 +5,7 @@
         "Arm_DeploymentCreationDateTime": {
             "metadata": {
                 "description": [
-                    "The date and time the deployment was created. Generally don't change this value. It is used to ensure that the deployment name is unique.",
+                    "The date and time the deployment was created. Generally don't change this value. Leave it as an empty string; the PowerShell script will set a value. It is used to ensure that the deployment name is unique.",
                     "",
                     "All byEnvironment parameters take the form of a JSON object with a property for each environment, and an optional 'ALL' property for values that apply to all environments.",
                     "The 'ALL' property is only used if no environment-specific value is provided.",
@@ -16,26 +16,27 @@
                     "- prod",
                     "",
                     "NOTE that the environment names ARE case-sensitive."
-                ]
+                ],
+                "type": "string"
             },
-            "value": null
+            "value": ""
         },
         "Arm_AdministratorObjectId": {
             "metadata": {
                 "description": [
                     "The object ID of the user or service principal that will be assigned the 'Owner' role on the resource group and granted all access to the Key Vault. This value can be obtained from the Azure Portal, or by running the following PowerShell command: Get-AzADUser -UserPrincipalName <user principal name> | Select-Object -Property Id",
-                    "NOTE: Normally leave this null. The PowerShell script will fill in the value for the current user dynamically at runtime when deploying."
+                    "NOTE: Normally leave this as an empty string. The PowerShell script will fill in the value for the current user dynamically at runtime when deploying."
                 ],
                 "type": "GUID string",
                 "defaultValue": null
             },
-            "value": null
+            "value": ""
         },
         "Cdph_BusinessUnit": {
-            "value": null
+            "value": "w250b"
         },
         "Cdph_BusinessUnitProgram": {
-            "value": null
+            "value": "AA"
         },
         "Cdph_Environment": {
             "value": "dev"
@@ -49,7 +50,7 @@
             "value": {
                 "$metadata": {
                     "description": [
-                        "NetworkAcls_IpRules: The array of IP rules to allow access to the Key Vault. By default, this will allow access from the Azure Cloud. These are Client IP address CIDR expressions (IPv4 or IPv6) to allow access to the application. Default = '' (empty string); If empty, access will be allowed from anywhere. NOTE: This needs to be a valid IP address. If you want to allow access from anywhere, use '*' (asterisk)."
+                        "NetworkAcls_IpRules: The array of IP rules to allow access to the Key Vault. By default, this will allow access from the Azure Cloud. These are Client IP address CIDR expressions (IPv4 or IPv6) to allow access to the application. Default = '' (empty string); If empty, access will be allowed from anywhere. NOTE: This needs to be a valid IP address (it is automatically supplied by the PowerShell script). If you want to allow access from anywhere, use '*' (asterisk). Values from the 'ALL' property will be used if no environment-specific value is provided. If values are provided in both the 'ALL' and environment-specific properties, only the environment-specific values will be used; the values are not combined."
                     ]
                 },
                 "Arm_ResourceName": null,

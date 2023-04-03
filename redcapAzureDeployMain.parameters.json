@@ -21,10 +21,10 @@
             "value": null
         },
         "Cdph_BusinessUnit": {
-            "value": null
+            "value": "w250b"
         },
         "Cdph_BusinessUnitProgram": {
-            "value": null
+            "value": "AA"
         },
         "Cdph_Environment": {
             "value": "dev"
@@ -75,18 +75,17 @@
                 "description": [
                     "Arm_ResourceName: The name of the existing key vault.",
                     " - Normally leave this set to null and let the PowerShell script create the name for you.",
-                    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment.",
-                    "ProjectREDCap_CommunityPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment",
-                    "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName: (optional) The name of the secret that was created in the key vault for the current environment.",
-                    "Smtp_UserPassword_SecretName: (optional) The name of the secret that was created in the key vault for the current environment."
+                    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName: The name of the secret that was created in the key vault for the current environment.",
+                    "ProjectREDCap_CommunityPassword_SecretName: The name of the secret that was created in the key vault for the current environment",
+                    "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName: The name of the secret that was created in the key vault for the current environment.",
+                    "Smtp_UserPassword_SecretName: The name of the secret that was created in the key vault for the current environment."
                 ]
             },
             "value": {
                 "Arm_ResourceName": null,
-                "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName": null,
-                "ProjectREDCap_CommunityPassword_SecretName": null,
-                "ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName": null,
-                "Smtp_UserPassword_SecretName": null
+                "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword_SecretName": "MicrosoftDBforMySQLAdministratorLoginPassword",
+                "ProjectREDCap_CommunityPassword_SecretName": "ProjectREDCapCommunityPassword",
+                "Smtp_UserPassword_SecretName": "SmtpUserPassword"
             }
         },
         "MicrosoftStorage_storageAccounts": {
@@ -347,18 +346,6 @@
                     "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
                 },
                 "secretName": "[parameters('MicrosoftKeyVault_vaults.ProjectREDCap_CommunityPassword_SecretName')]"
-            }
-        },
-        "ProjectREDCap_OverrideAppZipDownloadFullUrl": {
-            "metadata": {
-                "description": [
-                    "Use this entry in the parameters file to link to the full URL of the REDCap zip file to download, rather than storing the URL as plaintext in the parameters file. This URL is only needed and used if the OverrideAutomaticDownloadUrlBuilder is set to true. If the OverrideAutomaticDownloadUrlBuilder is set to false, then this URL is not needed and will not be used."
-                ]},
-            "reference": {
-                "keyVault": {
-                    "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
-                },
-                "secretName": "[parameters('MicrosoftKeyVault_vaults.ProjectREDCap_OverrideAppZipDownloadFullUrl_SecretName')]"
             }
         },
         "Smtp": {

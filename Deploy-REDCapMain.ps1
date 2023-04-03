@@ -55,23 +55,12 @@ function Deploy-REDCapMain
         [int]
         $Cdph_ResourceInstance = 1,
 
-        # Password for MySQL administrator account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $DatabaseForMySql_AdministratorLoginPassword,
-
-        # Password for the REDCap Community site account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $ProjectRedcap_CommunityPassword,
-
-        # Password for the SMTP server account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $Smtp_UserPassword
+        # If not using the automatic URL builder, specify the full URL to the REDCap Community site
+        # This is a plain-text URL. Do not use a URL with an embedded password.
+        # This option is meant to be used if you want to use a URL to a REDCap installation ZIP file that has already been downloaded and placed in a location such as a blob storage container using Managed Identity for access control.
+        [Parameter()]
+        [string]
+        $ProjectREDCap_OverrideAppZipDownloadFullUrl
     )
 
     $deploymentResult = [PSCustomObject]@{
@@ -336,23 +325,6 @@ function Deploy-REDCapMain
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.$cdph_Environment_actual.FirewallRules' property or the 'MicrosoftDBforMySQL_flexibleServers.value.byEnvironment.ALL.FirewallRules' property"
         }
 
-        $mySqlDatabase_AdministratorLoginPassword = $parametersEntry['MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword']
-        if ($null -eq $mySqlDatabase_AdministratorLoginPassword)
-        {
-            throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword' property"
-        }
-        $mySqlDatabase_AdministratorLoginPassword_Reference = $null -ne $mySqlDatabase_AdministratorLoginPassword.reference
-
-        if (-not [string]::IsNullOrWhiteSpace($DatabaseForMySql_AdministratorLoginPassword)){
-            if ($mySqlDatabase_AdministratorLoginPassword_Reference) {
-                $mySqlDatabase_AdministratorLoginPassword.reference = $null
-            }
-            $mySqlDatabase_AdministratorLoginPassword.value = $DatabaseForMySql_AdministratorLoginPassword
-        }
-        elseif (-not $mySqlDatabase_AdministratorLoginPassword_Reference) {
-            throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword' property. The value should be a reference to a secret in the Key Vault or a secure string value."
-        }
-
         # App Service Plan
         # ----------------
 
@@ -591,7 +563,7 @@ function Deploy-REDCapMain
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'ProjectREDCap.value.OverrideAutomaticDownloadUrlBuilder' property"
         }
 
-        $projectREDCap_CommunityPassword = $parametersEntry['ProjectREDCap_CommunityPassword']
+        [securestring] $projectREDCap_CommunityPassword = $parametersEntry['ProjectREDCap_CommunityPassword']
         if ($null -eq $projectREDCap_CommunityPassword)
         {
             throw "Deployment parameters from $deployParametersPath do not contain a required value for the 'ProjectREDCap_CommunityPassword' property"

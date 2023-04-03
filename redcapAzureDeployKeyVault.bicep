@@ -41,6 +41,21 @@ param Cdph_Environment string = 'dev'
 @description('Settings for the Key Vault resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
 param MicrosoftKeyVault_vaults object
 
+// Key Vault Secrets parameters
+// ----------------------------
+
+@description('')
+@secure()
+param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword string
+
+@description('')
+@secure()
+param ProjectREDCap_CommunityPassword string
+
+@description('')
+@secure()
+param Smtp_UserPassword string
+
 // =========
 // VARIABLES
 // =========
@@ -83,7 +98,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
     accessPolicies: [] // required, and will be updated by redcapAzureDeployMain.bicep
     enabledForDeployment: false
     enabledForDiskEncryption: false
-    enabledForTemplateDeployment: false
+    enabledForTemplateDeployment: true
     enablePurgeProtection: true
     enableRbacAuthorization: false
     enableSoftDelete: true
@@ -155,6 +170,27 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
           }
         }
       ]
+    }
+  }
+
+  resource keyVault_Secrets_MySQL_AdministratorLoginPassword_Resource 'secrets' = {
+    name: 'MicrosoftDBforMySQL-flexibleServers-AdministratorLoginPassword-Secret'
+    properties: {
+      value: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    }
+  }
+
+  resource keyVault_Secrets_REDCap_CommunityPassword_Resource 'secrets' = {
+    name: 'REDCap-CommunityPassword-Secret'
+    properties: {
+      value: ProjectREDCap_CommunityPassword
+    }
+  }
+
+  resource keyVault_Secrets_Smtp_UserPassword_Resource 'secrets' = {
+    name: 'Smtp-UserPassword-Secret'
+    properties: {
+      value: Smtp_UserPassword
     }
   }
 }

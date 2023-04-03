@@ -84,13 +84,16 @@ Set-StrictMode -Version Latest
 . '.\Deploy-REDCapMain.ps1'
 
 $keyVaultDeployArgs = @{
-    Cdph_Organization           = $Cdph_Organization
-    Cdph_Environment            = $Cdph_Environment
-    Cdph_ResourceInstance       = $Cdph_ResourceInstance
-    Cdph_PfxCertificatePath     = $Cdph_PfxCertificatePath
-    Cdph_PfxCertificatePassword = $Cdph_PfxCertificatePassword
-    Cdph_ClientIPAddress        = $Cdph_ClientIPAddress
-    Arm_ResourceGroup_Location  = $Arm_ResourceGroup_Location
+    Cdph_Organization                                              = $Cdph_Organization
+    Cdph_Environment                                               = $Cdph_Environment
+    Cdph_ResourceInstance                                          = $Cdph_ResourceInstance
+    Cdph_PfxCertificatePath                                        = $Cdph_PfxCertificatePath
+    Cdph_PfxCertificatePassword                                    = $Cdph_PfxCertificatePassword
+    Cdph_ClientIPAddress                                           = $Cdph_ClientIPAddress
+    Arm_ResourceGroup_Location                                     = $Arm_ResourceGroup_Location
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+    ProjectREDCap_CommunityPassword                                = $ProjectRedcap_CommunityPassword
+    Smtp_UserPassword                                              = $Smtp_UserPassword
 }
 
 $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
@@ -98,12 +101,9 @@ $keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
 if ($keyVaultDeploymentResult.Successful -eq $true)
 {
     $mainDeployArgs = @{
-        Cdph_Organization                           = $Cdph_Organization
-        Cdph_Environment                            = $Cdph_Environment
-        Cdph_ResourceInstance                       = $Cdph_ResourceInstance
-        DatabaseForMySql_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-        ProjectRedcap_CommunityPassword             = $ProjectRedcap_CommunityPassword
-        Smtp_UserPassword                           = $Smtp_UserPassword
+        Cdph_Organization     = $Cdph_Organization
+        Cdph_Environment      = $Cdph_Environment
+        Cdph_ResourceInstance = $Cdph_ResourceInstance
     }
     $mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
     Write-Output $mainDeploymentResult
