@@ -342,11 +342,6 @@
             }
         },
         "ProjectREDCap_CommunityPassword": {
-            "metadata": {
-                "description": [
-                    "Use this entry in the parameters file to link to the password of the REDCap community user that is stored in Key Vault, rather than storing the password as plaintext in the parameters file. This password is only needed and used if the AutomaticDownloadUriBuilder is used. If the OverrideAppZipDownloadFullUrl value is used, then this password is not needed and will not be used."
-                ]
-            },
             "reference": {
                 "keyVault": {
                     "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('MicrosoftKeyVault_vaults.Arm_ResourceName'))]"
