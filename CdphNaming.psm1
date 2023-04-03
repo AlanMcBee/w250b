@@ -13,13 +13,15 @@ function New-CdphResourceName
         [Parameter(Mandatory = $true)]
         [ValidateSet(
             'Microsoft.DBforMySQL/flexibleServers',
+            'Microsoft.Insights/components',
             'Microsoft.KeyVault/vaults',
             'Microsoft.Network/virtualNetworks',
+            'Microsoft.OperationalInsights/workspaces',
             'Microsoft.Resources/resourceGroups',
             'Microsoft.Storage/storageAccounts',
+            'Microsoft.Web/certificates',
             'Microsoft.Web/serverfarms',
-            'Microsoft.Web/sites',
-            'Microsoft.Web/certificates'
+            'Microsoft.Web/sites'
         )]
         [string]
         $Arm_ResourceProvider,
@@ -139,6 +141,20 @@ function New-CdphResourceName
             {
                 # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftweb
                 $prefix = 'cert'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.Insights/components'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftinsights
+                $prefix = 'appi'
+                $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
+                break
+            }
+            'Microsoft.OperationalInsights/workspaces'
+            {
+                # https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftoperationalinsights
+                $prefix = 'log'
                 $newResourceName = "$prefix-$Cdph_Organization-$Cdph_BusinessUnit-$Cdph_BusinessUnitProgram-$Cdph_Environment-$arm_ResourceInstance_ZeroPadded"
                 break
             }
