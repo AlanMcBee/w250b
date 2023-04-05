@@ -49,6 +49,16 @@ var databaseForMySQL_BackupRetentionDays = MicrosoftDBforMySQL_flexibleServers_A
 
 var databaseForMySql_FirewallRules = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].FirewallRules ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.FirewallRules
 
+var databaseForMySql_HostName = '${databaseForMySql_ResourceName}.mysql.database.azure.com'
+
+var databaseForMySql_FlexibleServer_ConnectionString_parts = [
+  'Database=${databaseForMySql_DatabaseName}'
+  'Data Source=${databaseForMySql_HostName}'
+  'User Id=${databaseForMySql_AdministratorLoginName}'
+  'Password=${DatabaseForMySql_AdministratorLoginPassword}'
+]
+var databaseForMySql_ConnectionString = join(databaseForMySql_FlexibleServer_ConnectionString_parts, '; ')
+
 // =========
 // RESOURCES
 // =========
@@ -94,5 +104,7 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
       collation: 'utf8_general_ci'
     }
   }
-
 }
+
+output out_DatabaseForMySql_HostName string = databaseForMySql_HostName
+output out_DatabaseForMySql_ConnectionString string = databaseForMySql_ConnectionString

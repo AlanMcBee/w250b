@@ -103,7 +103,7 @@ param Smtp_Arguments object
 // CDPH-specific variables
 // -----------------------
 
-module Cdph 'redcapAzureDeployCdphModule.bicep' = {
+module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
   name: 'Cdph_Common'
   params: {
     Arm_DeploymentCreationDateTime: Arm_DeploymentCreationDateTime
@@ -113,7 +113,7 @@ module Cdph 'redcapAzureDeployCdphModule.bicep' = {
   }
 }
 
-var cdph_CommonTags = Cdph.outputs.out_Cdph_CommonTags
+var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
 
 // =========
 // RESOURCES
@@ -126,10 +126,18 @@ resource MicrosoftKeyVault_vaults_Resource 'Microsoft.KeyVault/vaults@2022-11-01
   name: MicrosoftKeyVault_vaults_Arm_ResourceName
 }
 
+resource MicrosoftKeyVault_vaults_Secrets_Resource 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
+  parent: MicrosoftKeyVault_vaults_Resource
+  name: 'MicrosoftDBforMySQLConnectionString-Secret'
+  properties: {
+    value: databaseForMySql_ConnectionString
+  }
+}
+
 // Azure Storage Account
 // ---------------------
 
-module MicrosoftStorage_storageAccounts 'redcapAzureDeployStorageModule.bicep' = {
+module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.bicep' = {
   name: 'MicrosoftStorage_storageAccounts'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -141,7 +149,7 @@ module MicrosoftStorage_storageAccounts 'redcapAzureDeployStorageModule.bicep' =
 // Database for MySQL Flexible Server
 // ----------------------------------
 
-module DatabaseForMySql_FlexibleServer 'redcapAzureDeployMySqlModule.bicep' = {
+module DatabaseForMySql_FlexibleServer_Module 'redcapAzureDeployMySqlModule.bicep' = {
   name: 'DatabaseForMySql_FlexibleServer'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -151,10 +159,13 @@ module DatabaseForMySql_FlexibleServer 'redcapAzureDeployMySqlModule.bicep' = {
   }
 }
 
+var databaseForMySql_HostName = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_HostName
+var databaseForMySql_ConnectionString = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_ConnectionString
+
 // App Service Plan
 // ----------------
 
-module MicrosoftWeb_serverfarms 'redcapAzureDeployAppServicePlanModule.bicep' = {
+module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bicep' = {
   name: 'MicrosoftWeb_serverfarms'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -166,13 +177,15 @@ module MicrosoftWeb_serverfarms 'redcapAzureDeployAppServicePlanModule.bicep' = 
 // App Service
 // -----------
 
-module MicrosoftWeb_sites 'redcapAzureDeployAppServiceModule.bicep' = {
+module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
   name: 'MicrosoftWeb_sites'
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
     MicrosoftStorage_storageAccounts_Arguments: MicrosoftStorage_storageAccounts_Arguments
     MicrosoftDBforMySQL_flexibleServers_Arguments: MicrosoftDBforMySQL_flexibleServers_Arguments
+    DatabaseForMySql_HostName: databaseForMySql_HostName
+    DatabaseForMySql_ConnectionString: databaseForMySql_ConnectionString
     DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword')
     MicrosoftWeb_sites_Arguments: MicrosoftWeb_sites_Arguments
     MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
@@ -188,7 +201,7 @@ module MicrosoftWeb_sites 'redcapAzureDeployAppServiceModule.bicep' = {
 // App Service Certificate
 // -----------------------
 
-module MicrosoftWeb_certificates 'redcapAzureDeployAppServiceCertificateModule.bicep' = {
+module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateModule.bicep' = {
   name: 'MicrosoftWeb_certificates'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -203,7 +216,7 @@ module MicrosoftWeb_certificates 'redcapAzureDeployAppServiceCertificateModule.b
 // Application Insights
 // --------------------
 
-module MicrosoftInsights_components 'redcapAzureDeployApplicationInsightsModule.bicep' = {
+module MicrosoftInsights_components_Module 'redcapAzureDeployApplicationInsightsModule.bicep' = {
   name: 'MicrosoftInsights_components'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -216,7 +229,7 @@ module MicrosoftInsights_components 'redcapAzureDeployApplicationInsightsModule.
 // Log Analytics Workspace
 // -----------------------
 
-module MicrosoftOperationalInsights_workspaces 'redcapAzureDeployLogAnalyticsModule.bicep' = {
+module MicrosoftOperationalInsights_workspaces_Module 'redcapAzureDeployLogAnalyticsModule.bicep' = {
   name: 'MicrosoftOperationalInsights_workspaces'
   params: {
     Cdph_CommonTags: cdph_CommonTags
@@ -227,6 +240,6 @@ module MicrosoftOperationalInsights_workspaces 'redcapAzureDeployLogAnalyticsMod
 }
 
 // NOTE: Bicep/ARM will lowercase the initial letter for all output variable names
-output out_AzAppService_CustomDomainVerification string = MicrosoftWeb_sites.outputs.out_CustomDomainVerificationId
+output out_AzAppService_CustomDomainVerification string = MicrosoftWeb_sites_Module.outputs.out_CustomDomainVerificationId
 
-output out_WebHost_IpAddress string = MicrosoftWeb_sites.outputs.out_WebHost_IpAddress
+output out_WebHost_IpAddress string = MicrosoftWeb_sites_Module.outputs.out_WebHost_IpAddress

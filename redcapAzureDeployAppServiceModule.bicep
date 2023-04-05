@@ -23,8 +23,13 @@ param MicrosoftStorage_storageAccounts_Arguments object
 
 param MicrosoftDBforMySQL_flexibleServers_Arguments object
 
+param DatabaseForMySql_HostName string
+
 @secure()
 param DatabaseForMySql_AdministratorLoginPassword string
+
+@secure()
+param DatabaseForMySql_ConnectionString string
 
 // App Service Plan parameters
 // ---------------------------
@@ -84,8 +89,6 @@ var storageAccount_ContainerName = MicrosoftStorage_storageAccounts_Arguments.by
 
 var databaseForMySql_FlexibleServer_ResourceName = MicrosoftDBforMySQL_flexibleServers_Arguments.Arm_ResourceName
 
-var databaseForMySql_HostName = '${databaseForMySql_FlexibleServer_ResourceName}.mysql.database.azure.com'
-
 var databaseForMySql_AdministratorLoginName = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].AdministratorLoginName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName
 
 var databaseForMySql_DatabaseName = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].DatabaseName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName
@@ -144,17 +147,6 @@ var appService_LinuxFxVersion = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_
 var appService_WebHost_SourceControl_GitHubRepositoryUrl = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].SourceControl_GitHubRepositoryUrl ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.SourceControl_GitHubRepositoryUrl
 
 var appService_WebHost_CustomFullyQualifiedDomainName = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
-
-// App Service App Configuration variables
-// ---------------------------------------
-
-var appService_Config_ConnectionString_settings = [
-  'Database=${databaseForMySql_DatabaseName}'
-  'Data Source=${databaseForMySql_HostName}'
-  'User Id=${databaseForMySql_AdministratorLoginName}'
-  'Password=${DatabaseForMySql_AdministratorLoginPassword}'
-]
-var appService_Config_ConnectionString = join(appService_Config_ConnectionString_settings, '; ')
 
 // =========
 // RESOURCES
@@ -217,7 +209,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       connectionStrings: [
         {
           name: 'defaultConnection'
-          connectionString: appService_Config_ConnectionString
+          connectionString: DatabaseForMySql_ConnectionString
           type: 'MySql'
         }
       ]
@@ -267,7 +259,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       StorageContainerName: storageAccount_ContainerName
 
       // MySQL
-      DBHostName: databaseForMySql_HostName
+      DBHostName: DatabaseForMySql_HostName
       DBName: databaseForMySql_DatabaseName
       DBUserName: databaseForMySql_AdministratorLoginName
       DBPassword: DatabaseForMySql_AdministratorLoginPassword
