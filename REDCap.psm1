@@ -94,7 +94,7 @@ function Deploy-AzureREDCap
     )
 
     $progressActivity = 'Deploying REDCap infrastructure to Azure'
-    Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault'
+    Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
     
     $resourceDeployment = [ResourceDeployment]::new(
         $Cdph_Organization,
@@ -133,7 +133,7 @@ function Deploy-AzureREDCap
         throw $deploymentResult
     }
 
-    Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault'
+    Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault' -PercentComplete 20
 
     Set-KeyVaultAppServiceAccessPolicy `
         -ParametersEntry $keyVaultParametersEntry
@@ -144,37 +144,39 @@ function Deploy-AzureREDCap
         -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
         -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
 
-    Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights'
+    Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
         
     $mainParametersEntry = Get-Parameters `
         -Template 'Main'
 
     Initialize-VirtualNetworkArguments `
-        -ParametersEntry $parametersEntry
+        -ParametersEntry $mainParametersEntry
 
     Initialize-StorageAccountArguments `
-        -ParametersEntry $parametersEntry
+        -ParametersEntry $mainParametersEntry
 
     Initialize-MySQLArguments `
-        -ParametersEntry $parametersEntry `
+        -ParametersEntry $mainParametersEntry `
         -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
 
     Initialize-AppServiceArguments `
-        -ParametersEntry $parametersEntry `
+        -ParametersEntry $mainParametersEntry `
         -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
         -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
 
     Initialize-REDCapArguments `
-        -ParametersEntry $parametersEntry `
+        -ParametersEntry $mainParametersEntry `
         -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword
 
     Initialize-SmtpArguments `
-        -ParametersEntry $parametersEntry `
+        -ParametersEntry $mainParametersEntry `
         -Smtp_UserPassword $Smtp_UserPassword
 
     Deploy-Bicep `
-        -ParametersEntry $parametersEntry `
+        -ParametersEntry $mainParametersEntry `
         -Template 'Main'
+
+    Write-Progress -Activity $progressActivity -Completed
 
 }
 Export-ModuleMember -Function 'Deploy-AzureREDCap'
