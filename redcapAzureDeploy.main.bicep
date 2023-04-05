@@ -160,7 +160,7 @@ module DatabaseForMySql_FlexibleServer_Module 'redcapAzureDeployMySqlModule.bice
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
     MicrosoftDBforMySQL_flexibleServers_Arguments: MicrosoftDBforMySQL_flexibleServers_Arguments
-    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword')
+    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
   }
 }
 
@@ -191,15 +191,15 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
     MicrosoftDBforMySQL_flexibleServers_Arguments: MicrosoftDBforMySQL_flexibleServers_Arguments
     DatabaseForMySql_HostName: databaseForMySql_HostName
     DatabaseForMySql_ConnectionString: databaseForMySql_ConnectionString
-    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword')
+    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
     MicrosoftWeb_sites_Arguments: MicrosoftWeb_sites_Arguments
     MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
     MicrosoftWeb_certificates_Arguments: MicrosoftWeb_certificates_Arguments
     MicrosoftInsights_components_Arguments: MicrosoftInsights_components_Arguments
     ProjectREDCap_Arguments: ProjectREDCap_Arguments
-    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword: MicrosoftKeyVault_vaults_Resource.getSecret('ProjectREDCapCommunityPassword') 
+    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword: MicrosoftKeyVault_vaults_Resource.getSecret('ProjectREDCapCommunityPassword-Secret') 
     Smtp_Arguments: Smtp_Arguments
-    Smtp_UserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('SmtpUserPassword')
+    Smtp_UserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('SmtpUserPassword-Secret')
   }
 }
 
