@@ -5,6 +5,10 @@
 Deploy-REDCap.ps1
  #>
 
+using namespace System.Diagnostics
+
+using module .\ErrorRecord.psm1
+
 param (
     # CDPH Owner
     [Parameter(Mandatory = $true)]
@@ -56,55 +60,46 @@ param (
     # Recommended: Use Get-Secret to retrieve the password from a secure store.
     [Parameter(Mandatory = $true)]
     [securestring]
-    $Smtp_UserPassword,
-
-    # Azure region for the resource group. 
-    # Basic options: eastus, westus, westus2, westus3, centralus, northcentralus, southcentralus, westcentralus, eastus2
-    # Full list of regions can be found here: https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies
-    # Not all resources are available in all regions.
-    [Parameter(Mandatory = $true)]
-    [ValidateSet(
-        'centralus',
-        'eastus',
-        'eastus2',
-        'northcentralus',
-        'southcentralus',
-        'westcentralus',
-        'westus',
-        'westus2',
-        'westus3'
-    )]    
-    [string]
-    $Arm_ResourceGroup_Location
+    $Smtp_UserPassword
 )
 
 Set-StrictMode -Version Latest
 
-. '.\Deploy-REDCapKeyVault.ps1'
-. '.\Deploy-REDCapMain.ps1'
+[Stopwatch] $stopwatch = [Stopwatch]::StartNew()
 
-$keyVaultDeployArgs = @{
-    Cdph_Organization                                              = $Cdph_Organization
-    Cdph_Environment                                               = $Cdph_Environment
-    Cdph_ResourceInstance                                          = $Cdph_ResourceInstance
-    Cdph_PfxCertificatePath                                        = $Cdph_PfxCertificatePath
-    Cdph_PfxCertificatePassword                                    = $Cdph_PfxCertificatePassword
-    Cdph_ClientIPAddress                                           = $Cdph_ClientIPAddress
-    Arm_ResourceGroup_Location                                     = $Arm_ResourceGroup_Location
-    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-    ProjectREDCap_CommunityPassword                                = $ProjectRedcap_CommunityPassword
-    Smtp_UserPassword                                              = $Smtp_UserPassword
-}
+Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
-$keyVaultDeploymentResult = Deploy-REDCapKeyVault @keyVaultDeployArgs
-
-if ($keyVaultDeploymentResult.Successful -eq $true)
+try
 {
-    $mainDeployArgs = @{
-        Cdph_Organization     = $Cdph_Organization
-        Cdph_Environment      = $Cdph_Environment
-        Cdph_ResourceInstance = $Cdph_ResourceInstance
+    Remove-Module REDCap -Force -ErrorAction SilentlyContinue
+    Import-Module .\REDCap.psm1 -Force
+
+    $DeployArguments = @{
+        Cdph_Organization                                              = $Cdph_Organization
+        Cdph_Environment                                               = $Cdph_Environment
+        Cdph_ResourceInstance                                          = $Cdph_ResourceInstance
+        Cdph_PfxCertificatePath                                        = $Cdph_PfxCertificatePath
+        Cdph_PfxCertificatePassword                                    = $Cdph_PfxCertificatePassword
+        Cdph_ClientIPAddress                                           = $Cdph_ClientIPAddress
+        MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+        ProjectRedcap_CommunityPassword                                = $ProjectRedcap_CommunityPassword
+        Smtp_UserPassword                                              = $Smtp_UserPassword
     }
-    $mainDeploymentResult = Deploy-REDCapMain @mainDeployArgs
-    Write-Output $mainDeploymentResult
+
+    Deploy-AzureREDCap @DeployArguments
 }
+catch
+{
+    $x = $_
+    Write-CaughtErrorRecord $x Error -IncludeStackTrace
+}
+finally
+{
+    # Stop timer
+    $stopwatch.Stop() | Out-Null
+    $measured = $stopwatch.Elapsed
+
+    Write-Information "Total Deployment time: $($measured.ToString())"
+}
+
+# return $deploymentResult

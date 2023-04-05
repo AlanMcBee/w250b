@@ -1,0 +1,1124 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.15.31.15270",
+      "templateHash": "10343313537194358576"
+    }
+  },
+  "parameters": {
+    "Arm_DeploymentCreationDateTime": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended"
+      }
+    },
+    "Arm_AdministratorObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Administrator object ID (GUID) for the Azure Active Directory user or group that will be granted access to the Key Vault. Default = current user"
+      }
+    },
+    "Cdph_BusinessUnit": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 5,
+      "metadata": {
+        "description": "CDPH Business Unit (numbers & digits only)"
+      }
+    },
+    "Cdph_BusinessUnitProgram": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 7,
+      "metadata": {
+        "description": "CDPH Business Unit Program (numbers & digits only)"
+      }
+    },
+    "Cdph_Environment": {
+      "type": "string",
+      "allowedValues": [
+        "dev",
+        "test",
+        "stage",
+        "prod"
+      ],
+      "metadata": {
+        "description": "Targeted deployment environment"
+      }
+    },
+    "MicrosoftKeyVault_vaults_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Key Vault resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftNetwork_virtualNetworks_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Virtual Network resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftStorage_storageAccounts_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Storage Account resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftDBforMySQL_flexibleServers_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Database for MySQL resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "MicrosoftWeb_serverfarms_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the App Service Plan resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftWeb_sites_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the App Service resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftWeb_certificates_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the App Service Certificate resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftInsights_components_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Application Insights resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "MicrosoftOperationalInsights_workspaces_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the Log Analytics workspace. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "ProjectREDCap_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the REDCap community site. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "ProjectREDCap_CommunityPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "Smtp_Arguments": {
+      "type": "object",
+      "metadata": {
+        "description": "Settings for the SMTP connection. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+      }
+    },
+    "Smtp_UserPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": ""
+      }
+    }
+  },
+  "variables": {
+    "cdph_CommonTags": {
+      "ACCOUNTABILITY-Business Unit": "[parameters('Cdph_BusinessUnit')]",
+      "ACCOUNTABILITY-Cherwell Change Control": "",
+      "ACCOUNTABILITY-Cost Center": "",
+      "ACCOUNTABILITY-Date Created": "[parameters('Arm_DeploymentCreationDateTime')]",
+      "ACCOUNTABILITY-Owner": "[parameters('Cdph_BusinessUnit')]",
+      "ACCOUNTABILITY-Program": "[parameters('Cdph_BusinessUnitProgram')]",
+      "SECURITY-Criticality": "",
+      "SECURITY-Facing": "",
+      "ENVIRONMENT": "[parameters('Cdph_Environment')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftKeyVault_vaults",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Arm_AdministratorObjectId": {
+            "value": "[parameters('Arm_AdministratorObjectId')]"
+          },
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftKeyVault_vaults_Arguments": {
+            "value": "[parameters('MicrosoftKeyVault_vaults_Arguments')]"
+          },
+          "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword": {
+            "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword')]"
+          },
+          "ProjectREDCap_CommunityPassword": {
+            "value": "[parameters('ProjectREDCap_CommunityPassword')]"
+          },
+          "Smtp_UserPassword": {
+            "value": "[parameters('Smtp_UserPassword')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "13483789962942332669"
+            }
+          },
+          "parameters": {
+            "Arm_AdministratorObjectId": {
+              "type": "string"
+            },
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftKeyVault_vaults_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword": {
+              "type": "securestring"
+            },
+            "ProjectREDCap_CommunityPassword": {
+              "type": "securestring"
+            },
+            "Smtp_UserPassword": {
+              "type": "securestring"
+            }
+          },
+          "variables": {
+            "keyVault_ResourceName": "[parameters('MicrosoftKeyVault_vaults_Arguments').Arm_ResourceName]",
+            "keyVault_ResourceLocation": "[if(contains(parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment[parameters('Cdph_Environment')], 'Arm_Location'), parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "keyVault_NetworkAcls_IpRules": "[if(contains(parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment[parameters('Cdph_Environment')], 'NetworkAcls_IpRules'), parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment[parameters('Cdph_Environment')].NetworkAcls_IpRules, parameters('MicrosoftKeyVault_vaults_Arguments').byEnvironment.ALL.NetworkAcls_IpRules)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults/accessPolicies",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', variables('keyVault_ResourceName'), 'add')]",
+              "properties": {
+                "accessPolicies": [
+                  {
+                    "tenantId": "[subscription().tenantId]",
+                    "objectId": "[parameters('Arm_AdministratorObjectId')]",
+                    "permissions": {
+                      "secrets": [
+                        "get",
+                        "list",
+                        "set",
+                        "delete",
+                        "recover",
+                        "backup",
+                        "restore"
+                      ],
+                      "certificates": [
+                        "get",
+                        "list",
+                        "delete",
+                        "create",
+                        "import",
+                        "update",
+                        "managecontacts",
+                        "getissuers",
+                        "listissuers",
+                        "setissuers",
+                        "deleteissuers",
+                        "manageissuers",
+                        "recover",
+                        "backup",
+                        "restore"
+                      ],
+                      "keys": [
+                        "get",
+                        "list",
+                        "delete",
+                        "create",
+                        "import",
+                        "update",
+                        "encrypt",
+                        "decrypt",
+                        "wrapkey",
+                        "unwrapkey",
+                        "sign",
+                        "verify",
+                        "backup",
+                        "restore",
+                        "recover"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', variables('keyVault_ResourceName'), 'MicrosoftDBforMySQL-flexibleServers-AdministratorLoginPassword-Secret')]",
+              "properties": {
+                "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', variables('keyVault_ResourceName'), 'REDCap-CommunityPassword-Secret')]",
+              "properties": {
+                "value": "[parameters('ProjectREDCap_CommunityPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', variables('keyVault_ResourceName'), 'Smtp-UserPassword-Secret')]",
+              "properties": {
+                "value": "[parameters('Smtp_UserPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2022-07-01",
+              "name": "[variables('keyVault_ResourceName')]",
+              "location": "[variables('keyVault_ResourceLocation')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "properties": {
+                "accessPolicies": [],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": true,
+                "enablePurgeProtection": true,
+                "enableRbacAuthorization": false,
+                "enableSoftDelete": true,
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "defaultAction": "Deny",
+                  "ipRules": "[variables('keyVault_NetworkAcls_IpRules')]"
+                },
+                "publicNetworkAccess": "Enabled",
+                "sku": {
+                  "name": "standard",
+                  "family": "A"
+                },
+                "softDeleteRetentionInDays": 90,
+                "tenantId": "[subscription().tenantId]"
+              }
+            }
+          ],
+          "outputs": {
+            "out_keyVault_Resource": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName')), '2022-07-01', 'full')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftStorage_storageAccounts",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftStorage_storageAccounts_Arguments": {
+            "value": "[parameters('MicrosoftStorage_storageAccounts_Arguments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "3725584175984497496"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftStorage_storageAccounts_Arguments": {
+              "type": "object",
+              "metadata": {
+                "description": "Settings for the Storage Account resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information"
+              }
+            }
+          },
+          "variables": {
+            "storageAccount_ResourceName": "[parameters('MicrosoftStorage_storageAccounts_Arguments').Arm_ResourceName]",
+            "storageAccount_Location": "[coalesce(parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "storageAccount_Redundancy": "[coalesce(parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment[parameters('Cdph_Environment')].Redundancy, parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment.ALL.Redundancy)]",
+            "storageAccount_ContainerName": "[coalesce(parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment[parameters('Cdph_Environment')].ContainerName, parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment.ALL.ContainerName)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', variables('storageAccount_ResourceName'), 'default', variables('storageAccount_ContainerName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccount_ResourceName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', variables('storageAccount_ResourceName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2022-05-01",
+              "name": "[variables('storageAccount_ResourceName')]",
+              "location": "[variables('storageAccount_Location')]",
+              "sku": {
+                "name": "[variables('storageAccount_Redundancy')]"
+              },
+              "kind": "StorageV2",
+              "tags": "[parameters('Cdph_CommonTags')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "DatabaseForMySql_FlexibleServer",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftDBforMySQL_flexibleServers_Arguments": {
+            "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_Arguments')]"
+          },
+          "DatabaseForMySql_AdministratorLoginPassword": {
+            "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "10228457754280303840"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftDBforMySQL_flexibleServers_Arguments": {
+              "type": "object"
+            },
+            "DatabaseForMySql_AdministratorLoginPassword": {
+              "type": "securestring"
+            }
+          },
+          "variables": {
+            "databaseForMySql_ResourceName": "[parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').Arm_ResourceName]",
+            "databaseForMySql_Location": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "databaseForMySql_AdministratorLoginName": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].AdministratorLoginName, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.AdministratorLoginName)]",
+            "databaseForMySql_DatabaseName": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].DatabaseName, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.DatabaseName)]",
+            "databaseForMySql_Tier": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].Tier, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.Tier)]",
+            "databaseForMySql_Sku": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].Sku, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.Sku)]",
+            "databaseForMySql_StorageGB": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].StorageGB, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.StorageGB)]",
+            "databaseForMySQL_BackupRetentionDays": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].BackupRetentionDays, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.BackupRetentionDays)]",
+            "databaseForMySql_FirewallRules": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].FirewallRules, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.FirewallRules)]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "databaseForMySql_FlexibleServer_FirewallRule_Resource",
+                "count": "[length(items(variables('databaseForMySql_FirewallRules')))]"
+              },
+              "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[format('{0}/{1}', variables('databaseForMySql_ResourceName'), items(variables('databaseForMySql_FirewallRules'))[copyIndex()].key)]",
+              "properties": {
+                "startIpAddress": "[items(variables('databaseForMySql_FirewallRules'))[copyIndex()].value.StartIpAddress]",
+                "endIpAddress": "[items(variables('databaseForMySql_FirewallRules'))[copyIndex()].value.EndIpAddress]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseForMySql_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[format('{0}/{1}', variables('databaseForMySql_ResourceName'), variables('databaseForMySql_DatabaseName'))]",
+              "properties": {
+                "charset": "utf8",
+                "collation": "utf8_general_ci"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseForMySql_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DBforMySQL/flexibleServers",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[variables('databaseForMySql_ResourceName')]",
+              "location": "[variables('databaseForMySql_Location')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "sku": {
+                "name": "[variables('databaseForMySql_Sku')]",
+                "tier": "[variables('databaseForMySql_Tier')]"
+              },
+              "properties": {
+                "administratorLogin": "[variables('databaseForMySql_AdministratorLoginName')]",
+                "administratorLoginPassword": "[parameters('DatabaseForMySql_AdministratorLoginPassword')]",
+                "backup": {
+                  "backupRetentionDays": "[variables('databaseForMySQL_BackupRetentionDays')]",
+                  "geoRedundantBackup": "Disabled"
+                },
+                "createMode": "Default",
+                "replicationRole": "None",
+                "storage": {
+                  "storageSizeGB": "[variables('databaseForMySql_StorageGB')]"
+                },
+                "version": "8.0.21"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftWeb_serverfarms",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftWeb_serverfarms_Arguments": {
+            "value": "[parameters('MicrosoftWeb_serverfarms_Arguments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "12110391027118675160"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftWeb_serverfarms_Arguments": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "appServicePlan_ResourceName": "[parameters('MicrosoftWeb_serverfarms_Arguments').Arm_ResourceName]",
+            "appServicePlan_Location": "[coalesce(parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "appServicePlan_Tier": "[coalesce(parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment[parameters('Cdph_Environment')].Tier, parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment.ALL.Tier)]",
+            "appServicePlan_SkuName": "[coalesce(parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment[parameters('Cdph_Environment')].SkuName, parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment.ALL.SkuName)]",
+            "appServicePlan_Capacity": "[coalesce(parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment[parameters('Cdph_Environment')].Capacity, parameters('MicrosoftWeb_serverfarms_Arguments').byEnvironment.ALL.Capacity)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-03-01",
+              "name": "[variables('appServicePlan_ResourceName')]",
+              "location": "[variables('appServicePlan_Location')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "sku": {
+                "tier": "[variables('appServicePlan_Tier')]",
+                "name": "[variables('appServicePlan_SkuName')]",
+                "capacity": "[variables('appServicePlan_Capacity')]"
+              },
+              "kind": "app,linux",
+              "properties": {
+                "reserved": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftWeb_sites",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftStorage_storageAccounts_Arguments": {
+            "value": "[parameters('MicrosoftStorage_storageAccounts_Arguments')]"
+          },
+          "MicrosoftDBforMySQL_flexibleServers_Arguments": {
+            "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_Arguments')]"
+          },
+          "DatabaseForMySql_AdministratorLoginPassword": {
+            "value": "[parameters('MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword')]"
+          },
+          "MicrosoftWeb_sites_Arguments": {
+            "value": "[parameters('MicrosoftWeb_sites_Arguments')]"
+          },
+          "MicrosoftWeb_serverfarms_Arguments": {
+            "value": "[parameters('MicrosoftWeb_serverfarms_Arguments')]"
+          },
+          "MicrosoftWeb_certificates_Arguments": {
+            "value": "[parameters('MicrosoftWeb_certificates_Arguments')]"
+          },
+          "MicrosoftInsights_components_Arguments": {
+            "value": "[parameters('MicrosoftInsights_components_Arguments')]"
+          },
+          "ProjectREDCap_Arguments": {
+            "value": "[parameters('ProjectREDCap_Arguments')]"
+          },
+          "ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword": {
+            "value": "[parameters('ProjectREDCap_CommunityPassword')]"
+          },
+          "Smtp_Arguments": {
+            "value": "[parameters('Smtp_Arguments')]"
+          },
+          "Smtp_UserPassword": {
+            "value": "[parameters('Smtp_UserPassword')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "14767941850116371995"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftStorage_storageAccounts_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftDBforMySQL_flexibleServers_Arguments": {
+              "type": "object"
+            },
+            "DatabaseForMySql_AdministratorLoginPassword": {
+              "type": "securestring"
+            },
+            "MicrosoftWeb_serverfarms_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftWeb_certificates_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftWeb_sites_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftInsights_components_Arguments": {
+              "type": "object"
+            },
+            "ProjectREDCap_Arguments": {
+              "type": "object"
+            },
+            "ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword": {
+              "type": "securestring"
+            },
+            "Smtp_Arguments": {
+              "type": "object"
+            },
+            "Smtp_UserPassword": {
+              "type": "securestring",
+              "metadata": {
+                "description": ""
+              }
+            }
+          },
+          "variables": {
+            "storageAccount_ResourceName": "[parameters('MicrosoftStorage_storageAccounts_Arguments').Arm_ResourceName]",
+            "storageAccount_ContainerName": "[coalesce(parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment[parameters('Cdph_Environment')].ContainerName, parameters('MicrosoftStorage_storageAccounts_Arguments').byEnvironment.ALL.ContainerName)]",
+            "databaseForMySql_FlexibleServer_ResourceName": "[parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').Arm_ResourceName]",
+            "databaseForMySql_HostName": "[format('{0}.mysql.database.azure.com', variables('databaseForMySql_FlexibleServer_ResourceName'))]",
+            "databaseForMySql_AdministratorLoginName": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].AdministratorLoginName, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.AdministratorLoginName)]",
+            "databaseForMySql_DatabaseName": "[coalesce(parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment[parameters('Cdph_Environment')].DatabaseName, parameters('MicrosoftDBforMySQL_flexibleServers_Arguments').byEnvironment.ALL.DatabaseName)]",
+            "AppServicePlan_ResourceName": "[parameters('MicrosoftWeb_serverfarms_Arguments').Arm_ResourceName]",
+            "AppService_Certificates_ResourceName": "[parameters('MicrosoftWeb_certificates_Arguments').Arm_ResourceName]",
+            "ApplicationInsights_ResourceName": "[parameters('MicrosoftInsights_components_Arguments').Arm_ResourceName]",
+            "applicationInsights_Enabled": "[coalesce(parameters('MicrosoftInsights_components_Arguments').byEnvironment[parameters('Cdph_Environment')].enabled, parameters('MicrosoftInsights_components_Arguments').byEnvironment.ALL.enabled)]",
+            "projectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName": "[parameters('ProjectREDCap_Arguments').AutomaticDownloadUrlBuilder.CommunityUserName]",
+            "projectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion": "[parameters('ProjectREDCap_Arguments').AutomaticDownloadUrlBuilder.AppZipVersion]",
+            "smtp_HostFqdn": "[coalesce(parameters('Smtp_Arguments').byEnvironment[parameters('Cdph_Environment')].HostFqdn, parameters('Smtp_Arguments').byEnvironment.ALL.HostFqdn)]",
+            "smtp_Port": "[coalesce(parameters('Smtp_Arguments').byEnvironment[parameters('Cdph_Environment')].Port, parameters('Smtp_Arguments').byEnvironment.ALL.Port)]",
+            "smtp_UserLogin": "[coalesce(parameters('Smtp_Arguments').byEnvironment[parameters('Cdph_Environment')].UserLogin, parameters('Smtp_Arguments').byEnvironment.ALL.UserLogin)]",
+            "smtp_FromEmailAddress": "[coalesce(parameters('Smtp_Arguments').byEnvironment[parameters('Cdph_Environment')].FromEmailAddress, parameters('Smtp_Arguments').byEnvironment.ALL.FromEmailAddress)]",
+            "appService_Tags": "[union(createObject('displayName', 'REDCap Web App'), parameters('Cdph_CommonTags'))]",
+            "appService_WebHost_ResourceName": "[parameters('MicrosoftWeb_sites_Arguments').Arm_ResourceName]",
+            "appService_WebHost_Location": "[coalesce(parameters('MicrosoftWeb_sites_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftWeb_sites_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "appService_LinuxFxVersion": "[coalesce(parameters('MicrosoftWeb_sites_Arguments').byEnvironment[parameters('Cdph_Environment')].AppService_LinuxFxVersion, parameters('MicrosoftWeb_sites_Arguments').byEnvironment.ALL.AppService_LinuxFxVersion)]",
+            "appService_WebHost_SourceControl_GitHubRepositoryUrl": "[coalesce(parameters('MicrosoftWeb_sites_Arguments').byEnvironment[parameters('Cdph_Environment')].SourceControl_GitHubRepositoryUrl, parameters('MicrosoftWeb_sites_Arguments').byEnvironment.ALL.SourceControl_GitHubRepositoryUrl)]",
+            "appService_WebHost_CustomFullyQualifiedDomainName": "[coalesce(parameters('MicrosoftWeb_sites_Arguments').byEnvironment[parameters('Cdph_Environment')].CustomFullyQualifiedDomainName, parameters('MicrosoftWeb_sites_Arguments').byEnvironment.ALL.CustomFullyQualifiedDomainName)]",
+            "appService_Config_ConnectionString_settings": [
+              "[format('Database={0}', variables('databaseForMySql_DatabaseName'))]",
+              "[format('Data Source={0}', variables('databaseForMySql_HostName'))]",
+              "[format('User Id={0}', variables('databaseForMySql_AdministratorLoginName'))]",
+              "[format('Password={0}', parameters('DatabaseForMySql_AdministratorLoginPassword'))]"
+            ],
+            "appService_Config_ConnectionString": "[join(variables('appService_Config_ConnectionString_settings'), '; ')]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites/hostNameBindings",
+              "apiVersion": "2022-03-01",
+              "name": "[format('{0}/{1}', variables('appService_WebHost_ResourceName'), variables('appService_WebHost_CustomFullyQualifiedDomainName'))]",
+              "properties": {
+                "sslState": "SniEnabled",
+                "thumbprint": "[reference(resourceId('Microsoft.Web/certificates', variables('AppService_Certificates_ResourceName')), '2022-03-01').thumbprint]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2022-03-01",
+              "name": "[format('{0}/{1}', variables('appService_WebHost_ResourceName'), 'web')]",
+              "properties": {
+                "alwaysOn": true,
+                "appCommandLine": "/home/startup.sh",
+                "connectionStrings": [
+                  {
+                    "name": "defaultConnection",
+                    "connectionString": "[variables('appService_Config_ConnectionString')]",
+                    "type": "MySql"
+                  }
+                ],
+                "defaultDocuments": [
+                  "index.php",
+                  "index.html",
+                  "default.html",
+                  "hostingstart.html"
+                ],
+                "ftpsState": "Disabled",
+                "loadBalancing": "LeastRequests",
+                "numberOfWorkers": 1,
+                "scmType": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2022-03-01",
+              "name": "[format('{0}/{1}', variables('appService_WebHost_ResourceName'), 'appsettings')]",
+              "properties": {
+                "SCM_DO_BUILD_DURING_DEPLOYMENT": "1",
+                "APPINSIGHTS_INSTRUMENTATIONKEY": "[if(variables('applicationInsights_Enabled'), reference(resourceId('Microsoft.Insights/components', variables('ApplicationInsights_ResourceName')), '2020-02-02').InstrumentationKey, '')]",
+                "APPINSIGHTS_PROFILERFEATURE_VERSION": "[if(variables('applicationInsights_Enabled'), '1.0.0', '')]",
+                "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "[if(variables('applicationInsights_Enabled'), '1.0.0', '')]",
+                "APPLICATIONINSIGHTS_CONNECTION_STRING": "[if(variables('applicationInsights_Enabled'), reference(resourceId('Microsoft.Insights/components', variables('ApplicationInsights_ResourceName')), '2020-02-02').ConnectionString, '')]",
+                "ApplicationInsightsAgent_EXTENSION_VERSION": "[if(variables('applicationInsights_Enabled'), '~2', '')]",
+                "DiagnosticServices_EXTENSION_VERSION": "[if(variables('applicationInsights_Enabled'), '~3', '')]",
+                "InstrumentationEngine_EXTENSION_VERSION": "[if(variables('applicationInsights_Enabled'), 'disabled', '')]",
+                "SnapshotDebugger_EXTENSION_VERSION": "[if(variables('applicationInsights_Enabled'), 'disabled', '')]",
+                "XDT_MicrosoftApplicationInsights_BaseExtensions": "[if(variables('applicationInsights_Enabled'), 'disabled', '')]",
+                "XDT_MicrosoftApplicationInsights_Mode": "[if(variables('applicationInsights_Enabled'), 'recommended', '')]",
+                "XDT_MicrosoftApplicationInsights_PreemptSdk": "[if(variables('applicationInsights_Enabled'), 'disabled', '')]",
+                "PHP_INI_SCAN_DIR": "/usr/local/etc/php/conf.d:/home/site",
+                "zipUsername": "[variables('projectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName')]",
+                "zipPassword": "[parameters('ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword')]",
+                "zipVersion": "[variables('projectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion')]",
+                "StorageAccount": "[variables('storageAccount_ResourceName')]",
+                "StorageKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount_ResourceName')), '2022-09-01').keys[0].value]",
+                "StorageContainerName": "[variables('storageAccount_ContainerName')]",
+                "DBHostName": "[variables('databaseForMySql_HostName')]",
+                "DBName": "[variables('databaseForMySql_DatabaseName')]",
+                "DBUserName": "[variables('databaseForMySql_AdministratorLoginName')]",
+                "DBPassword": "[parameters('DatabaseForMySql_AdministratorLoginPassword')]",
+                "fromEmailAddress": "[variables('smtp_FromEmailAddress')]",
+                "smtpFqdn": "[variables('smtp_HostFqdn')]",
+                "smtpPort": "[format('{0}', variables('smtp_Port'))]",
+                "smtp_user_name": "[variables('smtp_UserLogin')]",
+                "smtp_password": "[parameters('Smtp_UserPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/sourcecontrols",
+              "apiVersion": "2022-03-01",
+              "name": "[format('{0}/{1}', variables('appService_WebHost_ResourceName'), 'web')]",
+              "properties": {
+                "branch": "main",
+                "isManualIntegration": true,
+                "repoUrl": "[variables('appService_WebHost_SourceControl_GitHubRepositoryUrl')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-03-01",
+              "name": "[variables('appService_WebHost_ResourceName')]",
+              "location": "[variables('appService_WebHost_Location')]",
+              "tags": "[variables('appService_Tags')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "clientAffinityEnabled": false,
+                "httpsOnly": true,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlan_ResourceName'))]",
+                "siteConfig": {
+                  "alwaysOn": true,
+                  "linuxFxVersion": "[variables('appService_LinuxFxVersion')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "out_CustomDomainVerificationId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName')), '2022-03-01').customDomainVerificationId]"
+            },
+            "out_WebHost_IpAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', variables('appService_WebHost_ResourceName')), '2022-03-01').inboundIpAddress]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftWeb_certificates",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftKeyVault_vaults_Arguments": {
+            "value": "[parameters('MicrosoftKeyVault_vaults_Arguments')]"
+          },
+          "MicrosoftWeb_certificates_Arguments": {
+            "value": "[parameters('MicrosoftWeb_certificates_Arguments')]"
+          },
+          "MicrosoftWeb_serverfarms_Arguments": {
+            "value": "[parameters('MicrosoftWeb_serverfarms_Arguments')]"
+          },
+          "MicrosoftWeb_sites_Arguments": {
+            "value": "[parameters('MicrosoftWeb_sites_Arguments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "486409668013427495"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftKeyVault_vaults_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftWeb_serverfarms_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftWeb_sites_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftWeb_certificates_Arguments": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "keyVault_ResourceName": "[parameters('MicrosoftKeyVault_vaults_Arguments').Arm_ResourceName]",
+            "appServicePlan_ResourceName": "[parameters('MicrosoftWeb_serverfarms_Arguments').Arm_ResourceName]",
+            "appService_WebHost_ResourceName": "[parameters('MicrosoftWeb_sites_Arguments').Arm_ResourceName]",
+            "appService_Certificates_ResourceName": "[parameters('MicrosoftWeb_certificates_Arguments').Arm_ResourceName]",
+            "appService_Certificates_Location": "[coalesce(parameters('MicrosoftWeb_certificates_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftWeb_certificates_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "appService_WebHost_CustomFullyQualifiedDomainName": "[coalesce(parameters('MicrosoftWeb_sites_Arguments').byEnvironment[parameters('Cdph_Environment')].CustomFullyQualifiedDomainName, parameters('MicrosoftWeb_sites_Arguments').byEnvironment.ALL.CustomFullyQualifiedDomainName)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/certificates",
+              "apiVersion": "2022-03-01",
+              "name": "[variables('appService_Certificates_ResourceName')]",
+              "location": "[variables('appService_Certificates_Location')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "properties": {
+                "hostNames": [
+                  "[variables('appService_WebHost_CustomFullyQualifiedDomainName')]"
+                ],
+                "keyVaultId": "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault_ResourceName'))]",
+                "keyVaultSecretName": "[variables('appService_WebHost_ResourceName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan_ResourceName'))]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftInsights_components",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftInsights_components_Arguments": {
+            "value": "[parameters('MicrosoftInsights_components_Arguments')]"
+          },
+          "MicrosoftOperationalInsights_workspaces_Arguments": {
+            "value": "[parameters('MicrosoftOperationalInsights_workspaces_Arguments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "16199613784017799081"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftInsights_components_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftOperationalInsights_workspaces_Arguments": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "logAnalytics_Workspace_ResourceName": "[parameters('MicrosoftOperationalInsights_workspaces_Arguments').Arm_ResourceName]",
+            "applicationInsights_ResourceName": "[parameters('MicrosoftInsights_components_Arguments').Arm_ResourceName]",
+            "applicationInsights_Location": "[coalesce(parameters('MicrosoftInsights_components_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftInsights_components_Arguments').byEnvironment.ALL.Arm_Location)]",
+            "applicationInsights_Enabled": "[coalesce(parameters('MicrosoftInsights_components_Arguments').byEnvironment[parameters('Cdph_Environment')].enabled, parameters('MicrosoftInsights_components_Arguments').byEnvironment.ALL.enabled)]"
+          },
+          "resources": [
+            {
+              "condition": "[variables('applicationInsights_Enabled')]",
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02",
+              "name": "[variables('applicationInsights_ResourceName')]",
+              "location": "[variables('applicationInsights_Location')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "kind": "web",
+              "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Bluefield",
+                "Request_Source": "rest",
+                "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalytics_Workspace_ResourceName'))]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "MicrosoftOperationalInsights_workspaces",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Cdph_CommonTags": {
+            "value": "[variables('cdph_CommonTags')]"
+          },
+          "Cdph_Environment": {
+            "value": "[parameters('Cdph_Environment')]"
+          },
+          "MicrosoftInsights_components_Arguments": {
+            "value": "[parameters('MicrosoftInsights_components_Arguments')]"
+          },
+          "MicrosoftOperationalInsights_workspaces_Arguments": {
+            "value": "[parameters('MicrosoftOperationalInsights_workspaces_Arguments')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "1453181229986525472"
+            }
+          },
+          "parameters": {
+            "Cdph_Environment": {
+              "type": "string"
+            },
+            "Cdph_CommonTags": {
+              "type": "object"
+            },
+            "MicrosoftInsights_components_Arguments": {
+              "type": "object"
+            },
+            "MicrosoftOperationalInsights_workspaces_Arguments": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "applicationInsights_Enabled": "[coalesce(parameters('MicrosoftInsights_components_Arguments').byEnvironment[parameters('Cdph_Environment')].enabled, parameters('MicrosoftInsights_components_Arguments').byEnvironment.ALL.enabled)]",
+            "logAnalytics_Workspace_ResourceName": "[parameters('MicrosoftOperationalInsights_workspaces_Arguments').Arm_ResourceName]",
+            "logAnalytics_Workspace_Location": "[coalesce(parameters('MicrosoftOperationalInsights_workspaces_Arguments').byEnvironment[parameters('Cdph_Environment')].Arm_Location, parameters('MicrosoftOperationalInsights_workspaces_Arguments').byEnvironment.ALL.Arm_Location)]"
+          },
+          "resources": [
+            {
+              "condition": "[variables('applicationInsights_Enabled')]",
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2022-10-01",
+              "name": "[variables('logAnalytics_Workspace_ResourceName')]",
+              "location": "[variables('logAnalytics_Workspace_Location')]",
+              "tags": "[parameters('Cdph_CommonTags')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "out_AzAppService_CustomDomainVerification": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'MicrosoftWeb_sites'), '2020-10-01').outputs.out_CustomDomainVerificationId.value]"
+    },
+    "out_WebHost_IpAddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'MicrosoftWeb_sites'), '2020-10-01').outputs.out_WebHost_IpAddress.value]"
+    }
+  }
+}
