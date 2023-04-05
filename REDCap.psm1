@@ -183,13 +183,11 @@ function Deploy-AzureREDCap
 
         Initialize-REDCapArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment `
-            -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword
+            -ResourceDeployment $resourceDeployment
 
         Initialize-SmtpArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment `
-            -Smtp_UserPassword $Smtp_UserPassword
+            -ResourceDeployment $resourceDeployment
 
         $deploymentResult = Deploy-Bicep `
             -ParametersEntry $mainParametersEntry `
