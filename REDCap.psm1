@@ -94,89 +94,118 @@ function Deploy-AzureREDCap
     )
 
     $progressActivity = 'Deploying REDCap infrastructure to Azure'
-    Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
-    
-    $resourceDeployment = [ResourceDeployment]::new(
-        $Cdph_Organization,
-        $Cdph_Environment,
-        $Cdph_ResourceInstance
-    )
-
-    $keyVaultParametersEntry = Get-Parameters `
-        -Template 'KeyVault'
-    
-    Initialize-CommonArguments `
-        -ParametersEntry $keyVaultParametersEntry `
-        -Cdph_BusinessUnit $Cdph_BusinessUnit `
-        -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
-
-    Deploy-ResourceGroup `
-        -ParametersEntry $keyVaultParametersEntry `
-        -ResourceDeployment $resourceDeployment
-
-    Initialize-KeyVaultArguments `
-        -ParametersEntry $keyVaultParametersEntry `
-        -ResourceDeployment $resourceDeployment `
-        -Cdph_ClientIPAddress $Cdph_ClientIPAddress `
-        -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword `
-        -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword `
-        -Smtp_UserPassword $Smtp_UserPassword
-
-    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $deploymentResult = Deploy-Bicep `
-        -Template 'KeyVault' `
-        -ResourceDeployment $resourceDeployment `
-        -ParametersEntry $keyVaultParametersEntry 
-
-    if ($deploymentResult.ProvisioningState -ne 'Succeeded')
+    try
     {
-        Write-Error 'Key Vault deployment failed.'
-        throw $deploymentResult
-    }
+        Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
+    
+        $resourceDeployment = [ResourceDeployment]::new(
+            $Cdph_Organization,
+            $Cdph_Environment,
+            $Cdph_ResourceInstance
+        )
 
-    Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault' -PercentComplete 20
+        $keyVaultParametersEntry = Get-Parameters `
+            -Template 'KeyVault'
+    
+        Initialize-CommonArguments `
+            -ParametersEntry $keyVaultParametersEntry `
+            -Cdph_BusinessUnit $Cdph_BusinessUnit `
+            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
 
-    Set-KeyVaultAppServiceAccessPolicy `
-        -ParametersEntry $keyVaultParametersEntry
+        Deploy-ResourceGroup `
+            -ParametersEntry $keyVaultParametersEntry `
+            -ResourceDeployment $resourceDeployment
 
-    Import-PfxCertificate `
-        -ParametersEntry $keyVaultParametersEntry `
-        -ResourceDeployment $resourceDeployment `
-        -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
-        -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
-
-    Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
+        Initialize-VirtualNetworkArguments `
+            -ParametersEntry $keyVaultParametersEntry `
+            -ResourceDeployment $resourceDeployment
         
-    $mainParametersEntry = Get-Parameters `
-        -Template 'Main'
+        Initialize-KeyVaultArguments `
+            -ParametersEntry $keyVaultParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -Cdph_ClientIPAddress $Cdph_ClientIPAddress `
+            -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword `
+            -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword `
+            -Smtp_UserPassword $Smtp_UserPassword
 
-    Initialize-VirtualNetworkArguments `
-        -ParametersEntry $mainParametersEntry
+        [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $deploymentResult = $null
+        $deploymentResult = Deploy-Bicep `
+            -Template 'KeyVault' `
+            -ResourceDeployment $resourceDeployment `
+            -ParametersEntry $keyVaultParametersEntry 
 
-    Initialize-StorageAccountArguments `
-        -ParametersEntry $mainParametersEntry
+        if ($deploymentResult.ProvisioningState -ne 'Succeeded')
+        {
+            Write-Error 'Key Vault deployment failed.'
+            throw $deploymentResult
+        }
 
-    Initialize-MySQLArguments `
-        -ParametersEntry $mainParametersEntry `
-        -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+        Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault' -PercentComplete 20
 
-    Initialize-AppServiceArguments `
-        -ParametersEntry $mainParametersEntry `
-        -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
-        -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
+        Set-KeyVaultAppServiceAccessPolicy `
+            -ParametersEntry $keyVaultParametersEntry
 
-    Initialize-REDCapArguments `
-        -ParametersEntry $mainParametersEntry `
-        -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword
+        Import-PfxCertificate `
+            -ParametersEntry $keyVaultParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
+            -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
 
-    Initialize-SmtpArguments `
-        -ParametersEntry $mainParametersEntry `
-        -Smtp_UserPassword $Smtp_UserPassword
+        Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
+        
+        $mainParametersEntry = Get-Parameters `
+            -Template 'Main'
 
-    Deploy-Bicep `
-        -ParametersEntry $mainParametersEntry `
-        -Template 'Main'
+        Initialize-VirtualNetworkArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
 
-    Write-Progress -Activity $progressActivity -Completed
+        Initialize-StorageAccountArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+
+        Initialize-MySQLArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+
+        Initialize-AppServicePlanArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+
+        Initialize-AppServiceCertificatesArguments `
+            -ParametersEntry $ParametersEntry `
+            -ResourceDeployment $ResourceDeployment
+        
+        Initialize-AppServiceArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+
+        Initialize-REDCapArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword
+
+        Initialize-SmtpArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -Smtp_UserPassword $Smtp_UserPassword
+
+        $deploymentResult = Deploy-Bicep `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment `
+            -Template 'Main'
+
+        if ($deploymentResult.ProvisioningState -ne 'Succeeded')
+        {
+            Write-Error 'Main resource deployments failed.'
+            throw $deploymentResult
+        }
+    }
+    finally
+    {
+        Write-Progress -Activity $progressActivity -Completed
+    }
 
 }
 Export-ModuleMember -Function 'Deploy-AzureREDCap'
@@ -244,6 +273,441 @@ function Deploy-Bicep
     }
 
     return $armDeployment
+}
+
+function Initialize-VirtualNetworkArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $virtualNetwork_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Network/virtualNetworks'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $virtualNetwork_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'DnsServers' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'AddressSpace' `
+        -ByEnvironment
+}
+
+function Initialize-StorageAccountArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftStorage_storageAccounts_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $storageAccount_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Storage/storageAccounts'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $storageAccount_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Redundancy' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'ContainerName' `
+        -ByEnvironment
+}
+
+function Initialize-MySQLArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        # Password for MySQL administrator account
+        # Recommended: Use Get-Secret to retrieve the password from a secure store.
+        [Parameter(Mandatory = $true)]
+        [securestring]
+        $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $mysql_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.DBforMySQL/flexibleServers'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $mysql_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'DatabaseName' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'AdministratorLoginName' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Tier' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Sku' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'StorageGB' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'BackupRetentionDays' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'FirewallRules' `
+        -ByEnvironment
+}
+
+function Initialize-AppServicePlanArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftWeb_serverfarms_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $appServicePlan_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Web/serverfarms'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $appServicePlan_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'SkuName' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Tier' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Capacity' `
+        -ByEnvironment
+}
+
+function Initialize-AppServiceCertificatesArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftWeb_certificates_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $appServiceCertificates_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Web/certificates'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $appServiceCertificates_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+}
+
+function Initialize-AppServiceArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftWeb_sites_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $appService_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Web/sites'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $appService_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'LinuxFxVersion' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'SourceControl_GitHubRepositoryUrl' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'CustomFullyQualifiedDomainName' `
+        -ByEnvironment
+}
+
+function Initialize-AppInsightsArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftInsights_components_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $appInsights_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.Insights/components'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $appInsights_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'enabled' `
+        -ByEnvironment
+}
+
+function Initialize-LogAnalyticsArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftOperationalInsights_workspaces_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $logAnalytics_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.OperationalInsights/workspaces'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $logAnalytics_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Arm_Location' `
+        -ByEnvironment
+}
+
+function Initialize-REDCapArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'ProjectREDCap_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'OverrideAutomaticDownloadUrlBuilder'
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'AutomaticDownloadUrlBuilder'
+
+    $automaticDownloadBuilderArgument = Get-Argument @parameterArguments `
+        -Name 'AutomaticDownloadUrlBuilder'
+
+    $communityUserName = $automaticDownloadBuilderArgument['CommunityUserName']
+    if ([string]::IsNullOrWhiteSpace($communityUserName))
+    {
+        throw "Deployment parameters do not contain a required value for the '$ParameterName.value.AutomaticDownloadUrlBuilder.CommunityUserName' property"
+    }
+
+    $appZipVersion = $automaticDownloadBuilderArgument['AppZipVersion']
+    if ([string]::IsNullOrWhiteSpace($appZipVersion))
+    {
+        throw "Deployment parameters do not contain a required value for the '$ParameterName.value.AutomaticDownloadUrlBuilder.AppZipVersion' property"
+    }
+}
+
+function Initialize-SmtpArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'Smtp_Arguments'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'HostFqdn'
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'Port'
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'UserLogin'
+        -ByEnvironment
+
+    $null = Test-Argument @parameterArguments `
+        -Name 'FromEmailAddress'
+        -ByEnvironment
 }
 
 function Initialize-KeyVaultArguments
