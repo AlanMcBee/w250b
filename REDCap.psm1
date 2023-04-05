@@ -174,7 +174,7 @@ function Deploy-AzureREDCap
             -ResourceDeployment $resourceDeployment
 
         Initialize-AppServiceCertificatesArguments `
-            -ParametersEntry $ParametersEntry `
+            -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $ResourceDeployment
         
         Initialize-AppServiceArguments `
