@@ -311,7 +311,7 @@ function Initialize-VirtualNetworkArguments
         -Value $virtualNetwork_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -357,7 +357,7 @@ function Initialize-KeyVaultResourceNameArguments
         -Value $keyVault_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 }
 
 function Initialize-StorageAccountArguments
@@ -388,7 +388,7 @@ function Initialize-StorageAccountArguments
         -Value $storageAccount_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -440,7 +440,7 @@ function Initialize-MySQLArguments
         -Value $mysql_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -506,7 +506,7 @@ function Initialize-AppServicePlanArguments
         -Value $appServicePlan_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -556,7 +556,7 @@ function Initialize-AppServiceCertificatesArguments
         -Value $appServiceCertificates_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -594,7 +594,7 @@ function Initialize-AppServiceArguments
         -Value $appService_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -644,7 +644,7 @@ function Initialize-AppInsightsArguments
         -Value $appInsights_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -686,7 +686,7 @@ function Initialize-LogAnalyticsArguments
         -Value $logAnalytics_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -829,7 +829,7 @@ function Initialize-KeyVaultArguments
         -Value $keyVault_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name 'metadata'
+        -Metadata
 
     Remove-Argument @parameterArguments `
         -ByEnvironmentMetadata
@@ -1151,6 +1151,10 @@ function Remove-Argument
 
         [Parameter(ParameterSetName = 'FixedArgument')]
         [switch]
+        $Metadata,
+
+        [Parameter(ParameterSetName = 'FixedArgument')]
+        [switch]
         $ByEnvironmentMetadata
     )
 
@@ -1160,13 +1164,22 @@ function Remove-Argument
         throw "Deployment parameters do not contain a required value for the '$ParameterName' property"
     }
 
+    if ($Metadata)
+    {
+        $metadata = $argumentEntry['$metadata']
+        if ($null -ne $metadata)
+        {
+            $argumentEntry.Remove('$metadata')
+        }
+    }
+
     $argumentValue = $argumentEntry['value']
     if ($null -eq $argumentValue)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
     }
 
-    elseif ($ByEnvironment -or $ByEnvironmentMetadata)
+    if ($ByEnvironment -or $ByEnvironmentMetadata)
     {
         $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
 
@@ -1181,7 +1194,7 @@ function Remove-Argument
             $argumentValue_byEnvironment_metadata = $argumentValue_byEnvironment['$metadata']
             if ($null -ne $argumentValue_byEnvironment_metadata)
             {
-                $argumentValue_byEnvironment_metadata.Remove('$metadata')
+                $argumentValue_byEnvironment.Remove('$metadata')
             }
         }
         else
@@ -1202,6 +1215,7 @@ function Remove-Argument
     {
         $argumentValue.Remove($Name)
     }
+    
 }
 
 function Test-Argument
