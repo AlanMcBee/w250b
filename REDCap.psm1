@@ -160,6 +160,10 @@ function Deploy-AzureREDCap
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
 
+        Initialize-KeyVaultResourceNameArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+
         Initialize-StorageAccountArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
@@ -262,11 +266,12 @@ function Deploy-Bicep
         -DeploymentDebugLogLevel ResponseContent `
         -ErrorAction Continue
 
+    [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $armDeployment = $null
     foreach ($output in $outputs)
     {
         if ($output -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment])
         {
-            [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $armDeployment = $output
+            $armDeployment = $output
         }
     }
 
@@ -314,6 +319,37 @@ function Initialize-VirtualNetworkArguments
     $null = Test-Argument @parameterArguments `
         -Name 'AddressSpace' `
         -ByEnvironment
+}
+
+function Initialize-KeyVaultResourceNameArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
+    )
+
+    $parameterArguments = @{
+        ParametersEntry = $ParametersEntry
+        ParameterName   = 'MicrosoftKeyVault_vaults_Arm_ResourceName'
+    }
+
+    $null = Test-Argument @parameterArguments
+
+    $keyVault_Arm_ResourceName = Get-CdphResourceName `
+        -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
+        -Arm_ResourceProvider 'Microsoft.KeyVault/vaults'
+    Set-Argument @parameterArguments `
+        -Name 'Arm_ResourceName' `
+        -Value $keyVault_Arm_ResourceName
+
+    Remove-Argument @parameterArguments `
+        -Name '$metadata'
 }
 
 function Initialize-StorageAccountArguments

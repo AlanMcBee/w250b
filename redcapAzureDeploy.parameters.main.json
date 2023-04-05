@@ -6,9 +6,12 @@
             "metadata": {
                 "description": [
                     "Set this to the resource name of the Key Vault you already created and populated with the secrets. If you are using the PowerShell script to deploy, this will be set automatically."
-                ]
+                ],
+                "type": "object"
             },
-            "value": null
+            "value": {
+                "Arm_ResourceName": null
+            }
         },
         "MicrosoftStorage_storageAccounts_Arguments": {
             "metadata": {

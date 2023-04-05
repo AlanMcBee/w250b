@@ -43,7 +43,7 @@ param MicrosoftNetwork_virtualNetworks_Arguments object
 // --------------------
 
 @description('Name of the Azure Key Vault resource.')
-param MicrosoftKeyVault_vaults_Arm_ResourceName string
+param MicrosoftKeyVault_vaults_Arm_ResourceName object
 
 // Storage Account parameters
 // --------------------------
@@ -115,6 +115,11 @@ module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
 
 var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
 
+// Key Vault variables
+// -------------------
+
+var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arm_ResourceName.Arm_ResourceName
+
 // =========
 // RESOURCES
 // =========
@@ -123,7 +128,7 @@ var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
 // ---------------
 
 resource MicrosoftKeyVault_vaults_Resource 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
-  name: MicrosoftKeyVault_vaults_Arm_ResourceName
+  name: keyVault_ResourceName
 }
 
 resource MicrosoftKeyVault_vaults_Secrets_Resource 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
@@ -206,7 +211,7 @@ module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateM
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
-    KeyVault_ResourceName: MicrosoftKeyVault_vaults_Arm_ResourceName
+    KeyVault_ResourceName: keyVault_ResourceName
     MicrosoftWeb_certificates_Arguments: MicrosoftWeb_certificates_Arguments
     MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
     MicrosoftWeb_sites_Arguments: MicrosoftWeb_sites_Arguments
