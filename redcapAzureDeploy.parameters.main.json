@@ -111,14 +111,12 @@
                 "byEnvironment": {
                     "$metadata": {
                         "description": [
-                            "LinuxFxVersion: The version of PHP to use. Check details at https://learn.microsoft.com/azure/app-service/configure-language-php?pivots=platform-linux#show-php-version",
                             "SkuName: App Service Plan's pricing tier and capacity. Note: this can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/.",
                             "Capacity: Number of instances of the App Service Plan (i.e. \"How many running, distinct web servers will be deployed in the farm at a minimum at all times?\") This can be changed after deployment. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/."
                         ]
                     },
                     "ALL": {
-                        "Arm_Location": "eastus",
-                        "LinuxFxVersion": "php|8.2"
+                        "Arm_Location": "eastus"
                     },
                     "dev": {
                         "Tier": "Basic",
@@ -150,12 +148,14 @@
                 "byEnvironment": {
                     "$metadata": {
                         "description": [
+                            "LinuxFxVersion: The version of PHP to use. Check details at https://learn.microsoft.com/azure/app-service/configure-language-php?pivots=platform-linux#show-php-version",
                             "SourceControl_GitHubRepositoryUrl: The URL of the GitHub repository to deploy from. Check details at https://docs.microsoft.com/en-us/azure/app-service/deploy-continuous-deployment#github. The GitHub repository is expected to contain a file named \".deployment\" which, after the repository is cloned into the App Service, will be used to complete the installation of the REDCap software. Check details at https://github.com/projectkudu/kudu/wiki/Deployment-hooks",
                             "CustomFullyQualifiedDomainName: The fully qualified custom domain name (FQDN) to use for the App Service. This domain name is expected to match the SNI certificate's subject name. Check details at https://docs.microsoft.com/en-us/azure/app-service/configure-ssl-certificate#sni."
                         ]
                     },
                     "ALL": {
                         "Arm_Location": "eastus",
+                        "LinuxFxVersion": "php|8.2",
                         "SourceControl_GitHubRepositoryUrl": "https://github.com/microsoft/azure-redcap-paas.git"
                     },
                     "dev": {
