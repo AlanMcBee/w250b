@@ -249,7 +249,7 @@
                             "AppZipVersion: The version of the REDCap zip file to download, or the word \"latest\". Check details at https://community.projectredcap.org/articles/118/download-redcap.html."
                         ]
                     },
-                    "CommunityUserName": null,
+                    "CommunityUserName": "user@example.com",
                     "AppZipVersion": "latest"
                 }
             }
