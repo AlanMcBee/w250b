@@ -662,13 +662,13 @@ function Initialize-REDCapArguments
     $communityUserName = $automaticDownloadBuilderArgument['CommunityUserName']
     if ([string]::IsNullOrWhiteSpace($communityUserName))
     {
-        throw "Deployment parameters do not contain a required value for the '$ParameterName.value.AutomaticDownloadUrlBuilder.CommunityUserName' property"
+        throw 'Deployment parameters do not contain a required value for the ''ProjectREDCap_Arguments.value.AutomaticDownloadUrlBuilder.CommunityUserName'' property'
     }
 
     $appZipVersion = $automaticDownloadBuilderArgument['AppZipVersion']
     if ([string]::IsNullOrWhiteSpace($appZipVersion))
     {
-        throw "Deployment parameters do not contain a required value for the '$ParameterName.value.AutomaticDownloadUrlBuilder.AppZipVersion' property"
+        throw 'Deployment parameters do not contain a required value for the ''ProjectREDCap_Arguments.value.AutomaticDownloadUrlBuilder.AppZipVersion'' property'
     }
 }
 
