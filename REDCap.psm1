@@ -156,6 +156,11 @@ function Deploy-AzureREDCap
         $mainParametersEntry = Get-Parameters `
             -Template 'Main'
 
+        Initialize-CommonArguments `
+            -ParametersEntry $mainParametersEntry `
+            -Cdph_BusinessUnit $Cdph_BusinessUnit `
+            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
+
         Initialize-VirtualNetworkArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
@@ -306,7 +311,10 @@ function Initialize-VirtualNetworkArguments
         -Value $virtualNetwork_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -349,7 +357,7 @@ function Initialize-KeyVaultResourceNameArguments
         -Value $keyVault_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
 }
 
 function Initialize-StorageAccountArguments
@@ -380,7 +388,10 @@ function Initialize-StorageAccountArguments
         -Value $storageAccount_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -429,7 +440,10 @@ function Initialize-MySQLArguments
         -Value $mysql_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -492,7 +506,10 @@ function Initialize-AppServicePlanArguments
         -Value $appServicePlan_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -539,7 +556,10 @@ function Initialize-AppServiceCertificatesArguments
         -Value $appServiceCertificates_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -574,7 +594,10 @@ function Initialize-AppServiceArguments
         -Value $appService_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -621,7 +644,10 @@ function Initialize-AppInsightsArguments
         -Value $appInsights_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -660,7 +686,10 @@ function Initialize-LogAnalyticsArguments
         -Value $logAnalytics_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -724,6 +753,9 @@ function Initialize-SmtpArguments
         ParametersEntry = $ParametersEntry
         ParameterName   = 'Smtp_Arguments'
     }
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments
 
@@ -797,7 +829,10 @@ function Initialize-KeyVaultArguments
         -Value $keyVault_Arm_ResourceName
 
     Remove-Argument @parameterArguments `
-        -Name '$metadata'
+        -Name 'metadata'
+
+    Remove-Argument @parameterArguments `
+        -ByEnvironmentMetadata
 
     $null = Test-Argument @parameterArguments `
         -Name 'Arm_Location' `
@@ -1106,13 +1141,17 @@ function Remove-Argument
         [string]
         $ParameterName,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'NamedArgument')]
         [string]
         $Name,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'NamedArgument')]
         [switch]
-        $ByEnvironment
+        $ByEnvironment,
+
+        [Parameter(ParameterSetName = 'FixedArgument')]
+        [switch]
+        $ByEnvironmentMetadata
     )
 
     $argumentEntry = $ParametersEntry[$ParameterName]
@@ -1127,7 +1166,7 @@ function Remove-Argument
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
     }
 
-    if ($ByEnvironment)
+    elseif ($ByEnvironment -or $ByEnvironmentMetadata)
     {
         $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
 
@@ -1137,10 +1176,26 @@ function Remove-Argument
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.byEnvironment' property"
         }
 
-        $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
-        if ($null -ne $argumentValue_byEnvironment_thisEnvironment)
+        if ($ByEnvironmentMetadata)
         {
-            $argumentValue_byEnvironment_thisEnvironment.Remove($Name)
+            $argumentValue_byEnvironment_metadata = $argumentValue_byEnvironment['$metadata']
+            if ($null -ne $argumentValue_byEnvironment_metadata)
+            {
+                $argumentValue_byEnvironment_metadata.Remove('$metadata')
+            }
+        }
+        else
+        {
+            $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+            if ($null -ne $argumentValue_byEnvironment_thisEnvironment)
+            {
+                $argumentValue_byEnvironment_thisEnvironment.Remove($Name)
+            }
+            $argumentValue_byEnvironment_allEnvironments = $argumentValue_byEnvironment['ALL']
+            if ($null -ne $argumentValue_byEnvironment_allEnvironments)
+            {
+                $argumentValue_byEnvironment_allEnvironments.Remove($Name)
+            }
         }
     }
     else
