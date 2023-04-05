@@ -692,19 +692,19 @@ function Initialize-SmtpArguments
     $null = Test-Argument @parameterArguments
 
     $null = Test-Argument @parameterArguments `
-        -Name 'HostFqdn'
+        -Name 'HostFqdn' `
         -ByEnvironment
 
     $null = Test-Argument @parameterArguments `
-        -Name 'Port'
+        -Name 'Port' `
         -ByEnvironment
 
     $null = Test-Argument @parameterArguments `
-        -Name 'UserLogin'
+        -Name 'UserLogin' `
         -ByEnvironment
 
     $null = Test-Argument @parameterArguments `
-        -Name 'FromEmailAddress'
+        -Name 'FromEmailAddress' `
         -ByEnvironment
 }
 

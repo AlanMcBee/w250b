@@ -268,8 +268,8 @@
                     "ALL": {
                         "HostFqdn": "smtp.office365.com",
                         "Port": 587,
-                        "UserLogin": null,
-                        "FromEmailAddress": null
+                        "UserLogin": "user@example.com",
+                        "FromEmailAddress": "user@example.com"
                     }
                 }
             }
