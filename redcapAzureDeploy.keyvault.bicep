@@ -56,6 +56,15 @@ param MicrosoftNetwork_virtualNetworks_Arguments object
 // CDPH-specific variables
 // -----------------------
 
+var cdph_CommonTags = Cdph.outputs.out_Cdph_CommonTags
+
+// =========
+// RESOURCES
+// =========
+
+// No-resources deployment
+// -----------------------
+
 module Cdph 'redcapAzureDeployCdphModule.bicep' = {
   name: 'Cdph_Common'
   params: {
@@ -65,12 +74,6 @@ module Cdph 'redcapAzureDeployCdphModule.bicep' = {
     Cdph_Environment: Cdph_Environment
   }
 }
-
-var cdph_CommonTags = Cdph.outputs.out_Cdph_CommonTags
-
-// =========
-// RESOURCES
-// =========
 
 // Azure Key Vault
 // ---------------

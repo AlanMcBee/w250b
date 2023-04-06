@@ -80,18 +80,22 @@ param Smtp_UserPassword string
 
 var storageAccount_ResourceName = MicrosoftStorage_storageAccounts_Arguments.Arm_ResourceName
 
-var storageAccount_PrimaryKey = StorageAccount_Resource.listKeys().keys[0].value
+var tryStorageAccountEnvironmentSettings = !empty(MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment])
 
-var storageAccount_ContainerName = MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment].ContainerName ?? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.ContainerName
+var storageAccount_ContainerName = tryStorageAccountEnvironmentSettings ? (MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment].ContainerName ?? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.ContainerName) : MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.ContainerName
+
+var storageAccount_PrimaryKey = StorageAccount_Resource.listKeys().keys[0].value
 
 // MySQL variables
 // ---------------
 
 var databaseForMySql_FlexibleServer_ResourceName = MicrosoftDBforMySQL_flexibleServers_Arguments.Arm_ResourceName
 
-var databaseForMySql_AdministratorLoginName = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].AdministratorLoginName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName
+var tryDatabaseForMySqlEnvironmentSettings = !empty(MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment])
 
-var databaseForMySql_DatabaseName = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].DatabaseName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName
+var databaseForMySql_AdministratorLoginName = tryDatabaseForMySqlEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].AdministratorLoginName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName
+
+var databaseForMySql_DatabaseName = tryDatabaseForMySqlEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].DatabaseName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName
 
 // App Service Plan variables
 // --------------------------
@@ -122,13 +126,15 @@ var projectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion = ProjectREDCap_Argu
 // SMTP variables
 // --------------
 
-var smtp_HostFqdn = Smtp_Arguments.byEnvironment[Cdph_Environment].HostFqdn ?? Smtp_Arguments.byEnvironment.ALL.HostFqdn
+var trySmtpEnvironmentSettings = !empty(Smtp_Arguments.byEnvironment[Cdph_Environment])
 
-var smtp_Port = Smtp_Arguments.byEnvironment[Cdph_Environment].Port ?? Smtp_Arguments.byEnvironment.ALL.Port
+var smtp_HostFqdn = trySmtpEnvironmentSettings ? (Smtp_Arguments.byEnvironment[Cdph_Environment].HostFqdn ?? Smtp_Arguments.byEnvironment.ALL.HostFqdn) : Smtp_Arguments.byEnvironment.ALL.HostFqdn
 
-var smtp_UserLogin = Smtp_Arguments.byEnvironment[Cdph_Environment].UserLogin ?? Smtp_Arguments.byEnvironment.ALL.UserLogin
+var smtp_Port = trySmtpEnvironmentSettings ? (Smtp_Arguments.byEnvironment[Cdph_Environment].Port ?? Smtp_Arguments.byEnvironment.ALL.Port) : Smtp_Arguments.byEnvironment.ALL.Port
 
-var smtp_FromEmailAddress = Smtp_Arguments.byEnvironment[Cdph_Environment].FromEmailAddress ?? Smtp_Arguments.byEnvironment.ALL.FromEmailAddress
+var smtp_UserLogin = trySmtpEnvironmentSettings ? (Smtp_Arguments.byEnvironment[Cdph_Environment].UserLogin ?? Smtp_Arguments.byEnvironment.ALL.UserLogin) : Smtp_Arguments.byEnvironment.ALL.UserLogin
+
+var smtp_FromEmailAddress = trySmtpEnvironmentSettings ? (Smtp_Arguments.byEnvironment[Cdph_Environment].FromEmailAddress ?? Smtp_Arguments.byEnvironment.ALL.FromEmailAddress) : Smtp_Arguments.byEnvironment.ALL.FromEmailAddress
 
 // App Service variables
 // ---------------------
@@ -136,19 +142,21 @@ var smtp_FromEmailAddress = Smtp_Arguments.byEnvironment[Cdph_Environment].FromE
 var appService_Tags = union(
   {
     displayName: 'REDCap Web App'
-  },  
+  },
   Cdph_CommonTags
-  )  
-  
+)
+
 var appService_WebHost_ResourceName = MicrosoftWeb_sites_Arguments.Arm_ResourceName
 
-var appService_WebHost_Location = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.Arm_Location
+var tryAppServiceEnvironmentSettings = !empty(MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment])
 
-var appService_LinuxFxVersion = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].AppService_LinuxFxVersion ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.AppService_LinuxFxVersion
+var appService_WebHost_Location = tryAppServiceEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.Arm_Location
 
-var appService_WebHost_SourceControl_GitHubRepositoryUrl = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].SourceControl_GitHubRepositoryUrl ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.SourceControl_GitHubRepositoryUrl
+var appService_LinuxFxVersion = tryAppServiceEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].AppService_LinuxFxVersion ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.AppService_LinuxFxVersion) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.AppService_LinuxFxVersion
 
-var appService_WebHost_CustomFullyQualifiedDomainName = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
+var appService_WebHost_SourceControl_GitHubRepositoryUrl = tryAppServiceEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].SourceControl_GitHubRepositoryUrl ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.SourceControl_GitHubRepositoryUrl) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.SourceControl_GitHubRepositoryUrl
+
+var appService_WebHost_CustomFullyQualifiedDomainName = tryAppServiceEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
 
 // =========
 // RESOURCES
@@ -164,7 +172,7 @@ resource DatabaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
 
 resource AppServicePlan_Resource 'Microsoft.Web/serverfarms@2022-03-01' existing = {
   name: AppServicePlan_ResourceName
-}    
+}
 
 resource AppService_Certificates_Resource 'Microsoft.Web/certificates@2022-03-01' existing = {
   name: AppService_Certificates_ResourceName
@@ -203,7 +211,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
-   resource appService_WebHost_Config_Resource 'config' = {
+  resource appService_WebHost_Config_Resource 'config' = {
     name: 'web'
     properties: {
       alwaysOn: true
@@ -246,7 +254,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
       XDT_MicrosoftApplicationInsights_BaseExtensions: applicationInsights_Enabled ? 'disabled' : ''
       XDT_MicrosoftApplicationInsights_Mode: applicationInsights_Enabled ? 'recommended' : ''
       XDT_MicrosoftApplicationInsights_PreemptSdk: applicationInsights_Enabled ? 'disabled' : ''
-    
+
       // PHP
       PHP_INI_SCAN_DIR: '/usr/local/etc/php/conf.d:/home/site'
 
@@ -275,7 +283,7 @@ resource appService_WebHost_Resource 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 
- resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
+  resource appService_WebHost_SourceControl_Resource 'sourcecontrols' = {
     name: 'web'
     properties: {
       branch: 'main'

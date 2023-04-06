@@ -103,6 +103,26 @@ param Smtp_Arguments object
 // CDPH-specific variables
 // -----------------------
 
+var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
+
+// Key Vault variables
+// -------------------
+
+var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arm_ResourceName.Arm_ResourceName
+
+// Database for MySQL variables
+// ----------------------------
+
+var databaseForMySql_HostName = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_HostName
+var databaseForMySql_ConnectionString = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_ConnectionString
+
+// =========
+// RESOURCES
+// =========
+
+// No-resources deployment
+// -----------------------
+
 module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
   name: 'Cdph_Common'
   params: {
@@ -112,17 +132,6 @@ module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
     Cdph_Environment: Cdph_Environment
   }
 }
-
-var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
-
-// Key Vault variables
-// -------------------
-
-var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arm_ResourceName.Arm_ResourceName
-
-// =========
-// RESOURCES
-// =========
 
 // Azure Key Vault
 // ---------------
@@ -163,9 +172,6 @@ module DatabaseForMySql_FlexibleServer_Module 'redcapAzureDeployMySqlModule.bice
     DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
   }
 }
-
-var databaseForMySql_HostName = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_HostName
-var databaseForMySql_ConnectionString = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_ConnectionString
 
 // App Service Plan
 // ----------------

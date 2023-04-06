@@ -291,10 +291,10 @@ function Deploy-Bicep
         {
             $regularParameters[$parameterKey] = @{value = $parameters[$parameterKey]}
         }
-        $parameterDoc = @{
+        $parametersDoc = @{
             '$schema'      = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
             contentVersion = '1.0.0.0'
-            parameters     = regularParameters
+            parameters     = $regularParameters
         }
         $parametersDoc `
         | ConvertTo-Json -Depth 10 `
