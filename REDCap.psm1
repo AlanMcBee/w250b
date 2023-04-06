@@ -198,6 +198,14 @@ function Deploy-AzureREDCap
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
 
+        Initialize-LogAnalyticsArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+
+        Initialize-AppInsightsArguments `
+            -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment
+            
         $deploymentResult = Deploy-Bicep `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment `
@@ -715,6 +723,9 @@ function Initialize-REDCapArguments
 
     $null = Test-Argument @parameterArguments
 
+    Remove-Argument @parameterArguments `
+        -Metadata
+
     $null = Test-Argument @parameterArguments `
         -Name 'OverrideAutomaticDownloadUrlBuilder'
 
@@ -1166,10 +1177,10 @@ function Remove-Argument
 
     if ($Metadata)
     {
-        $metadata = $argumentEntry['$metadata']
-        if ($null -ne $metadata)
+        $metadataEntry = $argumentEntry['metadata']
+        if ($null -ne $metadataEntry)
         {
-            $argumentEntry.Remove('$metadata')
+            $argumentEntry.Remove('metadata')
         }
     }
 
@@ -1316,6 +1327,11 @@ function Initialize-CommonArguments
 
     Write-Information 'Overriding loaded parameters with arguments from the command line'
 
+    Remove-Argument `
+        -ParametersEntry $ParametersEntry `
+        -ParameterName 'Arm_DeploymentCreationDateTime' `
+        -Metadata
+
     $cdph_BusinessUnit_parameters = $ParametersEntry.Cdph_BusinessUnit
     if ($null -eq $cdph_BusinessUnit_parameters)
     {
@@ -1453,6 +1469,11 @@ function Deploy-ResourceGroup
     )
 
     Write-Information 'Initializing Resource Group'
+
+    Remove-Argument `
+        -ParametersEntry $ParametersEntry `
+        -ParameterName 'MicrosoftResources_resourceGroups_Arguments' `
+        -Metadata
 
     $microsoftResources_resourceGroups_Arguments = $ParametersEntry.MicrosoftResources_resourceGroups_Arguments.value
     $resourceGroupName = $microsoftResources_resourceGroups_Arguments.Arm_ResourceName
