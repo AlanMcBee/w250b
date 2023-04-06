@@ -332,3 +332,4 @@ ASALocalRun/
 *.deployproj
 deploy.ps1
 deploy.json
+deploy.*.json

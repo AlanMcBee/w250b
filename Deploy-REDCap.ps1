@@ -91,6 +91,7 @@ try
 catch
 {
     $x = $_
+    # $x | ConvertTo-Json -Depth 10 | Out-File -FilePath 'deploy.json' -Encoding UTF8 -Force
     Write-CaughtErrorRecord $x Error -IncludeStackTrace
 }
 finally

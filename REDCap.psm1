@@ -96,7 +96,10 @@ function Deploy-AzureREDCap
     $progressActivity = 'Deploying REDCap infrastructure to Azure'
     try
     {
-        Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
+        if ($ProgressPreference -eq 'Continue')
+        {
+            Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
+        }
     
         $resourceDeployment = [ResourceDeployment]::new(
             $Cdph_Organization,
@@ -140,7 +143,10 @@ function Deploy-AzureREDCap
             throw $deploymentResult
         }
 
-        Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault' -PercentComplete 20
+        if ($ProgressPreference -eq 'Continue')
+        {
+            Write-Progress -Activity $progressActivity -Status 'Importing server certificate to Key Vault' -PercentComplete 20
+        }
 
         Set-KeyVaultAppServiceAccessPolicy `
             -ParametersEntry $keyVaultParametersEntry
@@ -151,7 +157,10 @@ function Deploy-AzureREDCap
             -Cdph_PfxCertificatePath $Cdph_PfxCertificatePath `
             -Cdph_PfxCertificatePassword $Cdph_PfxCertificatePassword
 
-        Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
+        if ($ProgressPreference -eq 'Continue')
+        {
+            Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
+        }
         
         $mainParametersEntry = Get-Parameters `
             -Template 'Main'
@@ -204,7 +213,7 @@ function Deploy-AzureREDCap
 
         Initialize-AppInsightsArguments `
             -ParametersEntry $mainParametersEntry `
-        -ResourceDeployment $resourceDeployment 
+            -ResourceDeployment $resourceDeployment 
             
         $deploymentResult = Deploy-Bicep `
             -ParametersEntry $mainParametersEntry `
@@ -219,7 +228,10 @@ function Deploy-AzureREDCap
     }
     finally
     {
-        Write-Progress -Activity $progressActivity -Completed
+        if ($ProgressPreference -eq 'Continue')
+        {
+            Write-Progress -Activity $progressActivity -Completed
+        }
     }
 
 }
@@ -272,6 +284,22 @@ function Deploy-Bicep
         Name                    = $deploymentName
         TemplateParameterObject = $parameters
     }
+    if ($VerbosePreference -eq 'Continue')
+    {
+        $regularParameters = @{}
+        foreach ($parameterKey in $parameters.Keys)
+        {
+            $regularParameters[$parameterKey] = @{value = $parameters[$parameterKey]}
+        }
+        $parameterDoc = @{
+            '$schema'      = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
+            contentVersion = '1.0.0.0'
+            parameters     = regularParameters
+        }
+        $parametersDoc `
+        | ConvertTo-Json -Depth 10 `
+        | Out-File -FilePath "deploy.$deploymentName.parameters.json" -Encoding UTF8 -Force
+    }
 
     $outputs = New-AzResourceGroupDeployment @deployArgs `
         -Force `
@@ -285,6 +313,19 @@ function Deploy-Bicep
         if ($output -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment])
         {
             $armDeployment = $output
+        }
+    }
+
+    if ($armDeployment.ProvisioningState -ne 'Succeeded' -and $VerbosePreference -eq 'Continue')
+    {
+        $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+        $deploymentErrors | ConvertTo-Json -Depth 10 | Out-File -FilePath "deploy.$deploymentName.errors.json" -Encoding UTF8 -Force
+    }
+    else
+    {
+        if ($null -ne $armDeployment)
+        {
+            $armDeployment | ConvertTo-Json -Depth 10 | Out-File -FilePath "deploy.$deploymentName.outputs.json" -Encoding UTF8 -Force
         }
     }
 
