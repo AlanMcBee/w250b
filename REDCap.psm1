@@ -204,7 +204,7 @@ function Deploy-AzureREDCap
 
         Initialize-AppInsightsArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment
+        -ResourceDeployment $resourceDeployment 
             
         $deploymentResult = Deploy-Bicep `
             -ParametersEntry $mainParametersEntry `
@@ -734,6 +734,12 @@ function Initialize-REDCapArguments
 
     $automaticDownloadBuilderArgument = Get-Argument @parameterArguments `
         -Name 'AutomaticDownloadUrlBuilder'
+
+    $metadata = $automaticDownloadBuilderArgument['$metadata']
+    if ($null -ne $metadata)
+    {
+        $automaticDownloadBuilderArgument.Remove('$metadata')
+    }
 
     $communityUserName = $automaticDownloadBuilderArgument['CommunityUserName']
     if ([string]::IsNullOrWhiteSpace($communityUserName))
@@ -1332,6 +1338,11 @@ function Initialize-CommonArguments
         -ParameterName 'Arm_DeploymentCreationDateTime' `
         -Metadata
 
+    Remove-Argument `
+        -ParametersEntry $ParametersEntry `
+        -ParameterName 'MicrosoftResources_resourceGroups_Arguments' `
+        -Metadata
+
     $cdph_BusinessUnit_parameters = $ParametersEntry.Cdph_BusinessUnit
     if ($null -eq $cdph_BusinessUnit_parameters)
     {
@@ -1469,11 +1480,6 @@ function Deploy-ResourceGroup
     )
 
     Write-Information 'Initializing Resource Group'
-
-    Remove-Argument `
-        -ParametersEntry $ParametersEntry `
-        -ParameterName 'MicrosoftResources_resourceGroups_Arguments' `
-        -Metadata
 
     $microsoftResources_resourceGroups_Arguments = $ParametersEntry.MicrosoftResources_resourceGroups_Arguments.value
     $resourceGroupName = $microsoftResources_resourceGroups_Arguments.Arm_ResourceName

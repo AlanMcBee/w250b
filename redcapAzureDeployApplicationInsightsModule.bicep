@@ -40,11 +40,11 @@ var logAnalytics_Workspace_ResourceName = MicrosoftOperationalInsights_workspace
 
 var applicationInsights_ResourceName = MicrosoftInsights_components_Arguments.Arm_ResourceName
 
-var applicationInsights_Location = MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.Arm_Location
+var tryEnvironmentSettings = !empty(MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment])
 
-var applicationInsights_Enabled = MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
+var applicationInsights_Location = tryEnvironmentSettings ? (MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftInsights_components_Arguments.byEnvironment.ALL.Arm_Location
 
-
+var applicationInsights_Enabled = tryEnvironmentSettings ? (MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled) : MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
 
 // =========
 // RESOURCES

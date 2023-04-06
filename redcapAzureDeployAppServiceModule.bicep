@@ -108,7 +108,9 @@ var AppService_Certificates_ResourceName = MicrosoftWeb_certificates_Arguments.A
 
 var ApplicationInsights_ResourceName = MicrosoftInsights_components_Arguments.Arm_ResourceName
 
-var applicationInsights_Enabled = MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
+var tryApplicationInsightsEnvironmentSettings = !empty(MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment])
+
+var applicationInsights_Enabled = tryApplicationInsightsEnvironmentSettings ? (MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled) : MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
 
 // Project REDCap variables
 // ------------------------

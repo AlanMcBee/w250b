@@ -55,9 +55,11 @@ var appService_WebHost_ResourceName = MicrosoftWeb_sites_Arguments.Arm_ResourceN
 
 var appService_Certificates_ResourceName = MicrosoftWeb_certificates_Arguments.Arm_ResourceName
 
-var appService_Certificates_Location = MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL.Arm_Location
+var tryEnvironmentSettings = !empty(MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment])
 
-var appService_WebHost_CustomFullyQualifiedDomainName = MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
+var appService_Certificates_Location = tryEnvironmentSettings ? (MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftWeb_certificates_Arguments.byEnvironment.ALL.Arm_Location
+
+var appService_WebHost_CustomFullyQualifiedDomainName = tryEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
 
 // =========
 // RESOURCES

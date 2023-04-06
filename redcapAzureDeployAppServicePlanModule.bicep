@@ -30,13 +30,15 @@ param MicrosoftWeb_serverfarms_Arguments object
 
 var appServicePlan_ResourceName = MicrosoftWeb_serverfarms_Arguments.Arm_ResourceName
 
-var appServicePlan_Location = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Arm_Location
+var tryEnvironmentSettings = !empty(MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment])
 
-var appServicePlan_Tier = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Tier ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Tier
+var appServicePlan_Location = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Arm_Location
 
-var appServicePlan_SkuName = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].SkuName ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.SkuName
+var appServicePlan_Tier = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Tier ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Tier) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Tier
 
-var appServicePlan_Capacity = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Capacity ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Capacity
+var appServicePlan_SkuName = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].SkuName ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.SkuName) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.SkuName
+
+var appServicePlan_Capacity = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Capacity ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Capacity) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Capacity
 
 
 // =========

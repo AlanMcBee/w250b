@@ -32,14 +32,18 @@ param MicrosoftOperationalInsights_workspaces_Arguments object
 // Application Insights variables
 // ------------------------------
 
-var applicationInsights_Enabled = MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
+var tryApplicationInsightsEnvironmentSettings = !empty(MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment])
+
+var applicationInsights_Enabled = tryApplicationInsightsEnvironmentSettings ? (MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled) : MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
 
 // Log Analytics variables
 // -----------------------
 
 var logAnalytics_Workspace_ResourceName = MicrosoftOperationalInsights_workspaces_Arguments.Arm_ResourceName
 
-var logAnalytics_Workspace_Location = MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL.Arm_Location
+var tryLogAnalyticsEnvironmentSettings = !empty(MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment])
+
+var logAnalytics_Workspace_Location = tryLogAnalyticsEnvironmentSettings ? (MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL.Arm_Location
 
 // =========
 // RESOURCES
