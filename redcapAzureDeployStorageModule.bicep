@@ -37,13 +37,13 @@ var hasEnvironmentAll = contains(MicrosoftStorage_storageAccounts_Arguments.byEn
 var allEnvironments = hasEnvironmentAll ? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var storageAccount_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var storageAccount_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_Redundancy = 'Redundancy'
-var storageAccount_Redundancy = (hasEnvironment ? thisEnvironment[argument_Redundancy] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Redundancy] : null)
+var storageAccount_Redundancy = (hasEnvironment ? (contains(thisEnvironment, argument_Redundancy) ? thisEnvironment[argument_Redundancy] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Redundancy) ? allEnvironments[argument_Redundancy] : null) : null)
 
 var argument_ContainerName = 'ContainerName'
-var storageAccount_ContainerName = (hasEnvironment ? thisEnvironment[argument_ContainerName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_ContainerName] : null)
+var storageAccount_ContainerName = (hasEnvironment ? (contains(thisEnvironment, argument_ContainerName) ? thisEnvironment[argument_ContainerName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_ContainerName) ? allEnvironments[argument_ContainerName] : null) : null)
 
 // =========
 // RESOURCES

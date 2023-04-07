@@ -46,10 +46,10 @@ var hasEnvironmentAll = contains(MicrosoftInsights_components_Arguments.byEnviro
 var allEnvironments = hasEnvironmentAll ? MicrosoftInsights_components_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var applicationInsights_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var applicationInsights_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_enabled = 'enabled'
-var applicationInsights_Enabled = (hasEnvironment ? thisEnvironment[argument_enabled] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_enabled] : null)
+var applicationInsights_Enabled = (hasEnvironment ? (contains(thisEnvironment, argument_enabled) ? thisEnvironment[argument_enabled] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_enabled) ? allEnvironments[argument_enabled] : null) : null)
 
 // =========
 // RESOURCES

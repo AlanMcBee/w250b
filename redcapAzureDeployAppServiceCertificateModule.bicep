@@ -61,10 +61,10 @@ var hasEnvironmentAll = contains(MicrosoftWeb_certificates_Arguments.byEnvironme
 var allEnvironments = hasEnvironmentAll ? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var appService_Certificates_Location =  (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var appService_Certificates_Location =  (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_CustomFullyQualifiedDomainName = 'CustomFullyQualifiedDomainName'
-var appService_WebHost_CustomFullyQualifiedDomainName =  (hasEnvironment ? thisEnvironment[argument_CustomFullyQualifiedDomainName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_CustomFullyQualifiedDomainName] : null)
+var appService_WebHost_CustomFullyQualifiedDomainName =  (hasEnvironment ? (contains(thisEnvironment, argument_CustomFullyQualifiedDomainName) ? thisEnvironment[argument_CustomFullyQualifiedDomainName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_CustomFullyQualifiedDomainName) ? allEnvironments[argument_CustomFullyQualifiedDomainName] : null) : null)
 
 // =========
 // RESOURCES

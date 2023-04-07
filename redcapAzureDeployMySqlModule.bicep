@@ -39,28 +39,28 @@ var hasEnvironmentAll = contains(MicrosoftDBforMySQL_flexibleServers_Arguments.b
 var allEnvironments = hasEnvironmentAll ? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var databaseForMySql_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var databaseForMySql_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_AdministratorLoginName = 'AdministratorLoginName'
-var databaseForMySql_AdministratorLoginName = (hasEnvironment ? thisEnvironment[argument_AdministratorLoginName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_AdministratorLoginName] : null)
+var databaseForMySql_AdministratorLoginName = (hasEnvironment ? (contains(thisEnvironment, argument_AdministratorLoginName) ? thisEnvironment[argument_AdministratorLoginName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_AdministratorLoginName) ? allEnvironments[argument_AdministratorLoginName] : null) : null)
 
 var argument_DatabaseName = 'DatabaseName'
-var databaseForMySql_DatabaseName = (hasEnvironment ? thisEnvironment[argument_DatabaseName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_DatabaseName] : null)
+var databaseForMySql_DatabaseName = (hasEnvironment ? (contains(thisEnvironment, argument_DatabaseName) ? thisEnvironment[argument_DatabaseName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_DatabaseName) ? allEnvironments[argument_DatabaseName] : null) : null)
 
 var argument_Tier = 'Tier'
-var databaseForMySql_Tier = (hasEnvironment ? thisEnvironment[argument_Tier] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Tier] : null)
+var databaseForMySql_Tier = (hasEnvironment ? (contains(thisEnvironment, argument_Tier) ? thisEnvironment[argument_Tier] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Tier) ? allEnvironments[argument_Tier] : null) : null)
 
 var argument_Sku = 'Sku'
-var databaseForMySql_Sku = (hasEnvironment ? thisEnvironment[argument_Sku] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Sku] : null)
+var databaseForMySql_Sku = (hasEnvironment ? (contains(thisEnvironment, argument_Sku) ? thisEnvironment[argument_Sku] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Sku) ? allEnvironments[argument_Sku] : null) : null)
 
 var argument_StorageGB = 'StorageGB'
-var databaseForMySql_StorageGB = (hasEnvironment ? thisEnvironment[argument_StorageGB] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_StorageGB] : null)
+var databaseForMySql_StorageGB = (hasEnvironment ? (contains(thisEnvironment, argument_StorageGB) ? thisEnvironment[argument_StorageGB] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_StorageGB) ? allEnvironments[argument_StorageGB] : null) : null)
 
 var argument_BackupRetentionDays = 'BackupRetentionDays'
-var databaseForMySQL_BackupRetentionDays = (hasEnvironment ? thisEnvironment[argument_BackupRetentionDays] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_BackupRetentionDays] : null)
+var databaseForMySQL_BackupRetentionDays = (hasEnvironment ? (contains(thisEnvironment, argument_BackupRetentionDays) ? thisEnvironment[argument_BackupRetentionDays] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_BackupRetentionDays) ? allEnvironments[argument_BackupRetentionDays] : null) : null)
 
 var argument_FirewallRules = 'FirewallRules'
-var databaseForMySql_FirewallRules = (hasEnvironment ? thisEnvironment[argument_FirewallRules] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_FirewallRules] : null)
+var databaseForMySql_FirewallRules = (hasEnvironment ? (contains(thisEnvironment, argument_FirewallRules) ? thisEnvironment[argument_FirewallRules] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_FirewallRules) ? allEnvironments[argument_FirewallRules] : null) : null)
 
 var databaseForMySql_HostName = '${databaseForMySql_ResourceName}.mysql.database.azure.com'
 

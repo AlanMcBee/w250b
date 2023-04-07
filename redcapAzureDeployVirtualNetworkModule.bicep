@@ -36,13 +36,13 @@ var hasEnvironmentAll = contains(MicrosoftNetwork_virtualNetworks_Arguments.byEn
 var allEnvironments = hasEnvironmentAll ? MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var virtualNetwork_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var virtualNetwork_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_DnsServers = 'DnsServers'
-var virtualNetwork_DnsServers = (hasEnvironment ? thisEnvironment[argument_DnsServers] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_DnsServers] : null)
+var virtualNetwork_DnsServers = (hasEnvironment ? (contains(thisEnvironment, argument_DnsServers) ? thisEnvironment[argument_DnsServers] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_DnsServers) ? allEnvironments[argument_DnsServers] : null) : null)
 
 var argument_AddressSpace = 'AddressSpace'
-var virtualNetwork_AddressSpace = (hasEnvironment ? thisEnvironment[argument_AddressSpace] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_AddressSpace] : null)
+var virtualNetwork_AddressSpace = (hasEnvironment ? (contains(thisEnvironment, argument_AddressSpace) ? thisEnvironment[argument_AddressSpace] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_AddressSpace) ? allEnvironments[argument_AddressSpace] : null) : null)
 
 
 // =========

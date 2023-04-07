@@ -38,7 +38,7 @@ var hasMicrosoftInsights_components_ArgumentsEnvironmentAll = contains(Microsoft
 var allMicrosoftInsights_components_ArgumentsEnvironments = hasMicrosoftInsights_components_ArgumentsEnvironmentAll ? MicrosoftInsights_components_Arguments.byEnvironment.ALL : null
 
 var argument_enabled = 'enabled'
-var applicationInsights_Enabled = (hasMicrosoftInsights_components_ArgumentsEnvironment ? thisMicrosoftInsights_components_ArgumentsEnvironment[argument_enabled] : null) ?? (hasMicrosoftInsights_components_ArgumentsEnvironmentAll ? allMicrosoftInsights_components_ArgumentsEnvironments[argument_enabled] : null)
+var applicationInsights_Enabled = (hasMicrosoftInsights_components_ArgumentsEnvironment ? (contains(thisMicrosoftInsights_components_ArgumentsEnvironment, argument_enabled) ? thisMicrosoftInsights_components_ArgumentsEnvironment[argument_enabled] : null) : null) ?? (hasMicrosoftInsights_components_ArgumentsEnvironmentAll ? (contains(allMicrosoftInsights_components_ArgumentsEnvironments, argument_enabled) ? allMicrosoftInsights_components_ArgumentsEnvironments[argument_enabled] : null) : null)
 
 // Log Analytics variables
 // -----------------------
@@ -51,7 +51,7 @@ var hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll = contain
 var allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments = hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll ? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var logAnalytics_Workspace_Location = (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment ? thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment[argument_Arm_Location] : null) ?? (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll ? allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments[argument_Arm_Location] : null)
+var logAnalytics_Workspace_Location = (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment ? (contains(thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment, argument_Arm_Location) ? thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment[argument_Arm_Location] : null) : null) ?? (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll ? (contains(allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments, argument_Arm_Location) ? allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments[argument_Arm_Location] : null) : null)
 
 // =========
 // RESOURCES

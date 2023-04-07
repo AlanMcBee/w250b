@@ -36,16 +36,16 @@ var hasEnvironmentAll = contains(MicrosoftWeb_serverfarms_Arguments.byEnvironmen
 var allEnvironments = hasEnvironmentAll ? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var appServicePlan_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
+var appServicePlan_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
 
 var argument_Tier = 'Tier'
-var appServicePlan_Tier = (hasEnvironment ? thisEnvironment[argument_Tier] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Tier] : null)
+var appServicePlan_Tier = (hasEnvironment ? (contains(thisEnvironment, argument_Tier) ? thisEnvironment[argument_Tier] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Tier) ? allEnvironments[argument_Tier] : null) : null)
 
 var argument_SkuName = 'SkuName'
-var appServicePlan_SkuName = (hasEnvironment ? thisEnvironment[argument_SkuName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_SkuName] : null)
+var appServicePlan_SkuName = (hasEnvironment ? (contains(thisEnvironment, argument_SkuName) ? thisEnvironment[argument_SkuName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_SkuName) ? allEnvironments[argument_SkuName] : null) : null)
 
 var argument_Capacity = 'Capacity'
-var appServicePlan_Capacity = (hasEnvironment ? thisEnvironment[argument_Capacity] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Capacity] : null)
+var appServicePlan_Capacity = (hasEnvironment ? (contains(thisEnvironment, argument_Capacity) ? thisEnvironment[argument_Capacity] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Capacity) ? allEnvironments[argument_Capacity] : null) : null)
 
 
 
