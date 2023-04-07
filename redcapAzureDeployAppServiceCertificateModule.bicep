@@ -55,14 +55,16 @@ var appService_WebHost_ResourceName = MicrosoftWeb_sites_Arguments.Arm_ResourceN
 
 var appService_Certificates_ResourceName = MicrosoftWeb_certificates_Arguments.Arm_ResourceName
 
-var thisEnvironment = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, Cdph_Environment) ? MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment] : null
-var allEnvironments = MicrosoftWeb_certificates_Arguments.byEnvironment.ALL
+var hasEnvironment = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, Cdph_Environment)
+var thisEnvironment = hasEnvironment ? MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment] : null
+var hasEnvironmentAll = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, 'ALL')
+var allEnvironments = hasEnvironmentAll ? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var appService_Certificates_Location =  (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) ?? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null)
+var appService_Certificates_Location =  (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
 
 var argument_CustomFullyQualifiedDomainName = 'CustomFullyQualifiedDomainName'
-var appService_WebHost_CustomFullyQualifiedDomainName =  (contains(thisEnvironment, argument_CustomFullyQualifiedDomainName) ? thisEnvironment[argument_CustomFullyQualifiedDomainName] : null) ?? (contains(allEnvironments, argument_CustomFullyQualifiedDomainName) ? allEnvironments[argument_CustomFullyQualifiedDomainName] : null)
+var appService_WebHost_CustomFullyQualifiedDomainName =  (hasEnvironment ? thisEnvironment[argument_CustomFullyQualifiedDomainName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_CustomFullyQualifiedDomainName] : null)
 
 // =========
 // RESOURCES

@@ -87,4 +87,3 @@ module MicrosoftKeyVault_vaults 'redcapAzureDeployKeyVaultModule.bicep' = {
     MicrosoftKeyVault_vaults_SecureArguments: MicrosoftKeyVault_vaults_SecureArguments
   }
 }
-

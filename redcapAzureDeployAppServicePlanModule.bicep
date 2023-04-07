@@ -30,20 +30,22 @@ param MicrosoftWeb_serverfarms_Arguments object
 
 var appServicePlan_ResourceName = MicrosoftWeb_serverfarms_Arguments.Arm_ResourceName
 
-var thisEnvironment = contains(MicrosoftWeb_serverfarms_Arguments.byEnvironment, Cdph_Environment) ? MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment] : null
-var allEnvironments = MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL
+var hasEnvironment = contains(MicrosoftWeb_serverfarms_Arguments.byEnvironment, Cdph_Environment)
+var thisEnvironment = hasEnvironment ? MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment] : null
+var hasEnvironmentAll = contains(MicrosoftWeb_serverfarms_Arguments.byEnvironment, 'ALL')
+var allEnvironments = hasEnvironmentAll ? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var appServicePlan_Location = (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) ?? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null)
+var appServicePlan_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
 
 var argument_Tier = 'Tier'
-var appServicePlan_Tier = (contains(thisEnvironment, argument_Tier) ? thisEnvironment[argument_Tier] : null) ?? (contains(allEnvironments, argument_Tier) ? allEnvironments[argument_Tier] : null)
+var appServicePlan_Tier = (hasEnvironment ? thisEnvironment[argument_Tier] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Tier] : null)
 
 var argument_SkuName = 'SkuName'
-var appServicePlan_SkuName = (contains(thisEnvironment, argument_SkuName) ? thisEnvironment[argument_SkuName] : null) ?? (contains(allEnvironments, argument_SkuName) ? allEnvironments[argument_SkuName] : null)
+var appServicePlan_SkuName = (hasEnvironment ? thisEnvironment[argument_SkuName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_SkuName] : null)
 
 var argument_Capacity = 'Capacity'
-var appServicePlan_Capacity = (contains(thisEnvironment, argument_Capacity) ? thisEnvironment[argument_Capacity] : null) ?? (contains(allEnvironments, argument_Capacity) ? allEnvironments[argument_Capacity] : null)
+var appServicePlan_Capacity = (hasEnvironment ? thisEnvironment[argument_Capacity] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Capacity] : null)
 
 
 

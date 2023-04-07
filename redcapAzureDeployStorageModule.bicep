@@ -31,11 +31,19 @@ param MicrosoftStorage_storageAccounts_Arguments object
 
 var storageAccount_ResourceName = MicrosoftStorage_storageAccounts_Arguments.Arm_ResourceName
 
-var storageAccount_Location = MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.Arm_Location
+var hasEnvironment = contains(MicrosoftStorage_storageAccounts_Arguments.byEnvironment, Cdph_Environment)
+var thisEnvironment = hasEnvironment ? MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment] : null
+var hasEnvironmentAll = contains(MicrosoftStorage_storageAccounts_Arguments.byEnvironment, 'ALL')
+var allEnvironments = hasEnvironmentAll ? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL : null
 
-var storageAccount_Redundancy = MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment].Redundancy ?? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.Redundancy
+var argument_Arm_Location = 'Arm_Location'
+var storageAccount_Location = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
 
-var storageAccount_ContainerName = MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment].ContainerName ?? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL.ContainerName
+var argument_Redundancy = 'Redundancy'
+var storageAccount_Redundancy = (hasEnvironment ? thisEnvironment[argument_Redundancy] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Redundancy] : null)
+
+var argument_ContainerName = 'ContainerName'
+var storageAccount_ContainerName = (hasEnvironment ? thisEnvironment[argument_ContainerName] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_ContainerName] : null)
 
 // =========
 // RESOURCES

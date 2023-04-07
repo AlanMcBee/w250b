@@ -35,17 +35,19 @@ param MicrosoftKeyVault_vaults_SecureArguments object
 
 var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arguments.Arm_ResourceName
 
-var thisEnvironment = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment, Cdph_Environment) ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment] : null
-var allEnvironments = MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL
+var hasEnvironment = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment, Cdph_Environment)
+var thisEnvironment = hasEnvironment ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment] : null
+var hasEnvironmentAll = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment, 'ALL')
+var allEnvironments = hasEnvironmentAll ? MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var keyVault_ResourceLocation = (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) ?? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null)
+var keyVault_ResourceLocation = (hasEnvironment ? thisEnvironment[argument_Arm_Location] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_Location] : null)
 
 var argument_Arm_AdministratorObjectId = 'Arm_AdministratorObjectId'
-var keyVault_Arm_AdministratorObjectId = (contains(thisEnvironment, argument_Arm_AdministratorObjectId) ? thisEnvironment[argument_Arm_AdministratorObjectId] : null) ?? (contains(allEnvironments, argument_Arm_AdministratorObjectId) ? allEnvironments[argument_Arm_AdministratorObjectId] : null)
+var keyVault_Arm_AdministratorObjectId = (hasEnvironment ? thisEnvironment[argument_Arm_AdministratorObjectId] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_Arm_AdministratorObjectId] : null)
 
 var argument_NetworkAcls_IpRules = 'NetworkAcls_IpRules'
-var keyVault_NetworkAcls_IpRules = (contains(thisEnvironment, argument_NetworkAcls_IpRules) ? thisEnvironment[argument_NetworkAcls_IpRules] : null) ?? (contains(allEnvironments, argument_NetworkAcls_IpRules) ? allEnvironments[argument_NetworkAcls_IpRules] : null)
+var keyVault_NetworkAcls_IpRules = (hasEnvironment ? thisEnvironment[argument_NetworkAcls_IpRules] : null) ?? (hasEnvironmentAll ? allEnvironments[argument_NetworkAcls_IpRules] : null)
 
 
 var MicrosoftDBforMySQLAdministratorLoginPassword = MicrosoftKeyVault_vaults_SecureArguments.MicrosoftDBforMySQLAdministratorLoginPassword
