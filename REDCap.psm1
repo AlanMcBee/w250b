@@ -304,7 +304,7 @@ function Deploy-Bicep
     $outputs = New-AzResourceGroupDeployment @deployArgs `
         -Force `
         -Verbose `
-        -DeploymentDebugLogLevel ResponseContent `
+        -DeploymentDebugLogLevel All `
         -ErrorAction Continue
 
     [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $armDeployment = $null

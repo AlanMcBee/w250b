@@ -113,8 +113,8 @@ var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arm_ResourceName.Arm_Resour
 // Database for MySQL variables
 // ----------------------------
 
-var databaseForMySql_HostName = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_HostName
-var databaseForMySql_ConnectionString = DatabaseForMySql_FlexibleServer_Module.outputs.out_DatabaseForMySql_ConnectionString
+var databaseForMySql_HostName = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_DatabaseForMySql_HostName
+var databaseForMySql_ConnectionString = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_DatabaseForMySql_ConnectionString
 
 // =========
 // RESOURCES
@@ -124,7 +124,7 @@ var databaseForMySql_ConnectionString = DatabaseForMySql_FlexibleServer_Module.o
 // -----------------------
 
 module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
-  name: 'Cdph_Common'
+  name: substring('${deployment().name}.Cdph_Common', 0, 64)
   params: {
     Arm_DeploymentCreationDateTime: Arm_DeploymentCreationDateTime
     Cdph_BusinessUnit: Cdph_BusinessUnit
@@ -152,7 +152,7 @@ resource MicrosoftKeyVault_vaults_Secrets_Resource 'Microsoft.KeyVault/vaults/se
 // ---------------------
 
 module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.bicep' = {
-  name: 'MicrosoftStorage_storageAccounts'
+  name: substring('${deployment().name}.MicrosoftStorage_storageAccounts', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -163,8 +163,8 @@ module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.b
 // Database for MySQL Flexible Server
 // ----------------------------------
 
-module DatabaseForMySql_FlexibleServer_Module 'redcapAzureDeployMySqlModule.bicep' = {
-  name: 'DatabaseForMySql_FlexibleServer'
+module MicrosoftDBforMySQL_flexibleServers_Module 'redcapAzureDeployMySqlModule.bicep' = {
+  name: substring('${deployment().name}.MicrosoftDBforMySQL_flexibleServers', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -177,7 +177,7 @@ module DatabaseForMySql_FlexibleServer_Module 'redcapAzureDeployMySqlModule.bice
 // ----------------
 
 module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bicep' = {
-  name: 'MicrosoftWeb_serverfarms'
+  name: substring('${deployment().name}.MicrosoftWeb_serverfarms', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -189,7 +189,7 @@ module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bi
 // -----------
 
 module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
-  name: 'MicrosoftWeb_sites'
+  name: substring('${deployment().name}.MicrosoftWeb_sites', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -207,13 +207,19 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
     Smtp_Arguments: Smtp_Arguments
     Smtp_UserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('SmtpUserPassword-Secret')
   }
+  dependsOn: [
+    MicrosoftWeb_serverfarms_Module
+    MicrosoftWeb_certificates_Module
+    MicrosoftInsights_components_Module
+    MicrosoftStorage_storageAccounts_Module
+  ]
 }
 
 // App Service Certificate
 // -----------------------
 
 module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateModule.bicep' = {
-  name: 'MicrosoftWeb_certificates'
+  name: substring('${deployment().name}.MicrosoftWeb_certificates', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -228,20 +234,23 @@ module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateM
 // --------------------
 
 module MicrosoftInsights_components_Module 'redcapAzureDeployApplicationInsightsModule.bicep' = {
-  name: 'MicrosoftInsights_components'
+  name: substring('${deployment().name}.MicrosoftInsights_components', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
     MicrosoftInsights_components_Arguments: MicrosoftInsights_components_Arguments
     MicrosoftOperationalInsights_workspaces_Arguments: MicrosoftOperationalInsights_workspaces_Arguments
   }
+  dependsOn: [
+    MicrosoftOperationalInsights_workspaces_Module
+  ]
 }
 
 // Log Analytics Workspace
 // -----------------------
 
 module MicrosoftOperationalInsights_workspaces_Module 'redcapAzureDeployLogAnalyticsModule.bicep' = {
-  name: 'MicrosoftOperationalInsights_workspaces'
+  name: substring('${deployment().name}.MicrosoftOperationalInsights_workspaces', 0, 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
