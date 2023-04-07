@@ -30,15 +30,21 @@ param MicrosoftWeb_serverfarms_Arguments object
 
 var appServicePlan_ResourceName = MicrosoftWeb_serverfarms_Arguments.Arm_ResourceName
 
-var tryEnvironmentSettings = !empty(MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment])
+var thisEnvironment = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment]
+var allEnvironments = MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL
 
-var appServicePlan_Location = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Arm_Location
+var argument_Arm_Location = 'Arm_Location'
+var appServicePlan_Location = thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
 
-var appServicePlan_Tier = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Tier ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Tier) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Tier
+var argument_Tier = 'Tier'
+var appServicePlan_Tier = thisEnvironment[argument_Tier] ?? allEnvironments[argument_Tier]
 
-var appServicePlan_SkuName = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].SkuName ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.SkuName) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.SkuName
+var argument_SkuName = 'SkuName'
+var appServicePlan_SkuName = thisEnvironment[argument_SkuName] ?? allEnvironments[argument_SkuName]
 
-var appServicePlan_Capacity = tryEnvironmentSettings ? (MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment].Capacity ?? MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Capacity) : MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL.Capacity
+var argument_Capacity = 'Capacity'
+var appServicePlan_Capacity = thisEnvironment[argument_Capacity] ?? allEnvironments[argument_Capacity]
+
 
 
 // =========

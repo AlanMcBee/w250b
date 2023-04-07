@@ -30,11 +30,18 @@ param MicrosoftNetwork_virtualNetworks_Arguments object
 
 var virtualNetwork_ResourceName = MicrosoftNetwork_virtualNetworks_Arguments.Arm_ResourceName
 
-var virtualNetwork_Location = MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment.ALL.Arm_Location
+var thisEnvironment = MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment[Cdph_Environment]
+var allEnvironments = MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment.ALL
 
-var virtualNetwork_DnsServers = MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment[Cdph_Environment].DnsServers ?? MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment.ALL.DnsServers
+var argument_Arm_Location = 'Arm_Location'
+var virtualNetwork_Location = thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
 
-var virtualNetwork_AddressSpace = MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment[Cdph_Environment].AddressSpace ?? MicrosoftNetwork_virtualNetworks_Arguments.byEnvironment.ALL.AddressSpace
+var argument_DnsServers = 'DnsServers'
+var virtualNetwork_DnsServers = thisEnvironment[argument_DnsServers] ?? allEnvironments[argument_DnsServers]
+
+var argument_AddressSpace = 'AddressSpace'
+var virtualNetwork_AddressSpace = thisEnvironment[argument_AddressSpace] ?? allEnvironments[argument_AddressSpace]
+
 
 // =========
 // RESOURCES

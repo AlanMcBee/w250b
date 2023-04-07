@@ -35,11 +35,18 @@ param MicrosoftKeyVault_vaults_SecureArguments object
 
 var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arguments.Arm_ResourceName
 
-var keyVault_ResourceLocation = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment], 'Arm_Location') ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment].Arm_Location : MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL.Arm_Location
+var thisEnvironment = MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment]
+var allEnvironments = MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL
 
-var keyVault_Arm_AdministratorObjectId = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment], 'Arm_AdministratorObjectId') ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment].Arm_AdministratorObjectId : MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL.Arm_AdministratorObjectId
+var argument_Arm_Location = 'Arm_Location'
+var keyVault_ResourceLocation = thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
 
-var keyVault_NetworkAcls_IpRules = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment], 'NetworkAcls_IpRules') ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment].NetworkAcls_IpRules : MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL.NetworkAcls_IpRules
+var argument_Arm_AdministratorObjectId = 'Arm_AdministratorObjectId'
+var keyVault_Arm_AdministratorObjectId = thisEnvironment[argument_Arm_AdministratorObjectId] ?? allEnvironments[argument_Arm_AdministratorObjectId]
+
+var argument_NetworkAcls_IpRules = 'NetworkAcls_IpRules'
+var keyVault_NetworkAcls_IpRules = thisEnvironment[argument_NetworkAcls_IpRules] ?? allEnvironments[argument_NetworkAcls_IpRules]
+
 
 var MicrosoftDBforMySQLAdministratorLoginPassword = MicrosoftKeyVault_vaults_SecureArguments.MicrosoftDBforMySQLAdministratorLoginPassword
 

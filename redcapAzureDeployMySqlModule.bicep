@@ -33,23 +33,32 @@ param DatabaseForMySql_AdministratorLoginPassword string
 
 var databaseForMySql_ResourceName = MicrosoftDBforMySQL_flexibleServers_Arguments.Arm_ResourceName
 
-var tryEnvironmentSettings = !empty(MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment])
+var thisEnvironment = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment]
+var allEnvironments = MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL
 
-var databaseForMySql_Location = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Arm_Location
+var argument_Arm_Location = 'Arm_Location'
+var databaseForMySql_Location = thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
 
-var databaseForMySql_AdministratorLoginName = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].AdministratorLoginName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.AdministratorLoginName
+var argument_AdministratorLoginName = 'AdministratorLoginName'
+var databaseForMySql_AdministratorLoginName = thisEnvironment[argument_AdministratorLoginName] ?? allEnvironments[argument_AdministratorLoginName]
 
-var databaseForMySql_DatabaseName = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].DatabaseName ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.DatabaseName
+var argument_DatabaseName = 'DatabaseName'
+var databaseForMySql_DatabaseName = thisEnvironment[argument_DatabaseName] ?? allEnvironments[argument_DatabaseName]
 
-var databaseForMySql_Tier = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].Tier ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Tier) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Tier
+var argument_Tier = 'Tier'
+var databaseForMySql_Tier = thisEnvironment[argument_Tier] ?? allEnvironments[argument_Tier]
 
-var databaseForMySql_Sku = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].Sku ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Sku) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.Sku
+var argument_Sku = 'Sku'
+var databaseForMySql_Sku = thisEnvironment[argument_Sku] ?? allEnvironments[argument_Sku]
 
-var databaseForMySql_StorageGB = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].StorageGB ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.StorageGB) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.StorageGB
+var argument_StorageGB = 'StorageGB'
+var databaseForMySql_StorageGB = thisEnvironment[argument_StorageGB] ?? allEnvironments[argument_StorageGB]
 
-var databaseForMySQL_BackupRetentionDays = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].BackupRetentionDays ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.BackupRetentionDays) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.BackupRetentionDays
+var argument_BackupRetentionDays = 'BackupRetentionDays'
+var databaseForMySQL_BackupRetentionDays = thisEnvironment[argument_BackupRetentionDays] ?? allEnvironments[argument_BackupRetentionDays]
 
-var databaseForMySql_FirewallRules = tryEnvironmentSettings ? (MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment[Cdph_Environment].FirewallRules ?? MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.FirewallRules) : MicrosoftDBforMySQL_flexibleServers_Arguments.byEnvironment.ALL.FirewallRules
+var argument_FirewallRules = 'FirewallRules'
+var databaseForMySql_FirewallRules = thisEnvironment[argument_FirewallRules] ?? allEnvironments[argument_FirewallRules]
 
 var databaseForMySql_HostName = '${databaseForMySql_ResourceName}.mysql.database.azure.com'
 

@@ -32,18 +32,22 @@ param MicrosoftOperationalInsights_workspaces_Arguments object
 // Application Insights variables
 // ------------------------------
 
-var tryApplicationInsightsEnvironmentSettings = !empty(MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment])
+var thisMicrosoftInsights_components_ArgumentsEnvironment = MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment]
+var allMicrosoftInsights_components_ArgumentsEnvironments = MicrosoftInsights_components_Arguments.byEnvironment.ALL
 
-var applicationInsights_Enabled = tryApplicationInsightsEnvironmentSettings ? (MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment].enabled ?? MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled) : MicrosoftInsights_components_Arguments.byEnvironment.ALL.enabled
+var argument_enabled = 'enabled'
+var applicationInsights_Enabled = thisMicrosoftInsights_components_ArgumentsEnvironment[argument_enabled] ?? allMicrosoftInsights_components_ArgumentsEnvironments[argument_enabled]
 
 // Log Analytics variables
 // -----------------------
 
 var logAnalytics_Workspace_ResourceName = MicrosoftOperationalInsights_workspaces_Arguments.Arm_ResourceName
 
-var tryLogAnalyticsEnvironmentSettings = !empty(MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment])
+var thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment = MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment]
+var allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments = MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL
 
-var logAnalytics_Workspace_Location = tryLogAnalyticsEnvironmentSettings ? (MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL.Arm_Location
+var argument_Arm_Location = 'Arm_Location'
+var logAnalytics_Workspace_Location = thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment[argument_Arm_Location] ?? allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments[argument_Arm_Location]
 
 // =========
 // RESOURCES

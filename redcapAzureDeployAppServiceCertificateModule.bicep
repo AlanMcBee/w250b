@@ -55,11 +55,14 @@ var appService_WebHost_ResourceName = MicrosoftWeb_sites_Arguments.Arm_ResourceN
 
 var appService_Certificates_ResourceName = MicrosoftWeb_certificates_Arguments.Arm_ResourceName
 
-var tryEnvironmentSettings = !empty(MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment])
+var thisEnvironment = MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment]
+var allEnvironments = MicrosoftWeb_certificates_Arguments.byEnvironment.ALL
 
-var appService_Certificates_Location = tryEnvironmentSettings ? (MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment].Arm_Location ?? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL.Arm_Location) : MicrosoftWeb_certificates_Arguments.byEnvironment.ALL.Arm_Location
+var argument_Arm_Location = 'Arm_Location'
+var appService_Certificates_Location =  thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
 
-var appService_WebHost_CustomFullyQualifiedDomainName = tryEnvironmentSettings ? (MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment].CustomFullyQualifiedDomainName ?? MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName) : MicrosoftWeb_sites_Arguments.byEnvironment.ALL.CustomFullyQualifiedDomainName
+var argument_CustomFullyQualifiedDomainName = 'CustomFullyQualifiedDomainName'
+var appService_WebHost_CustomFullyQualifiedDomainName =  thisEnvironment[argument_CustomFullyQualifiedDomainName] ?? allEnvironments[argument_CustomFullyQualifiedDomainName]
 
 // =========
 // RESOURCES
