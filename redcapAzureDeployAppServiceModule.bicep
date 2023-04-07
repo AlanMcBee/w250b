@@ -176,7 +176,7 @@ var allMicrosoftWeb_sites_ArgumentsEnvironments = hasMicrosoftWeb_sites_Argument
 var argument_Arm_Location = 'Arm_Location'
 var appService_WebHost_Location = (hasMicrosoftWeb_sites_ArgumentsEnvironment ? (contains(thisMicrosoftWeb_sites_ArgumentsEnvironment, argument_Arm_Location) ? thisMicrosoftWeb_sites_ArgumentsEnvironment[argument_Arm_Location] : null) : null) ?? (hasMicrosoftWeb_sites_ArgumentsEnvironmentAll ? (contains(allMicrosoftWeb_sites_ArgumentsEnvironments, argument_Arm_Location) ? allMicrosoftWeb_sites_ArgumentsEnvironments[argument_Arm_Location] : null) : null)
 
-var argument_AppService_LinuxFxVersion = 'AppService_LinuxFxVersion'
+var argument_AppService_LinuxFxVersion = 'LinuxFxVersion'
 var appService_LinuxFxVersion = (hasMicrosoftWeb_sites_ArgumentsEnvironment ? (contains(thisMicrosoftWeb_sites_ArgumentsEnvironment, argument_AppService_LinuxFxVersion) ? thisMicrosoftWeb_sites_ArgumentsEnvironment[argument_AppService_LinuxFxVersion] : null) : null) ?? (hasMicrosoftWeb_sites_ArgumentsEnvironmentAll ? (contains(allMicrosoftWeb_sites_ArgumentsEnvironments, argument_AppService_LinuxFxVersion) ? allMicrosoftWeb_sites_ArgumentsEnvironments[argument_AppService_LinuxFxVersion] : null) : null)
 
 var argument_SourceControl_GitHubRepositoryUrl = 'SourceControl_GitHubRepositoryUrl'
