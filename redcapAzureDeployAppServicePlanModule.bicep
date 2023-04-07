@@ -30,20 +30,20 @@ param MicrosoftWeb_serverfarms_Arguments object
 
 var appServicePlan_ResourceName = MicrosoftWeb_serverfarms_Arguments.Arm_ResourceName
 
-var thisEnvironment = MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment]
+var thisEnvironment = contains(MicrosoftWeb_serverfarms_Arguments.byEnvironment, Cdph_Environment) ? MicrosoftWeb_serverfarms_Arguments.byEnvironment[Cdph_Environment] : null
 var allEnvironments = MicrosoftWeb_serverfarms_Arguments.byEnvironment.ALL
 
 var argument_Arm_Location = 'Arm_Location'
-var appServicePlan_Location = thisEnvironment[argument_Arm_Location] ?? allEnvironments[argument_Arm_Location]
+var appServicePlan_Location = (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) ?? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null)
 
 var argument_Tier = 'Tier'
-var appServicePlan_Tier = thisEnvironment[argument_Tier] ?? allEnvironments[argument_Tier]
+var appServicePlan_Tier = (contains(thisEnvironment, argument_Tier) ? thisEnvironment[argument_Tier] : null) ?? (contains(allEnvironments, argument_Tier) ? allEnvironments[argument_Tier] : null)
 
 var argument_SkuName = 'SkuName'
-var appServicePlan_SkuName = thisEnvironment[argument_SkuName] ?? allEnvironments[argument_SkuName]
+var appServicePlan_SkuName = (contains(thisEnvironment, argument_SkuName) ? thisEnvironment[argument_SkuName] : null) ?? (contains(allEnvironments, argument_SkuName) ? allEnvironments[argument_SkuName] : null)
 
 var argument_Capacity = 'Capacity'
-var appServicePlan_Capacity = thisEnvironment[argument_Capacity] ?? allEnvironments[argument_Capacity]
+var appServicePlan_Capacity = (contains(thisEnvironment, argument_Capacity) ? thisEnvironment[argument_Capacity] : null) ?? (contains(allEnvironments, argument_Capacity) ? allEnvironments[argument_Capacity] : null)
 
 
 
