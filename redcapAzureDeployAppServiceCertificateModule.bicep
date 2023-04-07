@@ -55,16 +55,21 @@ var appService_WebHost_ResourceName = MicrosoftWeb_sites_Arguments.Arm_ResourceN
 
 var appService_Certificates_ResourceName = MicrosoftWeb_certificates_Arguments.Arm_ResourceName
 
-var hasEnvironment = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, Cdph_Environment)
-var thisEnvironment = hasEnvironment ? MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment] : null
-var hasEnvironmentAll = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, 'ALL')
-var allEnvironments = hasEnvironmentAll ? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL : null
+var hasMicrosoftWeb_certificates_ArgumentsEnvironment = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, Cdph_Environment)
+var thisMicrosoftWeb_certificates_ArgumentsEnvironment = hasMicrosoftWeb_certificates_ArgumentsEnvironment ? MicrosoftWeb_certificates_Arguments.byEnvironment[Cdph_Environment] : null
+var hasMicrosoftWeb_certificates_ArgumentsEnvironmentAll = contains(MicrosoftWeb_certificates_Arguments.byEnvironment, 'ALL')
+var allMicrosoftWeb_certificates_ArgumentsEnvironments = hasMicrosoftWeb_certificates_ArgumentsEnvironmentAll ? MicrosoftWeb_certificates_Arguments.byEnvironment.ALL : null
 
 var argument_Arm_Location = 'Arm_Location'
-var appService_Certificates_Location =  (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
+var appService_Certificates_Location =  (hasMicrosoftWeb_certificates_ArgumentsEnvironment ? (contains(thisMicrosoftWeb_certificates_ArgumentsEnvironment, argument_Arm_Location) ? thisMicrosoftWeb_certificates_ArgumentsEnvironment[argument_Arm_Location] : null) : null) ?? (hasMicrosoftWeb_certificates_ArgumentsEnvironmentAll ? (contains(allMicrosoftWeb_certificates_ArgumentsEnvironments, argument_Arm_Location) ? allMicrosoftWeb_certificates_ArgumentsEnvironments[argument_Arm_Location] : null) : null)
+
+var hasMicrosoftWeb_sites_ArgumentsEnvironment = contains(MicrosoftWeb_sites_Arguments.byEnvironment, Cdph_Environment)
+var thisMicrosoftWeb_sites_ArgumentsEnvironment = hasMicrosoftWeb_sites_ArgumentsEnvironment ? MicrosoftWeb_sites_Arguments.byEnvironment[Cdph_Environment] : null
+var hasMicrosoftWeb_sites_ArgumentsEnvironmentAll = contains(MicrosoftWeb_sites_Arguments.byEnvironment, 'ALL')
+var allMicrosoftWeb_sites_ArgumentsEnvironments = hasMicrosoftWeb_sites_ArgumentsEnvironmentAll ? MicrosoftWeb_sites_Arguments.byEnvironment.ALL : null
 
 var argument_CustomFullyQualifiedDomainName = 'CustomFullyQualifiedDomainName'
-var appService_WebHost_CustomFullyQualifiedDomainName =  (hasEnvironment ? (contains(thisEnvironment, argument_CustomFullyQualifiedDomainName) ? thisEnvironment[argument_CustomFullyQualifiedDomainName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_CustomFullyQualifiedDomainName) ? allEnvironments[argument_CustomFullyQualifiedDomainName] : null) : null)
+var appService_WebHost_CustomFullyQualifiedDomainName =  (hasMicrosoftWeb_sites_ArgumentsEnvironment ? (contains(thisMicrosoftWeb_sites_ArgumentsEnvironment, argument_CustomFullyQualifiedDomainName) ? thisMicrosoftWeb_sites_ArgumentsEnvironment[argument_CustomFullyQualifiedDomainName] : null) : null) ?? (hasMicrosoftWeb_sites_ArgumentsEnvironmentAll ? (contains(allMicrosoftWeb_sites_ArgumentsEnvironments, argument_CustomFullyQualifiedDomainName) ? allMicrosoftWeb_sites_ArgumentsEnvironments[argument_CustomFullyQualifiedDomainName] : null) : null)
 
 // =========
 // RESOURCES
