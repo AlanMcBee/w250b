@@ -66,7 +66,7 @@ var cdph_CommonTags = Cdph.outputs.out_Cdph_CommonTags
 // -----------------------
 
 module Cdph 'redcapAzureDeployCdphModule.bicep' = {
-  name: substring('${deployment().name}.Cdph_Common', 0, 64)
+  name: take('${deployment().name}.Cdph_Common', 64)
   params: {
     Arm_DeploymentCreationDateTime: Arm_DeploymentCreationDateTime
     Cdph_BusinessUnit: Cdph_BusinessUnit
@@ -79,7 +79,7 @@ module Cdph 'redcapAzureDeployCdphModule.bicep' = {
 // ---------------
 
 module MicrosoftKeyVault_vaults 'redcapAzureDeployKeyVaultModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftKeyVault_vaults', 0, 64)
+  name: take('${deployment().name}.MicrosoftKeyVault_vaults', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment

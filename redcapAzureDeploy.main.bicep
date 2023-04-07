@@ -124,7 +124,7 @@ var databaseForMySql_ConnectionString = MicrosoftDBforMySQL_flexibleServers_Modu
 // -----------------------
 
 module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
-  name: substring('${deployment().name}.Cdph_Common', 0, 64)
+  name: take('${deployment().name}.Cdph_Common', 64)
   params: {
     Arm_DeploymentCreationDateTime: Arm_DeploymentCreationDateTime
     Cdph_BusinessUnit: Cdph_BusinessUnit
@@ -152,7 +152,7 @@ resource MicrosoftKeyVault_vaults_Secrets_Resource 'Microsoft.KeyVault/vaults/se
 // ---------------------
 
 module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftStorage_storageAccounts', 0, 64)
+  name: take('${deployment().name}.MicrosoftStorage_storageAccounts', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -164,7 +164,7 @@ module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.b
 // ----------------------------------
 
 module MicrosoftDBforMySQL_flexibleServers_Module 'redcapAzureDeployMySqlModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftDBforMySQL_flexibleServers', 0, 64)
+  name: take('${deployment().name}.MicrosoftDBforMySQL_flexibleServers', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -177,7 +177,7 @@ module MicrosoftDBforMySQL_flexibleServers_Module 'redcapAzureDeployMySqlModule.
 // ----------------
 
 module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftWeb_serverfarms', 0, 64)
+  name: take('${deployment().name}.MicrosoftWeb_serverfarms', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -189,7 +189,7 @@ module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bi
 // -----------
 
 module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftWeb_sites', 0, 64)
+  name: take('${deployment().name}.MicrosoftWeb_sites', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -219,7 +219,7 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
 // -----------------------
 
 module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftWeb_certificates', 0, 64)
+  name: take('${deployment().name}.MicrosoftWeb_certificates', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -234,7 +234,7 @@ module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateM
 // --------------------
 
 module MicrosoftInsights_components_Module 'redcapAzureDeployApplicationInsightsModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftInsights_components', 0, 64)
+  name: take('${deployment().name}.MicrosoftInsights_components', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
@@ -250,7 +250,7 @@ module MicrosoftInsights_components_Module 'redcapAzureDeployApplicationInsights
 // -----------------------
 
 module MicrosoftOperationalInsights_workspaces_Module 'redcapAzureDeployLogAnalyticsModule.bicep' = {
-  name: substring('${deployment().name}.MicrosoftOperationalInsights_workspaces', 0, 64)
+  name: take('${deployment().name}.MicrosoftOperationalInsights_workspaces', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
     Cdph_Environment: Cdph_Environment
