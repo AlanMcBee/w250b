@@ -134,10 +134,10 @@ function Deploy-AzureREDCap
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
             -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
 
-        $cdph_Environment_Actual = $Cdph_Environment
-        if ([string]::IsNullOrWhiteSpace($cdph_Environment_Actual))
+        $cdph_Environment_Actual = Get-Argument -ParametersEntry $keyVaultParametersEntry -ArgumentName 'Cdph_Environment'
+        if (-not [string]::IsNullOrWhiteSpace($cdph_Environment_Actual))
         {
-            $cdph_Environment_Actual = Get-Argument -ParametersEntry $keyVaultParametersEntry -ArgumentName 'Cdph_Environment'
+            $cdph_Environment_Actual = $Cdph_Environment
         }
 
         $resourceDeployment = [ResourceDeployment]::new(
@@ -418,7 +418,7 @@ function Compress-Arguments
             $deploymentParameters = @{
                 Cdph_BusinessUnit                                                               = $cdphBusinessUnit
                 Cdph_BusinessUnitProgram                                                        = $cdphBusinessUnitProgram
-                Cdph_Environment                                                                = $ResourceDeployment.Cdph_Environment
+                Cdph_Environment                                                                = $ResourceDeployment.Cdph_Environment.ToLower()
 
                 MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_Location                                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
@@ -484,7 +484,7 @@ function Compress-Arguments
             $deploymentParameters = @{
                 Cdph_BusinessUnit                                               = $cdphBusinessUnit
                 Cdph_BusinessUnitProgram                                        = $cdphBusinessUnitProgram
-                Cdph_Environment                                                = $ResourceDeployment.Cdph_Environment
+                Cdph_Environment                                                = $ResourceDeployment.Cdph_Environment.ToLower()
 
                 MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_Location                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
@@ -546,6 +546,66 @@ function Compress-Arguments
     }
     return $deploymentParameters
 }
+function Initialize-CommonArguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter()]
+        [string]
+        $Cdph_BusinessUnit,
+
+        [Parameter()]
+        [string]
+        $Cdph_BusinessUnitProgram
+    )
+
+    Write-Information 'Overriding loaded parameters with arguments from the command line'
+
+    $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
+    if ($null -eq $cdph_BusinessUnit_parameters)
+    {
+        $ParametersEntry.Cdph_BusinessUnit = @{value = $Cdph_BusinessUnit}
+        $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
+    }
+    $cdph_BusinessUnit_actual = Get-HashtableValue $cdph_BusinessUnit_parameters 'value'
+    if ($null -eq $cdph_BusinessUnit_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnit_actual))
+    {
+        throw 'Cdph_BusinessUnit is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+    }
+
+    $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
+    if ($null -eq $cdph_BusinessUnitProgram_parameters)
+    {
+        $ParametersEntry.Cdph_BusinessUnitProgram = @{value = $Cdph_BusinessUnitProgram}
+        $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
+    }
+    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $cdph_BusinessUnitProgram_parameters 'value'
+    if ($null -eq $cdph_BusinessUnitProgram_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnitProgram_actual))
+    {
+        throw 'Cdph_BusinessUnitProgram is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+    }
+
+    $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
+    if ($null -eq $cdph_Environment_parameters)
+    {
+        $ParametersEntry.Cdph_Environment = @{value = $Cdph_Environment}
+        $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
+    }
+    $cdph_Environment_actual = Get-HashtableValue $cdph_Environment_parameters 'value'
+    if ($null -eq $cdph_Environment_actual -or [string]::IsNullOrWhiteSpace($cdph_Environment_actual))
+    {
+        throw 'Cdph_Environment is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+    }
+
+    # These parameters are not expected to be in the Parameters file
+    # TODO[x]: need these?
+    # $ParametersEntry.Cdph_Organization = @{value = $Cdph_Organization}
+    # $ParametersEntry.Cdph_ResourceInstance = @{value = $Cdph_ResourceInstance}
+}
+
 function Initialize-VirtualNetworkArguments
 {
     param (
@@ -1588,66 +1648,6 @@ function Test-Argument
         }
     }
     return $true
-}
-
-function Initialize-CommonArguments
-{
-    param (
-        [Parameter(Mandatory = $true)]
-        [hashtable]
-        $ParametersEntry,
-
-        [Parameter()]
-        [string]
-        $Cdph_BusinessUnit,
-
-        [Parameter()]
-        [string]
-        $Cdph_BusinessUnitProgram
-    )
-
-    Write-Information 'Overriding loaded parameters with arguments from the command line'
-
-    $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
-    if ($null -eq $cdph_BusinessUnit_parameters)
-    {
-        $ParametersEntry.Cdph_BusinessUnit = @{value = $Cdph_BusinessUnit}
-        $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
-    }
-    $cdph_BusinessUnit_actual = Get-HashtableValue $cdph_BusinessUnit_parameters 'value'
-    if ($null -eq $cdph_BusinessUnit_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnit_actual))
-    {
-        throw 'Cdph_BusinessUnit is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
-    }
-
-    $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
-    if ($null -eq $cdph_BusinessUnitProgram_parameters)
-    {
-        $ParametersEntry.Cdph_BusinessUnitProgram = @{value = $Cdph_BusinessUnitProgram}
-        $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
-    }
-    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $cdph_BusinessUnitProgram_parameters 'value'
-    if ($null -eq $cdph_BusinessUnitProgram_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnitProgram_actual))
-    {
-        throw 'Cdph_BusinessUnitProgram is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
-    }
-
-    $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
-    if ($null -eq $cdph_Environment_parameters)
-    {
-        $ParametersEntry.Cdph_Environment = @{value = $Cdph_Environment}
-        $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
-    }
-    $cdph_Environment_actual = Get-HashtableValue $cdph_Environment_parameters 'value'
-    if ($null -eq $cdph_Environment_actual -or [string]::IsNullOrWhiteSpace($cdph_Environment_actual))
-    {
-        throw 'Cdph_Environment is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
-    }
-
-    # These parameters are not expected to be in the Parameters file
-    # TODO[x]: need these?
-    # $ParametersEntry.Cdph_Organization = @{value = $Cdph_Organization}
-    # $ParametersEntry.Cdph_ResourceInstance = @{value = $Cdph_ResourceInstance}
 }
 
 function Get-ArmAdministratorObjectId
