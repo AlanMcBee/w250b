@@ -169,9 +169,9 @@ function Deploy-AzureREDCap
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $deploymentResult = $null
         $deploymentResult = Deploy-Bicep `
             -ResourceGroupName $resourceGroupName `
-            -Template 'KeyVault' `
+            -DeploymentParameters $deploymentParameters `
             -ResourceDeployment $resourceDeployment `
-            -ParametersEntry $deploymentParameters
+            -Template 'KeyVault'
 
         if ($deploymentResult.ProvisioningState -ne 'Succeeded')
         {
@@ -259,8 +259,8 @@ function Deploy-AzureREDCap
             -SecureArguments $secureArguments
 
         $deploymentResult = Deploy-Bicep `
-        -ResourceGroupName $resourceGroupName `
-        -ParametersEntry $mainParametersEntry `
+            -ResourceGroupName $resourceGroupName `
+            -DeploymentParameters $deploymentParameters `
             -ResourceDeployment $resourceDeployment `
             -Template 'Main'
 
