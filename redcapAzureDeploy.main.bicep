@@ -63,9 +63,6 @@ param MicrosoftStorage_storageAccounts_Sku_Name string
 
 param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName string
 
-@secure()
-param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword string
-
 param MicrosoftDBforMySQL_flexibleServers_Arm_Location string
 
 param MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName string
@@ -136,9 +133,6 @@ param MicrosoftOperationalInsights_workspaces_Arm_ResourceName string
 
 param ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion string
 
-@secure()
-param ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword string
-
 param ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName string
 
 // SMTP configuration parameters
@@ -151,9 +145,6 @@ param Smtp_HostFqdn string
 param Smtp_Port int
 
 param Smtp_UserLogin string
-
-@secure()
-param Smtp_UserPassword string
 
 // =========
 // VARIABLES
@@ -226,7 +217,7 @@ module MicrosoftDBforMySQL_flexibleServers_Module 'redcapAzureDeployMySqlModule.
     MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName: MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName
     MicrosoftDBforMySQL_flexibleServers_Arm_Location: MicrosoftDBforMySQL_flexibleServers_Arm_Location
     MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName
-    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
     MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name: MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name
     MicrosoftDBforMySQL_flexibleServers_Sku_Tier: MicrosoftDBforMySQL_flexibleServers_Sku_Tier
     MicrosoftDBforMySQL_flexibleServers_Sku_Name: MicrosoftDBforMySQL_flexibleServers_Sku_Name
@@ -261,7 +252,7 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
     MicrosoftStorage_storageAccounts_Arm_ResourceName: MicrosoftStorage_storageAccounts_Arm_ResourceName
     MicrosoftStorage_storageAccounts_ContainerName: MicrosoftStorage_storageAccounts_BlobServices_Containers_Name
     MicrosoftDBforMySQL_flexibleServers_HostName: MicrosoftDBforMySQL_flexibleServers_HostName
-    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
     MicrosoftDBforMySQL_flexibleServers_ConnectionString: MicrosoftDBforMySQL_flexibleServers_ConnectionString
     MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName: MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName
     MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName
@@ -277,12 +268,12 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
     enableDeployment_ApplicationInsights: enableDeployment_ApplicationInsights
     ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion: ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion
     ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName: ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName
-    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserPassword: ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword
+    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('ProjectREDCapCommunityPassword-Secret')
     Smtp_HostFqdn: Smtp_HostFqdn
     Smtp_Port: Smtp_Port
     Smtp_UserLogin: Smtp_UserLogin
     Smtp_FromEmailAddress: Smtp_FromEmailAddress
-    Smtp_UserPassword: Smtp_UserPassword
+    Smtp_UserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('SmtpUserPassword-Secret')
   }
   dependsOn: [
     MicrosoftWeb_serverfarms_Module

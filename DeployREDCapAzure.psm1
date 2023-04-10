@@ -183,7 +183,8 @@ function Deploy-AzureREDCap
         }
 
         Set-KeyVaultAppServiceAccessPolicy `
-            -ParametersEntry $keyVaultParametersEntry
+            -ParametersEntry $keyVaultParametersEntry `
+            -ResourceDeployment $resourceDeployment
 
         Import-PfxCertificate `
             -ParametersEntry $keyVaultParametersEntry `
@@ -202,6 +203,7 @@ function Deploy-AzureREDCap
 
         Initialize-CommonArguments `
             -ParametersEntry $mainParametersEntry `
+            -ResourceDeployment $resourceDeployment `
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
             -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
 
@@ -219,8 +221,7 @@ function Deploy-AzureREDCap
 
         Initialize-MySQLArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment `
-            -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+            -ResourceDeployment $resourceDeployment
 
         Initialize-AppServicePlanArguments `
             -ParametersEntry $mainParametersEntry `
@@ -381,7 +382,7 @@ function Compress-Arguments
         [hashtable]
         $ParametersEntry,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [SecureArguments]
         $SecureArguments
     )
@@ -497,7 +498,6 @@ function Compress-Arguments
                 MicrosoftStorage_storageAccounts_Sku_Name                       = Get-Argument @storageAccountsParameter -Name 'Redundancy' -ByEnvironment
 
                 MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName      = Get-Argument @mySqlParameter -Name 'AdministratorLoginName' -ByEnvironment
-                MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword  = $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
                 MicrosoftDBforMySQL_flexibleServers_Arm_Location                = Get-Argument @mySqlParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName            = Get-Argument @mySqlParameter -Name 'Arm_ResourceName'
                 MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays  = Get-Argument @mySqlParameter -Name 'BackupRetentionDays' -ByEnvironment
@@ -531,13 +531,11 @@ function Compress-Arguments
 
                 ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion         = (Get-Argument @projectREDCapParameter -Name 'AutomaticDownloadUrlBuilder')['AppZipVersion']
                 ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName     = (Get-Argument @projectREDCapParameter -Name 'AutomaticDownloadUrlBuilder')['CommunityUserName']
-                ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserPassword = $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
 
                 Smtp_FromEmailAddress                                           = Get-Argument @smtpParameter -Name 'FromEmailAddress' -ByEnvironment
                 Smtp_HostFqdn                                                   = Get-Argument @smtpParameter -Name 'HostFqdn' -ByEnvironment
                 Smtp_Port                                                       = Get-Argument @smtpParameter -Name 'Port' -ByEnvironment
                 Smtp_UserLogin                                                  = Get-Argument @smtpParameter -Name 'UserLogin' -ByEnvironment
-                Smtp_UserPassword                                               = $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
             }
         }
         Default {}
