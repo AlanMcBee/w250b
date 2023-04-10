@@ -572,10 +572,20 @@ function Initialize-CommonArguments
         $ParametersEntry.Cdph_BusinessUnit = @{value = $Cdph_BusinessUnit}
         $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
     }
-    $cdph_BusinessUnit_actual = Get-HashtableValue $cdph_BusinessUnit_parameters 'value'
-    if ($null -eq $cdph_BusinessUnit_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnit_actual))
+    else
     {
-        throw 'Cdph_BusinessUnit is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+        if (-not [string]::IsNullOrWhiteSpace($Cdph_BusinessUnit))
+        {
+            $cdph_BusinessUnit_parameters.value = $Cdph_BusinessUnit
+        }
+        else
+        {
+            $cdph_BusinessUnit_test = Get-HashtableValue $cdph_BusinessUnit_parameters 'value'
+            if ([string]::IsNullOrWhiteSpace($cdph_BusinessUnit_test))
+            {
+                throw 'Cdph_BusinessUnit is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+            }
+        }
     }
 
     $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
@@ -584,10 +594,20 @@ function Initialize-CommonArguments
         $ParametersEntry.Cdph_BusinessUnitProgram = @{value = $Cdph_BusinessUnitProgram}
         $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
     }
-    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $cdph_BusinessUnitProgram_parameters 'value'
-    if ($null -eq $cdph_BusinessUnitProgram_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnitProgram_actual))
+    else
     {
-        throw 'Cdph_BusinessUnitProgram is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+        if (-not [string]::IsNullOrWhiteSpace($Cdph_BusinessUnitProgram))
+        {
+            $cdph_BusinessUnitProgram_parameters.value = $Cdph_BusinessUnitProgram
+        }
+        else
+        {
+            $cdph_BusinessUnitProgram_test = Get-HashtableValue $cdph_BusinessUnitProgram_parameters 'value'
+            if ([string]::IsNullOrWhiteSpace($cdph_BusinessUnitProgram_test))
+            {
+                throw 'Cdph_BusinessUnitProgram is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+            }
+        }
     }
 
     $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
@@ -596,10 +616,20 @@ function Initialize-CommonArguments
         $ParametersEntry.Cdph_Environment = @{value = $Cdph_Environment}
         $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
     }
-    $cdph_Environment_actual = Get-HashtableValue $cdph_Environment_parameters 'value'
-    if ($null -eq $cdph_Environment_actual -or [string]::IsNullOrWhiteSpace($cdph_Environment_actual))
+    else
     {
-        throw 'Cdph_Environment is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+        if (-not [string]::IsNullOrWhiteSpace($Cdph_Environment))
+        {
+            $cdph_Environment_parameters.value = $Cdph_Environment
+        }
+        else
+        {
+            $cdph_Environment_test = Get-HashtableValue $cdph_Environment_parameters 'value'
+            if ([string]::IsNullOrWhiteSpace($cdph_Environment_test))
+            {
+                throw 'Cdph_Environment is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
+            }
+        }
     }
 
     # These parameters are not expected to be in the Parameters file
