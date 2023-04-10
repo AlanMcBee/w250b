@@ -1750,8 +1750,8 @@ function Get-CdphResourceName
         $Arm_ResourceProvider
     )
 
-    $cdph_BusinessUnit_actual = $ParametersEntry.Cdph_BusinessUnit.value
-    $cdph_BusinessUnitProgram_actual = $ParametersEntry.Cdph_BusinessUnitProgram.value
+    $cdph_BusinessUnit_actual = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
+    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
     $cdph_Environment_actual = $ResourceDeployment.Cdph_Environment
 
     $resourceNameArgs = @{
