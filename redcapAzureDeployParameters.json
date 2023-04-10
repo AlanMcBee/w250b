@@ -2,15 +2,150 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "MicrosoftKeyVault_vaults_Arm_ResourceName": {
+        "Arm_DeploymentCreationDateTime": {
             "metadata": {
                 "description": [
-                    "Set this to the resource name of the Key Vault you already created and populated with the secrets. If you are using the PowerShell script to deploy, this will be set automatically."
+                    "The date and time the deployment was created. Generally don't change this value. Leave it as an empty string; the PowerShell script will set a value. It is used to ensure that the deployment name is unique.",
+                    "",
+                    "All byEnvironment parameters take the form of a JSON object with a property for each environment, and an optional 'ALL' property for values that apply to all environments.",
+                    "The 'ALL' property is only used if no environment-specific value is provided.",
+                    "The allowed environments are:",
+                    "- dev",
+                    "- test",
+                    "- stage",
+                    "- prod",
+                    "",
+                    "NOTE that the environment names ARE case-sensitive."
                 ],
-                "type": "object"
+                "type": "string"
+            },
+            "value": ""
+        },
+        "Cdph_BusinessUnit": {
+            "value": "w250b"
+        },
+        "Cdph_BusinessUnitProgram": {
+            "value": "AA"
+        },
+        "Cdph_Environment": {
+            "value": "dev"
+        },
+        "MicrosoftResources_resourceGroups_Arguments": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the resource group. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Resources/resourceGroups' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftresources.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
+                ]
             },
             "value": {
-                "Arm_ResourceName": null
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "ALL": {
+                        "Arm_Location": "westus"
+                    }
+                }
+            }
+        },
+        "MicrosoftNetwork_virtualNetworks_Arguments": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the virtual network. The name must be unique to the subscription you are deploying to. Check details for 'Microsoft.Network/virtualNetworks' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftnetwork.",
+                    " - Normally leave this set to null and let the PowerShell script create the name for you."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "AddressSpace: The address space that is used by the virtual network. You can supply more than one address space. Check details at https://learn.microsoft.com/azure/virtual-network/.",
+                            "DnsServers: The IP addresses of DNS servers to be used by virtual machines in the virtual network. Check details at https://learn.microsoft.com/azure/virtual-network/."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "DnsServers": [
+                            "10.226.224.70",
+                            "10.231.47.69"
+                        ]
+                    },
+                    "dev": {
+                        "AddressSpace": [
+                            "10.114.53.0/24"
+                        ]
+                    },
+                    "stage": {
+                        "AddressSpace": [
+                            "10.114.54.0/24"
+                        ]
+                    },
+                    "prod": {
+                        "AddressSpace": [
+                            "10.114.55.0/24"
+                        ]
+                    }
+                }
+            }
+        },
+        "MicrosoftKeyVault_vaults_Arguments": {
+            "metadata": {
+                "description": [
+                    "Arm_ResourceName: The name of the Key Vault resource to create. The name must be unique to the entire Azure Cloud (globally) you are deploying to. Check details for 'Microsoft.KeyVault/vaults' at https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsoftkeyvault."
+                ]
+            },
+            "value": {
+                "Arm_ResourceName": null,
+                "byEnvironment": {
+                    "$metadata": {
+                        "description": [
+                            "NetworkAcls_IpRules: The array of IP rules to allow access to the Key Vault. By default, this will allow access from the Azure Cloud. These are Client IP address CIDR expressions (IPv4 or IPv6) to allow access to the application. Default = '' (empty string); If empty, access will be allowed from anywhere. NOTE: This needs to be a valid IP address (it is automatically supplied by the PowerShell script). If you want to allow access from anywhere, use '*' (asterisk). Values from the 'ALL' property will be used if no environment-specific value is provided. If values are provided in both the 'ALL' and environment-specific properties, only the environment-specific values will be used; the values are not combined.",
+                            "Arm_AdministratorObjectId: The object ID of the user or service principal that will have been assigned the 'Owner' role on the resource group and will be granted all access to the Key Vault. This value can be obtained from the Azure Portal, or by running the following PowerShell command: \"Get-AzADUser -UserPrincipalName <user principal name> | Select-Object -Property Id\". NOTE: Normally leave this as an empty string. The PowerShell script will fill in the value for the current user dynamically at runtime when deploying. NOTE: This is UNUSUAL in that a setting here will be used instead of a value supplied by PowerShell, assuming you use the REDCap.psm1 module to deploy this."
+                        ]
+                    },
+                    "ALL": {
+                        "Arm_Location": "eastus",
+                        "Arm_AdministratorObjectId": null,
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "dev": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "stage": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    },
+                    "prod": {
+                        "NetworkAcls_IpRules": [
+                            {
+                                "value": null
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "MicrosoftKeyVault_vaults_SecureArguments": {
+            "metadata": {
+                "description": [
+                    "These values are not stored in the ARM template, but are instead stored in the Azure Key Vault. The values are retrieved from the Key Vault at runtime when the ARM template is deployed. They are initialized to null here, but will be populated by the PowerShell script at runtime."
+                ],
+                "secure": true
+            },
+            "value": {
+                "MicrosoftDBforMySQLAdministratorLoginPassword": null,
+                "ProjectREDCapCommunityPassword": null,
+                "SmtpUserPassword": null
             }
         },
         "MicrosoftStorage_storageAccounts_Arguments": {
@@ -70,10 +205,6 @@
                         "Arm_Location": "eastus",
                         "DatabaseName": "redcap_db",
                         "AdministratorLoginName": "redcap_app",
-                        "Tier": "GeneralPurpose",
-                        "Sku": "Standard_D4ds_v4",
-                        "StorageGB": 20,
-                        "BackupRetentionDays": 7,
                         "FirewallRules": {
                             "AllowAllAzureServicesAndResourcesWithinAzureIps": {
                                 "StartIpAddress": "0.0.0.0",
@@ -162,7 +293,7 @@
                         "SourceControl_GitHubRepositoryUrl": "https://github.com/microsoft/azure-redcap-paas.git"
                     },
                     "dev": {
-                        "CustomFullyQualifiedDomainName": "redcap-dev.cdph.ca.gov"
+                        "CustomFullyQualifiedDomainName": "overthinker.blog"
                     },
                     "stage": {
                         "CustomFullyQualifiedDomainName": "redcap-stage.cdph.ca.gov"

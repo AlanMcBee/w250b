@@ -9,57 +9,30 @@
 // CDPH-specific parameters
 // ------------------------
 
-param Cdph_Environment string
-
 param Cdph_CommonTags object
 
 // Application Insights parameters
 // -------------------------------
 
-param MicrosoftInsights_components_Arguments object
+param enableDeployment_ApplicationInsights bool
 
 // Log Analytics parameters
 
-param MicrosoftOperationalInsights_workspaces_Arguments object
+param MicrosoftOperationalInsights_workspaces_Arm_Location string
+
+param MicrosoftOperationalInsights_workspaces_Arm_ResourceName string
 
 // =========
 // VARIABLES
 // =========
 
-// CDPH-specific variables
-// -----------------------
-
-// Application Insights variables
-// ------------------------------
-
-var hasMicrosoftInsights_components_ArgumentsEnvironment = contains(MicrosoftInsights_components_Arguments.byEnvironment, Cdph_Environment)
-var thisMicrosoftInsights_components_ArgumentsEnvironment = hasMicrosoftInsights_components_ArgumentsEnvironment ? MicrosoftInsights_components_Arguments.byEnvironment[Cdph_Environment] : null
-var hasMicrosoftInsights_components_ArgumentsEnvironmentAll = contains(MicrosoftInsights_components_Arguments.byEnvironment, 'ALL')
-var allMicrosoftInsights_components_ArgumentsEnvironments = hasMicrosoftInsights_components_ArgumentsEnvironmentAll ? MicrosoftInsights_components_Arguments.byEnvironment.ALL : null
-
-var argument_enabled = 'enabled'
-var applicationInsights_Enabled = (hasMicrosoftInsights_components_ArgumentsEnvironment ? (contains(thisMicrosoftInsights_components_ArgumentsEnvironment, argument_enabled) ? thisMicrosoftInsights_components_ArgumentsEnvironment[argument_enabled] : null) : null) ?? (hasMicrosoftInsights_components_ArgumentsEnvironmentAll ? (contains(allMicrosoftInsights_components_ArgumentsEnvironments, argument_enabled) ? allMicrosoftInsights_components_ArgumentsEnvironments[argument_enabled] : null) : null)
-
-// Log Analytics variables
-// -----------------------
-
-var logAnalytics_Workspace_ResourceName = MicrosoftOperationalInsights_workspaces_Arguments.Arm_ResourceName
-
-var hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment = contains(MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment, Cdph_Environment)
-var thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment = hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment ? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment[Cdph_Environment] : null
-var hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll = contains(MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment, 'ALL')
-var allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments = hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll ? MicrosoftOperationalInsights_workspaces_Arguments.byEnvironment.ALL : null
-
-var argument_Arm_Location = 'Arm_Location'
-var logAnalytics_Workspace_Location = (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment ? (contains(thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment, argument_Arm_Location) ? thisMicrosoftOperationalInsights_workspaces_ArgumentsEnvironment[argument_Arm_Location] : null) : null) ?? (hasMicrosoftOperationalInsights_workspaces_ArgumentsEnvironmentAll ? (contains(allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments, argument_Arm_Location) ? allMicrosoftOperationalInsights_workspaces_ArgumentsEnvironments[argument_Arm_Location] : null) : null)
-
 // =========
 // RESOURCES
 // =========
 
-resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if (applicationInsights_Enabled) {
-  name: logAnalytics_Workspace_ResourceName
-  location: logAnalytics_Workspace_Location
+resource logAnalytics_Workspace_Resource 'Microsoft.OperationalInsights/workspaces@2022-10-01' = if (enableDeployment_ApplicationInsights) {
+  name: MicrosoftOperationalInsights_workspaces_Arm_ResourceName
+  location: MicrosoftOperationalInsights_workspaces_Arm_Location
   tags: Cdph_CommonTags
   properties: {
     sku: {

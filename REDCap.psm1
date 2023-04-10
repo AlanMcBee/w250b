@@ -25,6 +25,24 @@ class ResourceDeployment
     }
 }
 
+class SecureArguments
+{
+    [securestring] $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
+    [securestring] $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
+    [securestring] $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+
+    SecureArguments (
+        [securestring] $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword,
+        [securestring] $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword,
+        [securestring] $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+    )
+    {
+        $this.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword = $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
+        $this.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword = $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
+        $this.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword = $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+    }
+}
+
 function Deploy-AzureREDCap
 {
     param (
@@ -101,6 +119,11 @@ function Deploy-AzureREDCap
             Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
         }
     
+        $secureArguments = [SecureArguments]::new(
+            $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword,
+            $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword,
+            $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+        )
         $resourceDeployment = [ResourceDeployment]::new(
             $Cdph_Organization,
             $Cdph_Environment,
@@ -131,11 +154,16 @@ function Deploy-AzureREDCap
             -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword `
             -Smtp_UserPassword $Smtp_UserPassword
 
+        $deploymentParameters = Compress-Arguments `
+            -Template 'KeyVault' `
+            -ParametersEntry $keyVaultParametersEntry `
+            -SecureArguments $secureArguments
+
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $deploymentResult = $null
         $deploymentResult = Deploy-Bicep `
             -Template 'KeyVault' `
             -ResourceDeployment $resourceDeployment `
-            -ParametersEntry $keyVaultParametersEntry 
+            -ParametersEntry $deploymentParameters 
 
         if ($deploymentResult.ProvisioningState -ne 'Succeeded')
         {
@@ -215,6 +243,11 @@ function Deploy-AzureREDCap
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment 
             
+        $deploymentParameters = Compress-Arguments `
+            -Template 'Main' `
+            -ParametersEntry $mainParametersEntry `
+            -SecureArguments $secureArguments
+
         $deploymentResult = Deploy-Bicep `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment `
@@ -332,6 +365,170 @@ function Deploy-Bicep
     return $armDeployment
 }
 
+function Compress-Arguments
+{
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('KeyVault', 'Main')]
+        [string]
+        $Template,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable]
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [SecureArguments]
+        $SecureArguments
+    )
+
+    $deploymentParameters = $null
+    switch ($Template)
+    {
+        'KeyVault'
+        { 
+            $virtualNetworkParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+            }
+            $keyVaultParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftKeyVault_vaults_Arguments'
+            }
+            $keyVaultSecretsParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftKeyVault_vaults_SecureArguments'
+            }
+            $deploymentParameters = @{
+                Cdph_BusinessUnit                                                               = $ParametersEntry.Cdph_BusinessUnit
+                Cdph_BusinessUnitProgram                                                        = $ParametersEntry.Cdph_BusinessUnitProgram
+                Cdph_Environment                                                                = $ParametersEntry.Cdph_Environment
+                
+                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_Arm_Location                                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_Arm_ResourceName                               = Get-Argument @virtualNetworkParameter -Name 'Arm_ResourceName'
+                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers                         = Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment
+
+                MicrosoftKeyVault_vaults_Arm_ResourceName                                       = Get-Argument @keyVaultParameter -Name 'Arm_ResourceName'
+                MicrosoftKeyVault_vaults_Arm_Location                                           = Get-Argument @keyVaultParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftKeyVault_vaults_Arm_AdministratorObjectId                              = Get-Argument @keyVaultParameter -Name 'Arm_AdministratorObjectId' -ByEnvironment
+                MicrosoftKeyVault_vaults_NetworkAcls_IpRules                                    = Get-Argument @keyVaultParameter -Name 'NetworkAcls_IpRules' -ByEnvironment
+                MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword = $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
+                MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword            = $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
+                MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword                              = $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+            }
+        }
+        'Main'
+        { 
+            $virtualNetworkParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+            }
+            $keyVaultParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftKeyVault_vaults_Arguments'
+            }
+            $storageAccountsParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftStorage_storageAccounts_Arguments'
+            }
+            $mySqlParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
+            }
+            $appServicePlansParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftWeb_serverfarms_Arguments'
+            }
+            $appServiceParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftWeb_sites_Arguments'
+            }
+            $appServiceCertificatesParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftWeb_certificates_Arguments'
+            }
+            $applicationInsightsParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftInsights_components_Arguments'
+            }
+            $logAnalyticsParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'MicrosoftOperationalInsights_workspaces_Arguments'
+            }
+            $projectREDCapParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'ProjectREDCap_Arguments'
+            }
+            $smtpParameter = @{
+                ParametersEntry = $ParametersEntry
+                ParameterName   = 'Smtp_Arguments'
+            }
+            $deploymentParameters = @{
+                Cdph_BusinessUnit                                               = $ParametersEntry.Cdph_BusinessUnit
+                Cdph_BusinessUnitProgram                                        = $ParametersEntry.Cdph_BusinessUnitProgram
+                Cdph_Environment                                                = $ParametersEntry.Cdph_Environment
+
+                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_Arm_Location                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_Arm_ResourceName               = Get-Argument @virtualNetworkParameter -Name 'Arm_ResourceName'
+                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers         = Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment
+
+                MicrosoftKeyVault_vaults_Arm_ResourceName                       = Get-Argument @keyVaultParameter -Name 'Arm_ResourceName'
+
+                MicrosoftStorage_storageAccounts_Arm_Location                   = Get-Argument @storageAccountsParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftStorage_storageAccounts_Arm_ResourceName               = Get-Argument @storageAccountsParameter -Name 'Arm_ResourceName'
+                MicrosoftStorage_storageAccounts_BlobServices_Containers_Name   = Get-Argument @storageAccountsParameter -Name 'ContainerName' -ByEnvironment
+                MicrosoftStorage_storageAccounts_Sku_Name                       = Get-Argument @storageAccountsParameter -Name 'Redundancy' -ByEnvironment
+
+                MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName      = Get-Argument @mySqlParameter -Name 'AdministratorLoginName' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword  = $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
+                MicrosoftDBforMySQL_flexibleServers_Arm_Location                = Get-Argument @mySqlParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName            = Get-Argument @mySqlParameter -Name 'Arm_ResourceName'
+                MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays  = Get-Argument @mySqlParameter -Name 'BackupRetentionDays' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name     = Get-Argument @mySqlParameter -Name 'DatabaseName' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_FirewallRules               = Get-Argument @mySqlParameter -Name 'FirewallRules' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_Sku_Name                    = Get-Argument @mySqlParameter -Name 'Sku' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_Sku_Tier                    = Get-Argument @mySqlParameter -Name 'Tier' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB       = Get-Argument @mySqlParameter -Name 'StorageGB' -ByEnvironment
+
+                MicrosoftWeb_serverfarms_Arm_Location                           = Get-Argument @appServicePlansParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftWeb_serverfarms_Arm_ResourceName                       = Get-Argument @appServicePlansParameter -Name 'Arm_ResourceName'
+                MicrosoftWeb_serverfarms_Capacity                               = Get-Argument @appServicePlansParameter -Name 'Capacity' -ByEnvironment
+                MicrosoftWeb_serverfarms_Sku                                    = Get-Argument @appServicePlansParameter -Name 'SkuName' -ByEnvironment
+                MicrosoftWeb_serverfarms_Tier                                   = Get-Argument @appServicePlansParameter -Name 'Tier' -ByEnvironment
+
+                MicrosoftWeb_sites_Arm_Location                                 = Get-Argument @appServiceParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftWeb_sites_Arm_ResourceName                             = Get-Argument @appServiceParameter -Name 'Arm_ResourceName'
+                MicrosoftWeb_sites_CustomFullyQualifiedDomainName               = Get-Argument @appServiceParameter -Name 'CustomFullyQualifiedDomainName' -ByEnvironment
+                MicrosoftWeb_sites_LinuxFxVersion                               = Get-Argument @appServiceParameter -Name 'LinuxFxVersion' -ByEnvironment
+                MicrosoftWeb_sites_SourceControl_GitHubRepositoryUrl            = Get-Argument @appServiceParameter -Name 'SourceControl_GitHubRepositoryUrl' -ByEnvironment
+
+                MicrosoftWeb_certificates_Arm_ResourceName                      = Get-Argument @appServiceCertificatesParameter -Name 'Arm_ResourceName'
+                MicrosoftWeb_certificates_Arm_Location                          = Get-Argument @appServiceCertificatesParameter -Name 'Arm_Location' -ByEnvironment
+
+                enableDeployment_ApplicationInsights                            = Get-Argument @applicationInsightsParameter -Name 'enabled' -ByEnvironment
+                MicrosoftInsights_components_Arm_ResourceName                   = Get-Argument @applicationInsightsParameter -Name 'Arm_ResourceName'
+                MicrosoftInsights_components_Arm_Location                       = Get-Argument @applicationInsightsParameter -Name 'Arm_Location' -ByEnvironment
+
+                MicrosoftOperationalInsights_workspaces_Arm_Location            = Get-Argument @logAnalyticsParameter -Name 'Arm_Location' -ByEnvironment
+                MicrosoftOperationalInsights_workspaces_Arm_ResourceName        = Get-Argument @logAnalyticsParameter -Name 'Arm_ResourceName'
+
+                ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion         = (Get-Argument @projectREDCapParameter -Name 'AutomaticDownloadUrlBuilder')['AppZipVersion']
+                ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName     = (Get-Argument @projectREDCapParameter -Name 'AutomaticDownloadUrlBuilder')['CommunityUserName']
+                ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserPassword = $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
+
+                Smtp_FromEmailAddress                                           = Get-Argument @smtpParameter -Name 'FromEmailAddress' -ByEnvironment
+                Smtp_HostFqdn                                                   = Get-Argument @smtpParameter -Name 'HostFqdn' -ByEnvironment
+                Smtp_Port                                                       = Get-Argument @smtpParameter -Name 'Port' -ByEnvironment
+                Smtp_UserLogin                                                  = Get-Argument @smtpParameter -Name 'UserLogin' -ByEnvironment
+                Smtp_UserPassword                                               = $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
+            }
+        }
+        Default {}
+    }
+    return $deploymentParameters
+}
 function Initialize-VirtualNetworkArguments
 {
     param (

@@ -9,9 +9,6 @@
 @description('Date and time of deployment creation (UTC) in ISO 8601 format (yyyyMMddTHHmmssZ). Default = current UTC date and time. Using the default is very strongly recommended')
 param Arm_DeploymentCreationDateTime string = utcNow()
 
-@description('Settings for the Resource Groups resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftResources_resourceGroups_Arguments object
-
 // CDPH-specific parameters
 // ------------------------
 
@@ -36,65 +33,127 @@ param Cdph_Environment string
 
 // Virtual Network parameters
 // --------------------------
-@description('Settings for the Virtual Network resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftNetwork_virtualNetworks_Arguments object
+
+param MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes array
+
+param MicrosoftNetwork_virtualNetworks_Arm_Location string
+
+param MicrosoftNetwork_virtualNetworks_Arm_ResourceName string
+
+param MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers array
 
 // Key Vault parameters
 // --------------------
 
-@description('Name of the Azure Key Vault resource.')
-param MicrosoftKeyVault_vaults_Arm_ResourceName object
+param MicrosoftKeyVault_vaults_Arm_ResourceName string
 
 // Storage Account parameters
 // --------------------------
 
-@description('Settings for the Storage Account resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftStorage_storageAccounts_Arguments object
+param MicrosoftStorage_storageAccounts_Arm_Location string
+
+param MicrosoftStorage_storageAccounts_Arm_ResourceName string
+
+param MicrosoftStorage_storageAccounts_BlobServices_Containers_Name string
+
+param MicrosoftStorage_storageAccounts_Sku_Name string
 
 // Database for MySQL parameters
 // -----------------------------
 
-@description('Settings for the Database for MySQL resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftDBforMySQL_flexibleServers_Arguments object
+param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName string
+
+@secure()
+param MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword string
+
+param MicrosoftDBforMySQL_flexibleServers_Arm_Location string
+
+param MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName string
+
+param MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays int
+
+param MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name string
+
+param MicrosoftDBforMySQL_flexibleServers_FirewallRules array
+
+param MicrosoftDBforMySQL_flexibleServers_Sku_Name string
+
+param MicrosoftDBforMySQL_flexibleServers_Sku_Tier string
+
+param MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB int
 
 // App Service Plan parameters
 // ---------------------------
 
-@description('Settings for the App Service Plan resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftWeb_serverfarms_Arguments object
+param MicrosoftWeb_serverfarms_Arm_Location string
+
+param MicrosoftWeb_serverfarms_Arm_ResourceName string
+
+param MicrosoftWeb_serverfarms_Capacity int
+
+param MicrosoftWeb_serverfarms_Sku string
+
+param MicrosoftWeb_serverfarms_Tier string
 
 // App Service parameters
 // ----------------------
 
-@description('Settings for the App Service resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftWeb_sites_Arguments object
+param MicrosoftWeb_sites_Arm_Location string
+
+param MicrosoftWeb_sites_Arm_ResourceName string
+
+param MicrosoftWeb_sites_CustomFullyQualifiedDomainName string
+
+param MicrosoftWeb_sites_LinuxFxVersion string
+
+param MicrosoftWeb_sites_SourceControl_GitHubRepositoryUrl string
 
 // App Service Certificate parameters
 // ----------------------------------
 
-@description('Settings for the App Service Certificate resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftWeb_certificates_Arguments object
+param MicrosoftWeb_certificates_Arm_ResourceName string
+
+param MicrosoftWeb_certificates_Arm_Location string
 
 // Application Insights parameters
 // -------------------------------
 
-@description('Settings for the Application Insights resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftInsights_components_Arguments object
+param enableDeployment_ApplicationInsights bool
 
-@description('Settings for the Log Analytics workspace. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftOperationalInsights_workspaces_Arguments object
+param MicrosoftInsights_components_Arm_ResourceName string
+
+param MicrosoftInsights_components_Arm_Location string
+
+// Log Analytics parameters
+// ------------------------
+
+param MicrosoftOperationalInsights_workspaces_Arm_Location string
+
+param MicrosoftOperationalInsights_workspaces_Arm_ResourceName string
 
 // REDCap community and download parameters
 // ----------------------------------------
 
-@description('Settings for the REDCap community site. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param ProjectREDCap_Arguments object
+param ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion string
+
+@secure()
+param ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword string
+
+param ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName string
 
 // SMTP configuration parameters
 // -----------------------------
 
-@description('Settings for the SMTP connection. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param Smtp_Arguments object
+param Smtp_FromEmailAddress string
+
+param Smtp_HostFqdn string
+
+param Smtp_Port int
+
+param Smtp_UserLogin string
+
+@secure()
+param Smtp_UserPassword string
 
 // =========
 // VARIABLES
@@ -105,16 +164,11 @@ param Smtp_Arguments object
 
 var cdph_CommonTags = CdphCommon_Module.outputs.out_Cdph_CommonTags
 
-// Key Vault variables
-// -------------------
-
-var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arm_ResourceName.Arm_ResourceName
-
 // Database for MySQL variables
 // ----------------------------
 
-var databaseForMySql_HostName = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_DatabaseForMySql_HostName
-var databaseForMySql_ConnectionString = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_DatabaseForMySql_ConnectionString
+var MicrosoftDBforMySQL_flexibleServers_HostName = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_MicrosoftDBforMySQL_flexibleServers_HostName
+var MicrosoftDBforMySQL_flexibleServers_ConnectionString = MicrosoftDBforMySQL_flexibleServers_Module.outputs.out_MicrosoftDBforMySQL_flexibleServers_ConnectionString
 
 // =========
 // RESOURCES
@@ -137,14 +191,14 @@ module CdphCommon_Module 'redcapAzureDeployCdphModule.bicep' = {
 // ---------------
 
 resource MicrosoftKeyVault_vaults_Resource 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
-  name: keyVault_ResourceName
+  name: MicrosoftKeyVault_vaults_Arm_ResourceName
 }
 
 resource MicrosoftKeyVault_vaults_Secrets_Resource 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
   parent: MicrosoftKeyVault_vaults_Resource
   name: 'MicrosoftDBforMySQLConnectionString-Secret'
   properties: {
-    value: databaseForMySql_ConnectionString
+    value: MicrosoftDBforMySQL_flexibleServers_ConnectionString
   }
 }
 
@@ -155,8 +209,10 @@ module MicrosoftStorage_storageAccounts_Module 'redcapAzureDeployStorageModule.b
   name: take('${deployment().name}.MicrosoftStorage_storageAccounts', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftStorage_storageAccounts_Arguments: MicrosoftStorage_storageAccounts_Arguments
+    MicrosoftStorage_storageAccounts_Arm_ResourceName: MicrosoftStorage_storageAccounts_Arm_ResourceName
+    MicrosoftStorage_storageAccounts_Arm_Location: MicrosoftStorage_storageAccounts_Arm_Location
+    MicrosoftStorage_storageAccounts_Sku_Name: MicrosoftStorage_storageAccounts_Sku_Name
+    MicrosoftStorage_storageAccounts_BlobServices_Containers_Name: MicrosoftStorage_storageAccounts_BlobServices_Containers_Name
   }
 }
 
@@ -167,9 +223,16 @@ module MicrosoftDBforMySQL_flexibleServers_Module 'redcapAzureDeployMySqlModule.
   name: take('${deployment().name}.MicrosoftDBforMySQL_flexibleServers', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftDBforMySQL_flexibleServers_Arguments: MicrosoftDBforMySQL_flexibleServers_Arguments
-    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
+    MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName: MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName
+    MicrosoftDBforMySQL_flexibleServers_Arm_Location: MicrosoftDBforMySQL_flexibleServers_Arm_Location
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name: MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name
+    MicrosoftDBforMySQL_flexibleServers_Sku_Tier: MicrosoftDBforMySQL_flexibleServers_Sku_Tier
+    MicrosoftDBforMySQL_flexibleServers_Sku_Name: MicrosoftDBforMySQL_flexibleServers_Sku_Name
+    MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB: MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB
+    MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays: MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays
+    MicrosoftDBforMySQL_flexibleServers_FirewallRules: MicrosoftDBforMySQL_flexibleServers_FirewallRules
   }
 }
 
@@ -180,8 +243,11 @@ module MicrosoftWeb_serverfarms_Module 'redcapAzureDeployAppServicePlanModule.bi
   name: take('${deployment().name}.MicrosoftWeb_serverfarms', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
+    MicrosoftWeb_serverfarms_Arm_ResourceName: MicrosoftWeb_serverfarms_Arm_ResourceName
+    MicrosoftWeb_serverfarms_Arm_Location: MicrosoftWeb_serverfarms_Arm_Location
+    MicrosoftWeb_serverfarms_Tier: MicrosoftWeb_serverfarms_Tier
+    MicrosoftWeb_serverfarms_Sku: MicrosoftWeb_serverfarms_Sku
+    MicrosoftWeb_serverfarms_Capacity: MicrosoftWeb_serverfarms_Capacity
   }
 }
 
@@ -192,20 +258,31 @@ module MicrosoftWeb_sites_Module 'redcapAzureDeployAppServiceModule.bicep' = {
   name: take('${deployment().name}.MicrosoftWeb_sites', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftStorage_storageAccounts_Arguments: MicrosoftStorage_storageAccounts_Arguments
-    MicrosoftDBforMySQL_flexibleServers_Arguments: MicrosoftDBforMySQL_flexibleServers_Arguments
-    DatabaseForMySql_HostName: databaseForMySql_HostName
-    DatabaseForMySql_ConnectionString: databaseForMySql_ConnectionString
-    DatabaseForMySql_AdministratorLoginPassword: MicrosoftKeyVault_vaults_Resource.getSecret('MicrosoftDBforMySQLAdministratorLoginPassword-Secret')
-    MicrosoftWeb_sites_Arguments: MicrosoftWeb_sites_Arguments
-    MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
-    MicrosoftWeb_certificates_Arguments: MicrosoftWeb_certificates_Arguments
-    MicrosoftInsights_components_Arguments: MicrosoftInsights_components_Arguments
-    ProjectREDCap_Arguments: ProjectREDCap_Arguments
-    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword: MicrosoftKeyVault_vaults_Resource.getSecret('ProjectREDCapCommunityPassword-Secret') 
-    Smtp_Arguments: Smtp_Arguments
-    Smtp_UserPassword: MicrosoftKeyVault_vaults_Resource.getSecret('SmtpUserPassword-Secret')
+    MicrosoftStorage_storageAccounts_Arm_ResourceName: MicrosoftStorage_storageAccounts_Arm_ResourceName
+    MicrosoftStorage_storageAccounts_ContainerName: MicrosoftStorage_storageAccounts_BlobServices_Containers_Name
+    MicrosoftDBforMySQL_flexibleServers_HostName: MicrosoftDBforMySQL_flexibleServers_HostName
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+    MicrosoftDBforMySQL_flexibleServers_ConnectionString: MicrosoftDBforMySQL_flexibleServers_ConnectionString
+    MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName: MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName
+    MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName: MicrosoftDBforMySQL_flexibleServers_AdministratorLoginName
+    MicrosoftDBforMySQL_flexibleServers_DatabaseName: MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name
+    MicrosoftWeb_serverfarms_Arm_ResourceName: MicrosoftWeb_serverfarms_Arm_ResourceName
+    MicrosoftWeb_certificates_Arm_ResourceName: MicrosoftWeb_certificates_Arm_ResourceName
+    MicrosoftWeb_sites_Arm_ResourceName: MicrosoftWeb_sites_Arm_ResourceName
+    MicrosoftWeb_sites_Arm_Location: MicrosoftWeb_sites_Arm_Location
+    MicrosoftWeb_sites_LinuxFxVersion: MicrosoftWeb_sites_LinuxFxVersion
+    MicrosoftWeb_sites_SourceControl_GitHubRepositoryUrl: MicrosoftWeb_sites_SourceControl_GitHubRepositoryUrl
+    MicrosoftWeb_sites_CustomFullyQualifiedDomainName: MicrosoftWeb_sites_CustomFullyQualifiedDomainName
+    MicrosoftInsights_components_Arm_ResourceName: MicrosoftInsights_components_Arm_ResourceName
+    enableDeployment_ApplicationInsights: enableDeployment_ApplicationInsights
+    ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion: ProjectREDCap_AutomaticDownloadUrlBuilder_AppZipVersion
+    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName: ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserName
+    ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityUserPassword: ProjectREDCap_AutomaticDownloadUrlBuilder_CommunityPassword
+    Smtp_HostFqdn: Smtp_HostFqdn
+    Smtp_Port: Smtp_Port
+    Smtp_UserLogin: Smtp_UserLogin
+    Smtp_FromEmailAddress: Smtp_FromEmailAddress
+    Smtp_UserPassword: Smtp_UserPassword
   }
   dependsOn: [
     MicrosoftWeb_serverfarms_Module
@@ -222,11 +299,12 @@ module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateM
   name: take('${deployment().name}.MicrosoftWeb_certificates', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    KeyVault_ResourceName: keyVault_ResourceName
-    MicrosoftWeb_certificates_Arguments: MicrosoftWeb_certificates_Arguments
-    MicrosoftWeb_serverfarms_Arguments: MicrosoftWeb_serverfarms_Arguments
-    MicrosoftWeb_sites_Arguments: MicrosoftWeb_sites_Arguments
+    MicrosoftKeyVault_vaults_Arm_ResourceName: MicrosoftKeyVault_vaults_Arm_ResourceName
+    MicrosoftWeb_serverfarms_Arm_ResourceName: MicrosoftWeb_serverfarms_Arm_ResourceName
+    MicrosoftWeb_sites_Arm_ResourceName: MicrosoftWeb_sites_Arm_ResourceName
+    MicrosoftWeb_sites_CustomFullyQualifiedDomainName: MicrosoftWeb_sites_CustomFullyQualifiedDomainName
+    MicrosoftWeb_certificates_Arm_ResourceName: MicrosoftWeb_certificates_Arm_ResourceName
+    MicrosoftWeb_certificates_Arm_Location: MicrosoftWeb_certificates_Arm_Location
   }
 }
 
@@ -237,9 +315,10 @@ module MicrosoftInsights_components_Module 'redcapAzureDeployApplicationInsights
   name: take('${deployment().name}.MicrosoftInsights_components', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftInsights_components_Arguments: MicrosoftInsights_components_Arguments
-    MicrosoftOperationalInsights_workspaces_Arguments: MicrosoftOperationalInsights_workspaces_Arguments
+    MicrosoftOperationalInsights_workspaces_Arm_ResourceName: MicrosoftOperationalInsights_workspaces_Arm_ResourceName
+    MicrosoftInsights_components_Arm_ResourceName: MicrosoftInsights_components_Arm_ResourceName
+    MicrosoftInsights_components_Arm_Location: MicrosoftInsights_components_Arm_Location
+    enableDeployment_ApplicationInsights: enableDeployment_ApplicationInsights
   }
   dependsOn: [
     MicrosoftOperationalInsights_workspaces_Module
@@ -253,9 +332,9 @@ module MicrosoftOperationalInsights_workspaces_Module 'redcapAzureDeployLogAnaly
   name: take('${deployment().name}.MicrosoftOperationalInsights_workspaces', 64)
   params: {
     Cdph_CommonTags: cdph_CommonTags
-    Cdph_Environment: Cdph_Environment
-    MicrosoftInsights_components_Arguments: MicrosoftInsights_components_Arguments
-    MicrosoftOperationalInsights_workspaces_Arguments: MicrosoftOperationalInsights_workspaces_Arguments
+    enableDeployment_ApplicationInsights: enableDeployment_ApplicationInsights
+    MicrosoftOperationalInsights_workspaces_Arm_ResourceName: MicrosoftOperationalInsights_workspaces_Arm_ResourceName
+    MicrosoftOperationalInsights_workspaces_Arm_Location: MicrosoftOperationalInsights_workspaces_Arm_Location
   }
 }
 

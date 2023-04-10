@@ -9,41 +9,22 @@
 // CDPH-specific parameters
 // ------------------------
 
-param Cdph_Environment string
-
 param Cdph_CommonTags object
 
 // Storage Account parameters
 // --------------------------
 
-@description('Settings for the Storage Account resource. See the ReadMe.md file and the redcapAzureDeploy.parameters.json file for more information')
-param MicrosoftStorage_storageAccounts_Arguments object
+param MicrosoftStorage_storageAccounts_Arm_Location string
+
+param MicrosoftStorage_storageAccounts_Arm_ResourceName string
+
+param MicrosoftStorage_storageAccounts_BlobServices_Containers_Name string
+
+param MicrosoftStorage_storageAccounts_Sku_Name string
 
 // =========
 // VARIABLES
 // =========
-
-// CDPH-specific variables
-// -----------------------
-
-// Azure Storage Account variables
-// -------------------------------
-
-var storageAccount_ResourceName = MicrosoftStorage_storageAccounts_Arguments.Arm_ResourceName
-
-var hasEnvironment = contains(MicrosoftStorage_storageAccounts_Arguments.byEnvironment, Cdph_Environment)
-var thisEnvironment = hasEnvironment ? MicrosoftStorage_storageAccounts_Arguments.byEnvironment[Cdph_Environment] : null
-var hasEnvironmentAll = contains(MicrosoftStorage_storageAccounts_Arguments.byEnvironment, 'ALL')
-var allEnvironments = hasEnvironmentAll ? MicrosoftStorage_storageAccounts_Arguments.byEnvironment.ALL : null
-
-var argument_Arm_Location = 'Arm_Location'
-var storageAccount_Location = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
-
-var argument_Redundancy = 'Redundancy'
-var storageAccount_Redundancy = (hasEnvironment ? (contains(thisEnvironment, argument_Redundancy) ? thisEnvironment[argument_Redundancy] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Redundancy) ? allEnvironments[argument_Redundancy] : null) : null)
-
-var argument_ContainerName = 'ContainerName'
-var storageAccount_ContainerName = (hasEnvironment ? (contains(thisEnvironment, argument_ContainerName) ? thisEnvironment[argument_ContainerName] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_ContainerName) ? allEnvironments[argument_ContainerName] : null) : null)
 
 // =========
 // RESOURCES
@@ -53,10 +34,10 @@ var storageAccount_ContainerName = (hasEnvironment ? (contains(thisEnvironment, 
 // ---------------------
 
 resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' = {
-  name: storageAccount_ResourceName
-  location: storageAccount_Location
+  name: MicrosoftStorage_storageAccounts_Arm_ResourceName
+  location: MicrosoftStorage_storageAccounts_Arm_Location
   sku: {
-    name: storageAccount_Redundancy
+    name: MicrosoftStorage_storageAccounts_Sku_Name
   }
   kind: 'StorageV2'
   tags: Cdph_CommonTags
@@ -65,6 +46,6 @@ resource storageAccount_Resource 'Microsoft.Storage/storageAccounts@2022-05-01' 
     name: 'default'
 
     resource storageAccount_Blob_Container_Resource 'containers' = {
-      name: storageAccount_ContainerName }
+      name: MicrosoftStorage_storageAccounts_BlobServices_Containers_Name }
   }
 }

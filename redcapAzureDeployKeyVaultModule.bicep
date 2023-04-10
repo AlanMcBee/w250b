@@ -9,52 +9,30 @@
 // CDPH-specific parameters
 // ------------------------
 
-param Cdph_Environment string
-
 param Cdph_CommonTags object
 
 // Key Vault parameters
 // --------------------
 
-@description('Arguments for the Key Vault resource.')
-param MicrosoftKeyVault_vaults_Arguments object
+param MicrosoftKeyVault_vaults_Arm_AdministratorObjectId string
 
-@description('Secure settings for the Key Vault resource.')
+param MicrosoftKeyVault_vaults_Arm_Location string
+
+param MicrosoftKeyVault_vaults_Arm_ResourceName string
+
+param MicrosoftKeyVault_vaults_NetworkAcls_IpRules array
+
+// Key Vault secrets parameters
+// ----------------------------
+
 @secure()
-param MicrosoftKeyVault_vaults_SecureArguments object
+param MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword string
 
-// =========
-// VARIABLES
-// =========
+@secure()
+param MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword string
 
-// CDPH-specific variables
-// -----------------------
-
-// Key Vault variables
-// -------------------
-
-var keyVault_ResourceName = MicrosoftKeyVault_vaults_Arguments.Arm_ResourceName
-
-var hasEnvironment = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment, Cdph_Environment)
-var thisEnvironment = hasEnvironment ? MicrosoftKeyVault_vaults_Arguments.byEnvironment[Cdph_Environment] : null
-var hasEnvironmentAll = contains(MicrosoftKeyVault_vaults_Arguments.byEnvironment, 'ALL')
-var allEnvironments = hasEnvironmentAll ? MicrosoftKeyVault_vaults_Arguments.byEnvironment.ALL : null
-
-var argument_Arm_Location = 'Arm_Location'
-var keyVault_ResourceLocation = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_Location) ? thisEnvironment[argument_Arm_Location] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_Location) ? allEnvironments[argument_Arm_Location] : null) : null)
-
-var argument_Arm_AdministratorObjectId = 'Arm_AdministratorObjectId'
-var keyVault_Arm_AdministratorObjectId = (hasEnvironment ? (contains(thisEnvironment, argument_Arm_AdministratorObjectId) ? thisEnvironment[argument_Arm_AdministratorObjectId] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_Arm_AdministratorObjectId) ? allEnvironments[argument_Arm_AdministratorObjectId] : null) : null)
-
-var argument_NetworkAcls_IpRules = 'NetworkAcls_IpRules'
-var keyVault_NetworkAcls_IpRules = (hasEnvironment ? (contains(thisEnvironment, argument_NetworkAcls_IpRules) ? thisEnvironment[argument_NetworkAcls_IpRules] : null) : null) ?? (hasEnvironmentAll ? (contains(allEnvironments, argument_NetworkAcls_IpRules) ? allEnvironments[argument_NetworkAcls_IpRules] : null) : null)
-
-
-var MicrosoftDBforMySQLAdministratorLoginPassword = MicrosoftKeyVault_vaults_SecureArguments.MicrosoftDBforMySQLAdministratorLoginPassword
-
-var ProjectREDCapCommunityPassword = MicrosoftKeyVault_vaults_SecureArguments.ProjectREDCapCommunityPassword
-
-var SmtpUserPassword = MicrosoftKeyVault_vaults_SecureArguments.SmtpUserPassword
+@secure()
+param MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword string
 
 // =========
 // RESOURCES
@@ -64,14 +42,14 @@ var SmtpUserPassword = MicrosoftKeyVault_vaults_SecureArguments.SmtpUserPassword
 // ---------------
 
 resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: keyVault_ResourceName
-  location: keyVault_ResourceLocation
+  name: MicrosoftKeyVault_vaults_Arm_ResourceName
+  location: MicrosoftKeyVault_vaults_Arm_Location
   tags: Cdph_CommonTags
   properties: {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
-        objectId: keyVault_Arm_AdministratorObjectId
+        objectId: MicrosoftKeyVault_vaults_Arm_AdministratorObjectId
         permissions: {
           secrets: [
             'get'
@@ -127,7 +105,7 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      ipRules: keyVault_NetworkAcls_IpRules
+      ipRules: MicrosoftKeyVault_vaults_NetworkAcls_IpRules 
     }
     publicNetworkAccess: 'Enabled'
     sku: {
@@ -141,21 +119,21 @@ resource keyVault_Resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
   resource keyVault_Secrets_MySQL_AdministratorLoginPassword_Resource 'secrets' = {
     name: 'MicrosoftDBforMySQLAdministratorLoginPassword-Secret'
     properties: {
-      value: MicrosoftDBforMySQLAdministratorLoginPassword
+      value: MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
     }
   }
 
   resource keyVault_Secrets_REDCap_CommunityPassword_Resource 'secrets' = {
     name: 'ProjectREDCapCommunityPassword-Secret'
     properties: {
-      value: ProjectREDCapCommunityPassword
+      value: MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
     }
   }
 
   resource keyVault_Secrets_Smtp_UserPassword_Resource 'secrets' = {
     name: 'SmtpUserPassword-Secret'
     properties: {
-      value: SmtpUserPassword
+      value: MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
     }
   }
 }
