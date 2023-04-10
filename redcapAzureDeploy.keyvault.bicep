@@ -60,13 +60,13 @@ param MicrosoftKeyVault_vaults_NetworkAcls_IpRules array
 // ----------------------------
 
 @secure()
-param MicrosoftKeyVault_vaults_secrets_AdministratorLoginPassword string
+param MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword string
 
 @secure()
-param MicrosoftKeyVault_vaults_secrets_ProjectREDCapCommunityPassword string
+param MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword string
 
 @secure()
-param MicrosoftKeyVault_vaults_secrets_SmtpUserPassword string
+param MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword string
 
 // Key Vault parameters
 // --------------------
