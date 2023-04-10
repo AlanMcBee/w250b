@@ -96,19 +96,19 @@ function Deploy-AzureREDCap
         # Recommended: Use Get-Secret to retrieve the password from a secure store.
         [Parameter(Mandatory = $true)]
         [securestring]
-        $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword,
+        $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword,
 
         # Password for the REDCap Community site account
         # Recommended: Use Get-Secret to retrieve the password from a secure store.
         [Parameter()]
         [securestring]
-        $ProjectREDCap_CommunityPassword,
+        $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword,
 
         # Password for the SMTP server account
         # Recommended: Use Get-Secret to retrieve the password from a secure store.
         [Parameter(Mandatory = $true)]
         [securestring]
-        $Smtp_UserPassword
+        $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
     )
 
     $progressActivity = 'Deploying REDCap infrastructure to Azure'
@@ -118,7 +118,7 @@ function Deploy-AzureREDCap
         {
             Write-Progress -Activity $progressActivity -Status 'Deploying Key Vault' -PercentComplete 10
         }
-    
+
         $secureArguments = [SecureArguments]::new(
             $MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword,
             $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword,
@@ -130,9 +130,9 @@ function Deploy-AzureREDCap
             $Cdph_ResourceInstance
         )
 
-        $keyVaultParametersEntry = Get-Parameters `
-            -Template 'KeyVault'
-    
+        $templateParametersPath = ".\redcapAzureDeployParameters.json"
+        $keyVaultParametersEntry = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
+
         Initialize-CommonArguments `
             -ParametersEntry $keyVaultParametersEntry `
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
@@ -145,7 +145,7 @@ function Deploy-AzureREDCap
         Initialize-VirtualNetworkArguments `
             -ParametersEntry $keyVaultParametersEntry `
             -ResourceDeployment $resourceDeployment
-        
+
         Initialize-KeyVaultArguments `
             -ParametersEntry $keyVaultParametersEntry `
             -ResourceDeployment $resourceDeployment `
@@ -163,7 +163,7 @@ function Deploy-AzureREDCap
         $deploymentResult = Deploy-Bicep `
             -Template 'KeyVault' `
             -ResourceDeployment $resourceDeployment `
-            -ParametersEntry $deploymentParameters 
+            -ParametersEntry $deploymentParameters
 
         if ($deploymentResult.ProvisioningState -ne 'Succeeded')
         {
@@ -189,9 +189,8 @@ function Deploy-AzureREDCap
         {
             Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
         }
-        
-        $mainParametersEntry = Get-Parameters `
-            -Template 'Main'
+
+        $mainParametersEntry = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
 
         Initialize-CommonArguments `
             -ParametersEntry $mainParametersEntry `
@@ -222,7 +221,7 @@ function Deploy-AzureREDCap
         Initialize-AppServiceCertificatesArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $ResourceDeployment
-        
+
         Initialize-AppServiceArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
@@ -241,8 +240,8 @@ function Deploy-AzureREDCap
 
         Initialize-AppInsightsArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment 
-            
+            -ResourceDeployment $resourceDeployment
+
         $deploymentParameters = Compress-Arguments `
             -Template 'Main' `
             -ParametersEntry $mainParametersEntry `
@@ -310,7 +309,7 @@ function Deploy-Bicep
 
     $version = (Get-Date).ToString('yyyyMMddHHmmss')
     $deploymentName = "REDCapDeploy$Template.$version"
-    
+
     $deployArgs = @{
         ResourceGroupName       = $resourceGroupName
         TemplateFile            = $bicepPath
@@ -386,7 +385,7 @@ function Compress-Arguments
     switch ($Template)
     {
         'KeyVault'
-        { 
+        {
             $virtualNetworkParameter = @{
                 ParametersEntry = $ParametersEntry
                 ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
@@ -403,7 +402,7 @@ function Compress-Arguments
                 Cdph_BusinessUnit                                                               = $ParametersEntry.Cdph_BusinessUnit
                 Cdph_BusinessUnitProgram                                                        = $ParametersEntry.Cdph_BusinessUnitProgram
                 Cdph_Environment                                                                = $ParametersEntry.Cdph_Environment
-                
+
                 MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_Location                                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_ResourceName                               = Get-Argument @virtualNetworkParameter -Name 'Arm_ResourceName'
@@ -419,7 +418,7 @@ function Compress-Arguments
             }
         }
         'Main'
-        { 
+        {
             $virtualNetworkParameter = @{
                 ParametersEntry = $ParametersEntry
                 ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
@@ -1065,7 +1064,7 @@ function Initialize-KeyVaultArguments
         [securestring]
         $Smtp_UserPassword
     )
-    
+
     # Initialize the plain text arguments
 
     $parameterArguments = @{
@@ -1074,7 +1073,7 @@ function Initialize-KeyVaultArguments
     }
 
     $null = Test-Argument @parameterArguments
-    
+
     $keyVault_Arm_ResourceName = Get-CdphResourceName `
         -ParametersEntry $ParametersEntry `
         -ResourceDeployment $ResourceDeployment `
@@ -1115,7 +1114,7 @@ function Initialize-KeyVaultArguments
                 -Name 'NetworkAcls_IpRules' `
                 -Value @([PSCustomObject]@{value = "$Cdph_ClientIPAddress/32"}) `
                 -ByEnvironment
-        }        
+        }
     }
     elseif ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
     {
@@ -1164,7 +1163,7 @@ function Set-KeyVaultAppServiceAccessPolicy
 
     Write-Information 'Setting access policy to allow App Service to read from Key Vault. It''s currently not supported to set an accessPolicy property for an applicationId without an objectId'
     $azureAppServiceApplicationId = 'abfa0a7c-a6b6-4736-8310-5855508787cd' # fixed value for Azure App Services (see https://learn.microsoft.com/azure/app-service/configure-ssl-certificate#authorize-app-service-to-read-from-the-vault)
-        
+
     $keyVault_Arm_ResourceName = Get-Argument `
         -ParametersEntry $ParametersEntry `
         -ParameterName 'MicrosoftKeyVault_vaults_Arguments' `
@@ -1176,7 +1175,7 @@ function Set-KeyVaultAppServiceAccessPolicy
         -PermissionsToCertificates get `
         -PermissionsToKeys get `
         -PermissionsToSecrets get
-        
+
 }
 
 function Import-PfxCertificate
@@ -1209,7 +1208,7 @@ function Import-PfxCertificate
         -ParametersEntry $ParametersEntry `
         -ResourceDeployment $ResourceDeployment `
         -Arm_ResourceProvider 'Microsoft.Web/sites'
-    
+
     $certificate = $null
     $certificate = Get-AzKeyVaultCertificate `
         -VaultName $keyVault_Arm_ResourceName `
@@ -1292,7 +1291,7 @@ function Set-Argument
         {
             $argumentValue_byEnvironment_thisEnvironment[$Name] = $Value
         }
-        
+
     }
     else
     {
@@ -1470,7 +1469,7 @@ function Remove-Argument
     {
         $argumentValue.Remove($Name)
     }
-    
+
 }
 
 function Test-Argument
@@ -1623,44 +1622,6 @@ function Initialize-CommonArguments
     # $ParametersEntry.Cdph_ResourceInstance = @{value = $Cdph_ResourceInstance}
 }
 
-function Get-Parameters
-{
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('KeyVault', 'Main')]
-        [string]
-        $Template
-    )
-
-    $commonParametersPath = '.\redcapAzureDeploy.parameters.common.json'
-    $commonParameters = Get-Content $commonParametersPath | ConvertFrom-Json -AsHashtable
-    if ($null -eq $commonParameters)
-    {
-        throw "Unable to load common deployment parameters from $commonParametersPath"
-    }
-    if (-not $commonParameters.ContainsKey('parameters'))
-    {
-        throw "Common deployment parameters from $commonParametersPath do not contain a 'parameters' property"
-    }
-    $commonParametersEntry = $commonParameters['parameters']
-
-    $templateParametersPath = ".\redcapAzureDeploy.parameters.$($Template.ToLower()).json"
-    $templateParameters = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
-    if ($null -eq $templateParameters)
-    {
-        throw "Unable to load template deployment parameters from $templateParametersPath"
-    }
-    if (-not $templateParameters.ContainsKey('parameters'))
-    {
-        throw "Template deployment parameters from $templateParametersPath do not contain a 'parameters' property"
-    }
-    $templateParametersEntry = $templateParameters['parameters']
-
-    $mergedParameters = Merge-Hashtables -Hashtables @($commonParametersEntry, $templateParametersEntry)
-
-    return $mergedParameters
-}
-
 function Get-ArmAdministratorObjectId
 {
     param (
@@ -1737,12 +1698,12 @@ function Deploy-ResourceGroup
         {
             throw 'byEnvironment is a required parameter of MicrosoftResources_resourceGroups_Arguments.value. It must be specified in the redcapAzureDeploy.parameters.json file.'
         }
-        
+
         $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
-    
+
         $resourceGroup_byEnvironment_thisEnvironment = $resourceGroup_byEnvironment[$cdphEnvironment]
         $resourceGroup_byEnvironment_allEnvironments = $resourceGroup_byEnvironment.ALL
-    
+
         $resourceGroup_Arm_Location = $null
         if ($null -ne $resourceGroup_byEnvironment_thisEnvironment)
         {
@@ -1756,7 +1717,7 @@ function Deploy-ResourceGroup
         {
             throw 'Arm_Location is a required parameter of MicrosoftResources_resourceGroups_Arguments.value.byEnvironment. It must be specified in the redcapAzureDeploy.parameters.json file.'
         }
-        
+
         Write-Information "Creating Resource Group $resourceGroupName in $resourceGroup_Arm_Location"
         New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroup_Arm_Location
     }

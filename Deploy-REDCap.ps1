@@ -71,19 +71,19 @@ Write-Information "Beginning deployment at $((Get-Date).ToString())"
 
 try
 {
-    Remove-Module REDCap -Force -ErrorAction SilentlyContinue
-    Import-Module .\REDCap.psm1 -Force
+    Remove-Module DeployREDCapAzure -Force -ErrorAction SilentlyContinue
+    Import-Module .\DeployREDCapAzure.psm1 -Force
 
     $DeployArguments = @{
-        Cdph_Organization                                              = $Cdph_Organization
-        Cdph_Environment                                               = $Cdph_Environment
-        Cdph_ResourceInstance                                          = $Cdph_ResourceInstance
-        Cdph_PfxCertificatePath                                        = $Cdph_PfxCertificatePath
-        Cdph_PfxCertificatePassword                                    = $Cdph_PfxCertificatePassword
-        Cdph_ClientIPAddress                                           = $Cdph_ClientIPAddress
-        MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
-        ProjectRedcap_CommunityPassword                                = $ProjectRedcap_CommunityPassword
-        Smtp_UserPassword                                              = $Smtp_UserPassword
+        Cdph_Organization                                                               = $Cdph_Organization
+        Cdph_Environment                                                                = $Cdph_Environment
+        Cdph_ResourceInstance                                                           = $Cdph_ResourceInstance
+        Cdph_PfxCertificatePath                                                         = $Cdph_PfxCertificatePath
+        Cdph_PfxCertificatePassword                                                     = $Cdph_PfxCertificatePassword
+        Cdph_ClientIPAddress                                                            = $Cdph_ClientIPAddress
+        MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword = $DatabaseForMySql_AdministratorLoginPassword
+        MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword            = $ProjectRedcap_CommunityPassword
+        MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword                              = $Smtp_UserPassword
     }
 
     Deploy-AzureREDCap @DeployArguments
