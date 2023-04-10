@@ -1607,37 +1607,37 @@ function Initialize-CommonArguments
 
     Write-Information 'Overriding loaded parameters with arguments from the command line'
 
-    $cdph_BusinessUnit_parameters = $ParametersEntry.Cdph_BusinessUnit
+    $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
     if ($null -eq $cdph_BusinessUnit_parameters)
     {
         $ParametersEntry.Cdph_BusinessUnit = @{value = $Cdph_BusinessUnit}
-        $cdph_BusinessUnit_parameters = $ParametersEntry.Cdph_BusinessUnit
+        $cdph_BusinessUnit_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
     }
-    $cdph_BusinessUnit_actual = $cdph_BusinessUnit_parameters.value
+    $cdph_BusinessUnit_actual = Get-HashtableValue $cdph_BusinessUnit_parameters 'value'
     if ($null -eq $cdph_BusinessUnit_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnit_actual))
     {
         throw 'Cdph_BusinessUnit is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
     }
 
-    $cdph_BusinessUnitProgram_parameters = $ParametersEntry.Cdph_BusinessUnitProgram
+    $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
     if ($null -eq $cdph_BusinessUnitProgram_parameters)
     {
         $ParametersEntry.Cdph_BusinessUnitProgram = @{value = $Cdph_BusinessUnitProgram}
-        $cdph_BusinessUnitProgram_parameters = $ParametersEntry.Cdph_BusinessUnitProgram
+        $cdph_BusinessUnitProgram_parameters = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
     }
-    $cdph_BusinessUnitProgram_actual = $cdph_BusinessUnitProgram_parameters.value
+    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $cdph_BusinessUnitProgram_parameters 'value'
     if ($null -eq $cdph_BusinessUnitProgram_actual -or [string]::IsNullOrWhiteSpace($cdph_BusinessUnitProgram_actual))
     {
         throw 'Cdph_BusinessUnitProgram is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
     }
 
-    $cdph_Environment_parameters = $ParametersEntry.Cdph_Environment
+    $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
     if ($null -eq $cdph_Environment_parameters)
     {
         $ParametersEntry.Cdph_Environment = @{value = $Cdph_Environment}
-        $cdph_Environment_parameters = $ParametersEntry.Cdph_Environment
+        $cdph_Environment_parameters = Get-HashtableValue $ParametersEntry 'Cdph_Environment'
     }
-    $cdph_Environment_actual = $cdph_Environment_parameters.value
+    $cdph_Environment_actual = Get-HashtableValue $cdph_Environment_parameters 'value'
     if ($null -eq $cdph_Environment_actual -or [string]::IsNullOrWhiteSpace($cdph_Environment_actual))
     {
         throw 'Cdph_Environment is a required parameter. It must be specified either in the parameters.json file or as a parameter to this function.'
@@ -1657,12 +1657,12 @@ function Get-ArmAdministratorObjectId
         $ParametersEntry
     )
 
-    $arm_AdministratorObjectId_parameters = $ParametersEntry.Arm_AdministratorObjectId
+    $arm_AdministratorObjectId_parameters = Get-HashtableValue $ParametersEntry 'Arm_AdministratorObjectId'
     if ($null -eq $arm_AdministratorObjectId_parameters)
     {
         throw 'Arm_AdministratorObjectId is a required parameter. It must be specified either in the redcapAzureDeploy.parameters.json file or as a parameter to this function.'
     }
-    $arm_AdministratorObjectId_actual = $arm_AdministratorObjectId_parameters.value
+    $arm_AdministratorObjectId_actual = Get-HashtableValue $arm_AdministratorObjectId_parameters 'value'
     if ($null -eq $arm_AdministratorObjectId_actual -or [string]::IsNullOrWhiteSpace($arm_AdministratorObjectId_actual))
     {
         throw 'Arm_AdministratorObjectId is a required parameter. It must be specified either in the redcapAzureDeploy.parameters.json file or as a parameter to this function.'
@@ -1685,8 +1685,9 @@ function Deploy-ResourceGroup
 
     Write-Information 'Initializing Resource Group'
 
-    $microsoftResources_resourceGroups_Arguments = $ParametersEntry.MicrosoftResources_resourceGroups_Arguments.value
-    $resourceGroupName = $microsoftResources_resourceGroups_Arguments.Arm_ResourceName
+    $resourceGroupEntry = Get-HashtableValue $ParametersEntry 'MicrosoftResources_resourceGroups_Arguments'
+    $microsoftResources_resourceGroups_Arguments = Get-HashtableValue $resourceGroupEntry 'value'
+    $resourceGroupName = Get-HashtableValue $microsoftResources_resourceGroups_Arguments 'Arm_ResourceName'
     if ($null -eq $resourceGroupName -or [string]::IsNullOrWhiteSpace($resourceGroupName))
     {
         $resourceGroupName = Get-CdphResourceName `
@@ -1698,16 +1699,16 @@ function Deploy-ResourceGroup
     $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
     if ($null -eq $resourceGroup)
     {
-        $resourceGroup_byEnvironment = $microsoftResources_resourceGroups_Arguments.byEnvironment
+        $resourceGroup_byEnvironment = Get-HashtableValue $microsoftResources_resourceGroups_Arguments 'byEnvironment'
         if ($null -eq $resourceGroup_byEnvironment)
         {
             throw 'byEnvironment is a required parameter of MicrosoftResources_resourceGroups_Arguments.value. It must be specified in the redcapAzureDeploy.parameters.json file.'
         }
 
-        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
+        $cdphEnvironment = Get-HashtableValue $ResourceDeployment 'Cdph_Environment'
 
         $resourceGroup_byEnvironment_thisEnvironment = Get-HashtableValue $resourceGroup_byEnvironment $cdphEnvironment
-        $resourceGroup_byEnvironment_allEnvironments = $resourceGroup_byEnvironment.ALL
+        $resourceGroup_byEnvironment_allEnvironments = Get-HashtableValue $resourceGroup_byEnvironment 'ALL'
 
         $resourceGroup_Arm_Location = $null
         if ($null -ne $resourceGroup_byEnvironment_thisEnvironment)
@@ -1750,8 +1751,10 @@ function Get-CdphResourceName
         $Arm_ResourceProvider
     )
 
-    $cdph_BusinessUnit_actual = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
-    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
+    $cdph_BusinessUnit = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
+    $cdph_BusinessUnit_actual = Get-HashtableValue $cdph_BusinessUnit 'value'
+    $cdph_BusinessUnitProgram = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
+    $cdph_BusinessUnitProgram_actual = Get-HashtableValue $cdph_BusinessUnitProgram 'value'
     $cdph_Environment_actual = $ResourceDeployment.Cdph_Environment
 
     $resourceNameArgs = @{
