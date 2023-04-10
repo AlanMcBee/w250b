@@ -146,7 +146,7 @@ function Deploy-AzureREDCap
             $Cdph_ResourceInstance
         )
 
-        Deploy-ResourceGroup `
+        $resourceGroupName = Deploy-ResourceGroup `
             -ParametersEntry $keyVaultParametersEntry `
             -ResourceDeployment $resourceDeployment
 
@@ -168,6 +168,7 @@ function Deploy-AzureREDCap
 
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment] $deploymentResult = $null
         $deploymentResult = Deploy-Bicep `
+            -ResourceGroupName $resourceGroupName `
             -Template 'KeyVault' `
             -ResourceDeployment $resourceDeployment `
             -ParametersEntry $deploymentParameters
@@ -258,7 +259,8 @@ function Deploy-AzureREDCap
             -SecureArguments $secureArguments
 
         $deploymentResult = Deploy-Bicep `
-            -ParametersEntry $mainParametersEntry `
+        -ResourceGroupName $resourceGroupName `
+        -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment `
             -Template 'Main'
 
@@ -284,8 +286,12 @@ function Deploy-Bicep
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroupDeployment])]
     param (
         [Parameter(Mandatory = $true)]
+        [string]
+        $ResourceGroupName,
+
+        [Parameter(Mandatory = $true)]
         [hashtable]
-        $ParametersEntry,
+        $DeploymentParameters,
 
         [Parameter(Mandatory = $true)]
         [ResourceDeployment]
@@ -296,11 +302,6 @@ function Deploy-Bicep
         [string]
         $Template
     )
-
-    $resourceGroupName = Get-CdphResourceName `
-        -ParametersEntry $ParametersEntry `
-        -ResourceDeployment $ResourceDeployment `
-        -Arm_ResourceProvider 'Microsoft.Resources/resourceGroups'
 
     $bicepPath = switch ($Template)
     {
@@ -313,17 +314,17 @@ function Deploy-Bicep
     $deploymentName = "REDCapDeploy$Template.$version"
 
     $deployArgs = @{
-        ResourceGroupName       = $resourceGroupName
+        ResourceGroupName       = $ResourceGroupName
         TemplateFile            = $bicepPath
         Name                    = $deploymentName
-        TemplateParameterObject = $parameters
+        TemplateParameterObject = $DeploymentParameters
     }
     if ($VerbosePreference -eq 'Continue')
     {
         $regularParameters = @{}
-        foreach ($parameterKey in $parameters.Keys)
+        foreach ($parameterKey in $DeploymentParameters.Keys)
         {
-            $regularParameters[$parameterKey] = @{value = Get-HashtableValue $parameters $parameterKey}
+            $regularParameters[$parameterKey] = @{value = Get-HashtableValue $DeploymentParameters $parameterKey}
         }
         $parametersDoc = @{
             '$schema'      = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
@@ -352,7 +353,7 @@ function Deploy-Bicep
 
     if ($armDeployment.ProvisioningState -ne 'Succeeded' -and $VerbosePreference -eq 'Continue')
     {
-        $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $resourceGroupName
+        $deploymentErrors = Get-AzResourceGroupDeploymentOperation -DeploymentName $deploymentName -ResourceGroupName $ResourceGroupName
         $deploymentErrors | ConvertTo-Json -Depth 10 | Out-File -FilePath "deploy.$deploymentName.errors.json" -Encoding UTF8 -Force
     }
     else
@@ -1673,6 +1674,7 @@ function Get-ArmAdministratorObjectId
 
 function Deploy-ResourceGroup
 {
+    [OutputType([string])]
     param (
         [Parameter(Mandatory = $true)]
         [hashtable]
@@ -1732,6 +1734,7 @@ function Deploy-ResourceGroup
         $resourceGroup_Arm_Location = $resourceGroup.Location
         Write-Information "Using existing Resource Group $resourceGroupName in $resourceGroup_Arm_Location"
     }
+    return $resourceGroupName
 }
 
 function Get-CdphResourceName
