@@ -127,7 +127,7 @@ function Deploy-AzureREDCap
 
         $templateParametersPath = ".\redcapAzureDeployParameters.json"
         $templateParameters = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
-        $keyVaultParametersEntry = $templateParameters['parameters']
+        $keyVaultParametersEntry = Get-HashtableValue $templateParameters 'parameters'
 
         Initialize-CommonArguments `
             -ParametersEntry $keyVaultParametersEntry `
@@ -199,7 +199,7 @@ function Deploy-AzureREDCap
 
         # Reset parameters
         $templateParameters = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
-        $mainParametersEntry = $templateParameters['parameters']
+        $mainParametersEntry = Get-HashtableValue $templateParameters 'parameters'
 
         Initialize-CommonArguments `
             -ParametersEntry $mainParametersEntry `
@@ -297,14 +297,6 @@ function Deploy-Bicep
         $Template
     )
 
-    # Flatten the ParametersEntry hashtable by pulling up the value property of the nested hashtables and removing the metadata (or any other top-level) property
-    $parameters = @{}
-    $parametersArray = $ParametersEntry.Keys | ForEach-Object {
-        $key = $_
-        $value = $ParametersEntry[$key].value
-        $parameters[$key] = $value
-    }
-
     $resourceGroupName = Get-CdphResourceName `
         -ParametersEntry $ParametersEntry `
         -ResourceDeployment $ResourceDeployment `
@@ -331,7 +323,7 @@ function Deploy-Bicep
         $regularParameters = @{}
         foreach ($parameterKey in $parameters.Keys)
         {
-            $regularParameters[$parameterKey] = @{value = $parameters[$parameterKey]}
+            $regularParameters[$parameterKey] = @{value = Get-HashtableValue $parameters $parameterKey}
         }
         $parametersDoc = @{
             '$schema'      = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
@@ -395,30 +387,37 @@ function Compress-Arguments
         $SecureArguments
     )
 
+    $cdphBusinessUnitParameter = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnit'
+    $cdphBusinessUnit = Get-HashtableValue $cdphBusinessUnitParameter 'value'
+    $cdphBusinessUnitProgramParameter = Get-HashtableValue $ParametersEntry 'Cdph_BusinessUnitProgram'
+    $cdphBusinessUnitProgram = Get-HashtableValue $cdphBusinessUnitProgramParameter 'value'
+
+    $virtualNetworkParameter = @{
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
+    }
+    $keyVaultParameter = @{
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
+    }
+
     $deploymentParameters = $null
     switch ($Template)
     {
         'KeyVault'
         {
-            $virtualNetworkParameter = @{
-                ParametersEntry    = $ParametersEntry
-                ResourceDeployment = $ResourceDeployment
-                ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
-            }
-            $keyVaultParameter = @{
-                ParametersEntry    = $ParametersEntry
-                ResourceDeployment = $ResourceDeployment
-                ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
-            }
             $keyVaultSecretsParameter = @{
                 ParametersEntry    = $ParametersEntry
                 ResourceDeployment = $ResourceDeployment
                 ParameterName      = 'MicrosoftKeyVault_vaults_SecureArguments'
             }
+            
             $deploymentParameters = @{
-                Cdph_BusinessUnit                                                               = $ParametersEntry.Cdph_BusinessUnit
-                Cdph_BusinessUnitProgram                                                        = $ParametersEntry.Cdph_BusinessUnitProgram
-                Cdph_Environment                                                                = $ParametersEntry.Cdph_Environment
+                Cdph_BusinessUnit                                                               = $cdphBusinessUnit
+                Cdph_BusinessUnitProgram                                                        = $cdphBusinessUnitProgram
+                Cdph_Environment                                                                = $ResourceDeployment.Cdph_Environment
 
                 MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_Location                                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
@@ -436,16 +435,6 @@ function Compress-Arguments
         }
         'Main'
         {
-            $virtualNetworkParameter = @{
-                ParametersEntry    = $ParametersEntry
-                ResourceDeployment = $ResourceDeployment
-                ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
-            }
-            $keyVaultParameter = @{
-                ParametersEntry    = $ParametersEntry
-                ResourceDeployment = $ResourceDeployment
-                ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
-            }
             $storageAccountsParameter = @{
                 ParametersEntry    = $ParametersEntry
                 ResourceDeployment = $ResourceDeployment
@@ -492,9 +481,9 @@ function Compress-Arguments
                 ParameterName      = 'Smtp_Arguments'
             }
             $deploymentParameters = @{
-                Cdph_BusinessUnit                                               = $ParametersEntry.Cdph_BusinessUnit
-                Cdph_BusinessUnitProgram                                        = $ParametersEntry.Cdph_BusinessUnitProgram
-                Cdph_Environment                                                = $ParametersEntry.Cdph_Environment
+                Cdph_BusinessUnit                                               = $cdphBusinessUnit
+                Cdph_BusinessUnitProgram                                        = $cdphBusinessUnitProgram
+                Cdph_Environment                                                = $ResourceDeployment.Cdph_Environment
 
                 MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_Location                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
@@ -1011,19 +1000,19 @@ function Initialize-REDCapArguments
     $automaticDownloadBuilderArgument = Get-Argument @parameterArguments `
         -Name 'AutomaticDownloadUrlBuilder'
 
-    $metadata = $automaticDownloadBuilderArgument['$metadata']
+    $metadata = Get-HashtableValue $automaticDownloadBuilderArgument '$metadata'
     if ($null -ne $metadata)
     {
         $automaticDownloadBuilderArgument.Remove('$metadata')
     }
 
-    $communityUserName = $automaticDownloadBuilderArgument['CommunityUserName']
+    $communityUserName = Get-HashtableValue $automaticDownloadBuilderArgument 'CommunityUserName'
     if ([string]::IsNullOrWhiteSpace($communityUserName))
     {
         throw 'Deployment parameters do not contain a required value for the ''ProjectREDCap_Arguments.value.AutomaticDownloadUrlBuilder.CommunityUserName'' property'
     }
 
-    $appZipVersion = $automaticDownloadBuilderArgument['AppZipVersion']
+    $appZipVersion = Get-HashtableValue $automaticDownloadBuilderArgument 'AppZipVersion'
     if ([string]::IsNullOrWhiteSpace($appZipVersion))
     {
         throw 'Deployment parameters do not contain a required value for the ''ProjectREDCap_Arguments.value.AutomaticDownloadUrlBuilder.AppZipVersion'' property'
@@ -1294,13 +1283,13 @@ function Set-Argument
         $IfNotExists
     )
 
-    $argumentEntry = $ParametersEntry[$ParameterName]
+    $argumentEntry = Get-HashtableValue $ParametersEntry $ParameterName
     if ($null -eq $argumentEntry)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName' property"
     }
 
-    $argumentValue = $argumentEntry['value']
+    $argumentValue = Get-HashtableValue $argumentEntry 'value'
     if ($null -eq $argumentValue)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
@@ -1310,20 +1299,20 @@ function Set-Argument
     {
         $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
-        $argumentValue_byEnvironment = $argumentValue['byEnvironment']
+        $argumentValue_byEnvironment = Get-HashtableValue $argumentValue 'byEnvironment'
         if ($null -eq $argumentValue_byEnvironment)
         {
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.byEnvironment' property"
         }
 
-        $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+        $argumentValue_byEnvironment_thisEnvironment = Get-HashtableValue $argumentValue_byEnvironment $cdphEnvironment
         if ($null -eq $argumentValue_byEnvironment_thisEnvironment)
         {
             $argumentValue_byEnvironment[$cdphEnvironment] = @{}
-            $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+            $argumentValue_byEnvironment_thisEnvironment = Get-HashtableValue $argumentValue_byEnvironment $cdphEnvironment
         }
         # Only replace the value if IfNotExists is false, or if IfNotExists is true and the value is null or whitespace
-        if (-not $IfNotExists -or ($IfNotExists -and [string]::IsNullOrWhiteSpace($argumentValue_byEnvironment_thisEnvironment[$Name])))
+        if (-not $IfNotExists -or ($IfNotExists -and [string]::IsNullOrWhiteSpace((Get-HashtableValue $argumentValue_byEnvironment_thisEnvironment $Name))))
         {
             $argumentValue_byEnvironment_thisEnvironment[$Name] = $Value
         }
@@ -1332,7 +1321,7 @@ function Set-Argument
     else
     {
         # Only replace the value if IfNotExists is false, or if IfNotExists is true and the value is null or whitespace
-        if (-not $IfNotExists -or ($IfNotExists -and [string]::IsNullOrWhiteSpace($argumentValue[$Name])))
+        if (-not $IfNotExists -or ($IfNotExists -and [string]::IsNullOrWhiteSpace((Get-HashtableValue $argumentValue $Name))))
         {
             $argumentValue[$Name] = $Value
         }
@@ -1363,13 +1352,13 @@ function Get-Argument
         $ByEnvironment
     )
 
-    $argumentEntry = $ParametersEntry[$ParameterName]
+    $argumentEntry = Get-HashtableValue $ParametersEntry $ParameterName
     if ($null -eq $argumentEntry)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName' property"
     }
 
-    $argumentValue = $argumentEntry['value']
+    $argumentValue = Get-HashtableValue $argumentEntry 'value'
     if ($null -eq $argumentValue)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
@@ -1379,17 +1368,17 @@ function Get-Argument
     {
         $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
-        $argumentValue_byEnvironment = $argumentValue['byEnvironment']
+        $argumentValue_byEnvironment = Get-HashtableValue $argumentValue 'byEnvironment'
         if ($null -eq $argumentValue_byEnvironment)
         {
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.byEnvironment' property"
         }
 
-        $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+        $argumentValue_byEnvironment_thisEnvironment = Get-HashtableValue $argumentValue_byEnvironment $cdphEnvironment
         $foundValue = $false
         if ($null -ne $argumentValue_byEnvironment_thisEnvironment)
         {
-            $argumentValue_byEnvironment_thisEnvironment_value = $argumentValue_byEnvironment_thisEnvironment[$Name]
+            $argumentValue_byEnvironment_thisEnvironment_value = Get-HashtableValue $argumentValue_byEnvironment_thisEnvironment $Name
             $foundValue = ($null -ne $argumentValue_byEnvironment_thisEnvironment_value)
             if ($foundValue)
             {
@@ -1399,10 +1388,10 @@ function Get-Argument
 
         if (-not $foundValue)
         {
-            $argumentValue_byEnvironment_allEnvironments = $argumentValue_byEnvironment['ALL']
+            $argumentValue_byEnvironment_allEnvironments = Get-HashtableValue $argumentValue_byEnvironment 'ALL'
             if ($null -ne $argumentValue_byEnvironment_allEnvironments)
             {
-                $argumentValue_byEnvironment_allEnvironments_value = $argumentValue_byEnvironment_allEnvironments[$Name]
+                $argumentValue_byEnvironment_allEnvironments_value = Get-HashtableValue $argumentValue_byEnvironment_allEnvironments $Name
                 $foundValue = ($null -ne $argumentValue_byEnvironment_allEnvironments_value)
                 if ($foundValue)
                 {
@@ -1418,7 +1407,7 @@ function Get-Argument
     }
     else
     {
-        $argumentValue_value = $argumentValue[$Name]
+        $argumentValue_value = Get-HashtableValue $argumentValue $Name
         return $argumentValue_value
     }
     throw "Deployment parameters do not contain a required value for the '$ParameterName.value.$Name' property"
@@ -1456,7 +1445,7 @@ function Remove-Argument
         $ByEnvironmentMetadata
     )
 
-    $argumentEntry = $ParametersEntry[$ParameterName]
+    $argumentEntry = Get-HashtableValue $ParametersEntry $ParameterName
     if ($null -eq $argumentEntry)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName' property"
@@ -1464,14 +1453,14 @@ function Remove-Argument
 
     if ($Metadata)
     {
-        $metadataEntry = $argumentEntry['metadata']
+        $metadataEntry = Get-HashtableValue $argumentEntry 'metadata'
         if ($null -ne $metadataEntry)
         {
             $argumentEntry.Remove('metadata')
         }
     }
 
-    $argumentValue = $argumentEntry['value']
+    $argumentValue = Get-HashtableValue $argumentEntry 'value'
     if ($null -eq $argumentValue)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
@@ -1481,7 +1470,7 @@ function Remove-Argument
     {
         $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
-        $argumentValue_byEnvironment = $argumentValue['byEnvironment']
+        $argumentValue_byEnvironment = Get-HashtableValue $argumentValue 'byEnvironment'
         if ($null -eq $argumentValue_byEnvironment)
         {
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.byEnvironment' property"
@@ -1489,7 +1478,7 @@ function Remove-Argument
 
         if ($ByEnvironmentMetadata)
         {
-            $argumentValue_byEnvironment_metadata = $argumentValue_byEnvironment['$metadata']
+            $argumentValue_byEnvironment_metadata = Get-HashtableValue $argumentValue_byEnvironment '$metadata'
             if ($null -ne $argumentValue_byEnvironment_metadata)
             {
                 $argumentValue_byEnvironment.Remove('$metadata')
@@ -1497,12 +1486,12 @@ function Remove-Argument
         }
         else
         {
-            $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+            $argumentValue_byEnvironment_thisEnvironment = Get-HashtableValue $argumentValue_byEnvironment $cdphEnvironment
             if ($null -ne $argumentValue_byEnvironment_thisEnvironment)
             {
                 $argumentValue_byEnvironment_thisEnvironment.Remove($Name)
             }
-            $argumentValue_byEnvironment_allEnvironments = $argumentValue_byEnvironment['ALL']
+            $argumentValue_byEnvironment_allEnvironments = Get-HashtableValue $argumentValue_byEnvironment 'ALL'
             if ($null -ne $argumentValue_byEnvironment_allEnvironments)
             {
                 $argumentValue_byEnvironment_allEnvironments.Remove($Name)
@@ -1540,7 +1529,7 @@ function Test-Argument
         $ByEnvironment
     )
 
-    $argumentEntry = $ParametersEntry[$ParameterName]
+    $argumentEntry = Get-HashtableValue $ParametersEntry $ParameterName
     if ($null -eq $argumentEntry)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName' property"
@@ -1550,7 +1539,7 @@ function Test-Argument
         return $true
     }
 
-    $argumentValue = $argumentEntry['value']
+    $argumentValue = Get-HashtableValue $argumentEntry 'value'
     if ($null -eq $argumentValue)
     {
         throw "Deployment parameters do not contain a required value for the '$ParameterName.value' property"
@@ -1560,26 +1549,26 @@ function Test-Argument
     {
         $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
-        $argumentValue_byEnvironment = $argumentValue['byEnvironment']
+        $argumentValue_byEnvironment = Get-HashtableValue $argumentValue 'byEnvironment'
         if ($null -eq $argumentValue_byEnvironment)
         {
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.byEnvironment' property"
         }
 
-        $argumentValue_byEnvironment_thisEnvironment = $argumentValue_byEnvironment[$cdphEnvironment]
+        $argumentValue_byEnvironment_thisEnvironment = Get-HashtableValue $argumentValue_byEnvironment $cdphEnvironment
         $foundValue = $false
         if ($null -ne $argumentValue_byEnvironment_thisEnvironment)
         {
-            $argumentValue_byEnvironment_thisEnvironment_value = $argumentValue_byEnvironment_thisEnvironment[$Name]
+            $argumentValue_byEnvironment_thisEnvironment_value = Get-HashtableValue $argumentValue_byEnvironment_thisEnvironment $Name
             $foundValue = ($null -ne $argumentValue_byEnvironment_thisEnvironment_value)
         }
 
         if (-not $foundValue)
         {
-            $argumentValue_byEnvironment_allEnvironments = $argumentValue_byEnvironment['ALL']
+            $argumentValue_byEnvironment_allEnvironments = Get-HashtableValue $argumentValue_byEnvironment 'ALL'
             if ($null -ne $argumentValue_byEnvironment_allEnvironments)
             {
-                $argumentValue_byEnvironment_allEnvironments_value = $argumentValue_byEnvironment_allEnvironments[$Name]
+                $argumentValue_byEnvironment_allEnvironments_value = Get-HashtableValue $argumentValue_byEnvironment_allEnvironments $Name
                 $foundValue = ($null -ne $argumentValue_byEnvironment_allEnvironments_value)
             }
         }
@@ -1591,7 +1580,7 @@ function Test-Argument
     }
     else
     {
-        $argumentValue_value = $argumentValue[$Name]
+        $argumentValue_value = Get-HashtableValue $argumentValue $Name
         if ($null -eq $argumentValue_value)
         {
             throw "Deployment parameters do not contain a required value for the '$ParameterName.value.$Name' property"
@@ -1717,17 +1706,17 @@ function Deploy-ResourceGroup
 
         $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
-        $resourceGroup_byEnvironment_thisEnvironment = $resourceGroup_byEnvironment[$cdphEnvironment]
+        $resourceGroup_byEnvironment_thisEnvironment = Get-HashtableValue $resourceGroup_byEnvironment $cdphEnvironment
         $resourceGroup_byEnvironment_allEnvironments = $resourceGroup_byEnvironment.ALL
 
         $resourceGroup_Arm_Location = $null
         if ($null -ne $resourceGroup_byEnvironment_thisEnvironment)
         {
-            $resourceGroup_Arm_Location = $resourceGroup_byEnvironment_thisEnvironment['Arm_Location']
+            $resourceGroup_Arm_Location = Get-HashtableValue $resourceGroup_byEnvironment_thisEnvironment 'Arm_Location'
         }
         if ($null -eq $resourceGroup_Arm_Location)
         {
-            $resourceGroup_Arm_Location = $resourceGroup_byEnvironment_allEnvironments['Arm_Location']
+            $resourceGroup_Arm_Location = Get-HashtableValue $resourceGroup_byEnvironment_allEnvironments 'Arm_Location'
         }
         if ($null -eq $resourceGroup_Arm_Location)
         {

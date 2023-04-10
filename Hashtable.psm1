@@ -105,3 +105,37 @@ function Merge-Hashtables
     $output
 }
 Export-ModuleMember -Function 'Merge-Hashtables'
+
+function Get-HashtableValue
+{
+    param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [hashtable]
+        $Hashtable,
+
+        [Parameter(Mandatory = $true, Position = 1)]
+        [string]
+        $Key
+    )
+    
+    $value = $null
+    $foundOnce = $false
+
+    foreach ($testKey in $Hashtable.Keys)
+    {
+        if ($testKey -ieq $Key)
+        {
+            if ($foundOnce)
+            {
+                throw "Hashtable contains more than one key can can match '$Key' in a case-insensitive comparison"
+            }
+            else
+            {
+                $value = $Hashtable[$testKey]
+                $foundOnce = $true
+            }
+        }
+    }
+    return $value
+}
+Export-ModuleMember -Function 'Get-HashtableValue'
