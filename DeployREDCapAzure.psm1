@@ -124,19 +124,27 @@ function Deploy-AzureREDCap
             $MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword,
             $MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
         )
-        $resourceDeployment = [ResourceDeployment]::new(
-            $Cdph_Organization,
-            $Cdph_Environment,
-            $Cdph_ResourceInstance
-        )
 
         $templateParametersPath = ".\redcapAzureDeployParameters.json"
-        $keyVaultParametersEntry = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
+        $templateParameters = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
+        $keyVaultParametersEntry = $templateParameters['parameters']
 
         Initialize-CommonArguments `
             -ParametersEntry $keyVaultParametersEntry `
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
             -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
+
+        $cdph_Environment_Actual = $Cdph_Environment
+        if ([string]::IsNullOrWhiteSpace($cdph_Environment_Actual))
+        {
+            $cdph_Environment_Actual = Get-Argument -ParametersEntry $keyVaultParametersEntry -ArgumentName 'Cdph_Environment'
+        }
+
+        $resourceDeployment = [ResourceDeployment]::new(
+            $Cdph_Organization,
+            $cdph_Environment_Actual,
+            $Cdph_ResourceInstance
+        )
 
         Deploy-ResourceGroup `
             -ParametersEntry $keyVaultParametersEntry `
@@ -150,12 +158,11 @@ function Deploy-AzureREDCap
             -ParametersEntry $keyVaultParametersEntry `
             -ResourceDeployment $resourceDeployment `
             -Cdph_ClientIPAddress $Cdph_ClientIPAddress `
-            -MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword `
-            -ProjectREDCap_CommunityPassword $ProjectREDCap_CommunityPassword `
-            -Smtp_UserPassword $Smtp_UserPassword
+            -SecureArguments $SecureArguments
 
         $deploymentParameters = Compress-Arguments `
             -Template 'KeyVault' `
+            -ResourceDeployment $resourceDeployment `
             -ParametersEntry $keyVaultParametersEntry `
             -SecureArguments $secureArguments
 
@@ -190,7 +197,9 @@ function Deploy-AzureREDCap
             Write-Progress -Activity $progressActivity -Status 'Deploying MySQL, Storage Account, Web Site, and Application Insights' -PercentComplete 40
         }
 
-        $mainParametersEntry = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
+        # Reset parameters
+        $templateParameters = Get-Content $templateParametersPath | ConvertFrom-Json -AsHashtable
+        $mainParametersEntry = $templateParameters['parameters']
 
         Initialize-CommonArguments `
             -ParametersEntry $mainParametersEntry `
@@ -244,6 +253,7 @@ function Deploy-AzureREDCap
 
         $deploymentParameters = Compress-Arguments `
             -Template 'Main' `
+            -ResourceDeployment $resourceDeployment `
             -ParametersEntry $mainParametersEntry `
             -SecureArguments $secureArguments
 
@@ -373,6 +383,10 @@ function Compress-Arguments
         $Template,
 
         [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        [Parameter(Mandatory = $true)]
         [hashtable]
         $ParametersEntry,
 
@@ -387,16 +401,19 @@ function Compress-Arguments
         'KeyVault'
         {
             $virtualNetworkParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
             }
             $keyVaultParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftKeyVault_vaults_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
             }
             $keyVaultSecretsParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftKeyVault_vaults_SecureArguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftKeyVault_vaults_SecureArguments'
             }
             $deploymentParameters = @{
                 Cdph_BusinessUnit                                                               = $ParametersEntry.Cdph_BusinessUnit
@@ -420,48 +437,59 @@ function Compress-Arguments
         'Main'
         {
             $virtualNetworkParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
             }
             $keyVaultParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftKeyVault_vaults_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
             }
             $storageAccountsParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftStorage_storageAccounts_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftStorage_storageAccounts_Arguments'
             }
             $mySqlParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
             }
             $appServicePlansParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftWeb_serverfarms_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftWeb_serverfarms_Arguments'
             }
             $appServiceParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftWeb_sites_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftWeb_sites_Arguments'
             }
             $appServiceCertificatesParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftWeb_certificates_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftWeb_certificates_Arguments'
             }
             $applicationInsightsParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftInsights_components_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftInsights_components_Arguments'
             }
             $logAnalyticsParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'MicrosoftOperationalInsights_workspaces_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'MicrosoftOperationalInsights_workspaces_Arguments'
             }
             $projectREDCapParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'ProjectREDCap_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'ProjectREDCap_Arguments'
             }
             $smtpParameter = @{
-                ParametersEntry = $ParametersEntry
-                ParameterName   = 'Smtp_Arguments'
+                ParametersEntry    = $ParametersEntry
+                ResourceDeployment = $ResourceDeployment
+                ParameterName      = 'Smtp_Arguments'
             }
             $deploymentParameters = @{
                 Cdph_BusinessUnit                                               = $ParametersEntry.Cdph_BusinessUnit
@@ -541,8 +569,9 @@ function Initialize-VirtualNetworkArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftNetwork_virtualNetworks_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftNetwork_virtualNetworks_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -551,6 +580,7 @@ function Initialize-VirtualNetworkArguments
         -ParametersEntry $ParametersEntry `
         -ResourceDeployment $ResourceDeployment `
         -Arm_ResourceProvider 'Microsoft.Network/virtualNetworks'
+
     Set-Argument @parameterArguments `
         -Name 'Arm_ResourceName' `
         -Value $virtualNetwork_Arm_ResourceName
@@ -587,8 +617,9 @@ function Initialize-KeyVaultResourceNameArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftKeyVault_vaults_Arm_ResourceName'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftKeyVault_vaults_Arm_ResourceName'
     }
 
     $null = Test-Argument @parameterArguments
@@ -618,8 +649,9 @@ function Initialize-StorageAccountArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftStorage_storageAccounts_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftStorage_storageAccounts_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -670,8 +702,9 @@ function Initialize-MySQLArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftDBforMySQL_flexibleServers_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -736,8 +769,9 @@ function Initialize-AppServicePlanArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftWeb_serverfarms_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftWeb_serverfarms_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -786,8 +820,9 @@ function Initialize-AppServiceCertificatesArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftWeb_certificates_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftWeb_certificates_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -824,8 +859,9 @@ function Initialize-AppServiceArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftWeb_sites_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftWeb_sites_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -874,8 +910,9 @@ function Initialize-AppInsightsArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftInsights_components_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftInsights_components_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -916,8 +953,9 @@ function Initialize-LogAnalyticsArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftOperationalInsights_workspaces_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftOperationalInsights_workspaces_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -954,8 +992,9 @@ function Initialize-REDCapArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'ProjectREDCap_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'ProjectREDCap_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -1004,8 +1043,9 @@ function Initialize-SmtpArguments
     )
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'Smtp_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'Smtp_Arguments'
     }
 
     Remove-Argument @parameterArguments `
@@ -1046,30 +1086,17 @@ function Initialize-KeyVaultArguments
         [string]
         $Cdph_ClientIPAddress,
 
-        # Password for MySQL administrator account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
         [Parameter(Mandatory = $true)]
-        [securestring]
-        $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword,
-
-        # Password for the REDCap Community site account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $ProjectREDCap_CommunityPassword,
-
-        # Password for the SMTP server account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $Smtp_UserPassword
+        [SecureArguments]
+        $SecureArguments
     )
 
     # Initialize the plain text arguments
 
     $parameterArguments = @{
-        ParametersEntry = $ParametersEntry
-        ParameterName   = 'MicrosoftKeyVault_vaults_Arguments'
+        ParametersEntry    = $ParametersEntry
+        ResourceDeployment = $ResourceDeployment
+        ParameterName      = 'MicrosoftKeyVault_vaults_Arguments'
     }
 
     $null = Test-Argument @parameterArguments
@@ -1141,16 +1168,16 @@ function Initialize-KeyVaultArguments
     $null = Test-Argument @parameterArguments
 
     Set-Argument @parameterArguments `
-        -Name 'MicrosoftDBforMySQLAdministratorLoginPassword' `
-        -Value $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+        -Name 'MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword' `
+        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
 
     Set-Argument @parameterArguments `
-        -Name 'ProjectREDCapCommunityPassword' `
-        -Value $ProjectREDCap_CommunityPassword
+        -Name 'MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword' `
+        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
 
     Set-Argument @parameterArguments `
-        -Name 'SmtpUserPassword' `
-        -Value $Smtp_UserPassword
+        -Name 'MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword' `
+        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
 }
 
 function Set-KeyVaultAppServiceAccessPolicy
@@ -1158,7 +1185,11 @@ function Set-KeyVaultAppServiceAccessPolicy
     param (
         [Parameter(Mandatory = $true)]
         [hashtable]
-        $ParametersEntry
+        $ParametersEntry,
+
+        [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment
     )
 
     Write-Information 'Setting access policy to allow App Service to read from Key Vault. It''s currently not supported to set an accessPolicy property for an applicationId without an objectId'
@@ -1166,6 +1197,7 @@ function Set-KeyVaultAppServiceAccessPolicy
 
     $keyVault_Arm_ResourceName = Get-Argument `
         -ParametersEntry $ParametersEntry `
+        -ResourceDeployment $ResourceDeployment `
         -ParameterName 'MicrosoftKeyVault_vaults_Arguments' `
         -Name 'Arm_ResourceName'
 
@@ -1238,6 +1270,10 @@ function Set-Argument
         $ParametersEntry,
 
         [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        [Parameter(Mandatory = $true)]
         [string]
         $ParameterName,
 
@@ -1272,7 +1308,7 @@ function Set-Argument
 
     if ($ByEnvironment)
     {
-        $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $argumentValue_byEnvironment = $argumentValue['byEnvironment']
         if ($null -eq $argumentValue_byEnvironment)
@@ -1311,6 +1347,10 @@ function Get-Argument
         $ParametersEntry,
 
         [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        [Parameter(Mandatory = $true)]
         [string]
         $ParameterName,
 
@@ -1337,7 +1377,7 @@ function Get-Argument
 
     if ($ByEnvironment)
     {
-        $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $argumentValue_byEnvironment = $argumentValue['byEnvironment']
         if ($null -eq $argumentValue_byEnvironment)
@@ -1392,6 +1432,10 @@ function Remove-Argument
         $ParametersEntry,
 
         [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        [Parameter(Mandatory = $true)]
         [string]
         $ParameterName,
 
@@ -1435,7 +1479,7 @@ function Remove-Argument
 
     if ($ByEnvironment -or $ByEnvironmentMetadata)
     {
-        $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $argumentValue_byEnvironment = $argumentValue['byEnvironment']
         if ($null -eq $argumentValue_byEnvironment)
@@ -1480,6 +1524,10 @@ function Test-Argument
         $ParametersEntry,
 
         [Parameter(Mandatory = $true)]
+        [ResourceDeployment]
+        $ResourceDeployment,
+
+        [Parameter(Mandatory = $true)]
         [string]
         $ParameterName,
 
@@ -1510,7 +1558,7 @@ function Test-Argument
 
     if ($ByEnvironment)
     {
-        $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $argumentValue_byEnvironment = $argumentValue['byEnvironment']
         if ($null -eq $argumentValue_byEnvironment)
@@ -1569,16 +1617,6 @@ function Initialize-CommonArguments
     )
 
     Write-Information 'Overriding loaded parameters with arguments from the command line'
-
-    Remove-Argument `
-        -ParametersEntry $ParametersEntry `
-        -ParameterName 'Arm_DeploymentCreationDateTime' `
-        -Metadata
-
-    Remove-Argument `
-        -ParametersEntry $ParametersEntry `
-        -ParameterName 'MicrosoftResources_resourceGroups_Arguments' `
-        -Metadata
 
     $cdph_BusinessUnit_parameters = $ParametersEntry.Cdph_BusinessUnit
     if ($null -eq $cdph_BusinessUnit_parameters)
@@ -1644,28 +1682,6 @@ function Get-ArmAdministratorObjectId
     return $arm_AdministratorObjectId_actual
 }
 
-function Get-CdphEnvironment
-{
-    param (
-        [Parameter(Mandatory = $true)]
-        [hashtable]
-        $ParametersEntry
-    )
-
-    $cdph_Environment_parameters = $ParametersEntry.Cdph_Environment
-    if ($null -eq $cdph_Environment_parameters)
-    {
-        throw 'Cdph_Environment is a required parameter. It must be specified either in the redcapAzureDeploy.parameters.json file or as a parameter to this function.'
-    }
-    $cdph_Environment_actual = $cdph_Environment_parameters.value
-    if ($null -eq $cdph_Environment_actual -or [string]::IsNullOrWhiteSpace($cdph_Environment_actual))
-    {
-        throw 'Cdph_Environment is a required parameter. It must be specified either in the redcapAzureDeploy.parameters.json file or as a parameter to this function.'
-    }
-
-    return $cdph_Environment_actual
-}
-
 function Deploy-ResourceGroup
 {
     param (
@@ -1699,7 +1715,7 @@ function Deploy-ResourceGroup
             throw 'byEnvironment is a required parameter of MicrosoftResources_resourceGroups_Arguments.value. It must be specified in the redcapAzureDeploy.parameters.json file.'
         }
 
-        $cdphEnvironment = Get-CdphEnvironment -ParametersEntry $ParametersEntry
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $resourceGroup_byEnvironment_thisEnvironment = $resourceGroup_byEnvironment[$cdphEnvironment]
         $resourceGroup_byEnvironment_allEnvironments = $resourceGroup_byEnvironment.ALL
@@ -1747,7 +1763,7 @@ function Get-CdphResourceName
 
     $cdph_BusinessUnit_actual = $ParametersEntry.Cdph_BusinessUnit.value
     $cdph_BusinessUnitProgram_actual = $ParametersEntry.Cdph_BusinessUnitProgram.value
-    $cdph_Environment_actual = $ParametersEntry.Cdph_Environment.value
+    $cdph_Environment_actual = $ResourceDeployment.Cdph_Environment
 
     $resourceNameArgs = @{
         Arm_ResourceProvider     = $Arm_ResourceProvider
