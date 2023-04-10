@@ -132,13 +132,11 @@ function Deploy-AzureREDCap
         Initialize-CommonArguments `
             -ParametersEntry $keyVaultParametersEntry `
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
-            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
+            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram `
+            -Cdph_Environment $Cdph_Environment
 
-        $cdph_Environment_Actual = Get-Argument -ParametersEntry $keyVaultParametersEntry -ArgumentName 'Cdph_Environment'
-        if (-not [string]::IsNullOrWhiteSpace($cdph_Environment_Actual))
-        {
-            $cdph_Environment_Actual = $Cdph_Environment
-        }
+        $cdphEnvironmentParameter = Get-HashtableValue $keyVaultParametersEntry 'Cdph_Environment'
+        $cdph_Environment_Actual = Get-HashtableValue $cdphEnvironmentParameter 'value'
 
         $resourceDeployment = [ResourceDeployment]::new(
             $Cdph_Organization,
@@ -420,15 +418,15 @@ function Compress-Arguments
                 Cdph_BusinessUnitProgram                                                        = $cdphBusinessUnitProgram
                 Cdph_Environment                                                                = $ResourceDeployment.Cdph_Environment.ToLower()
 
-                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes                   = @(Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment)
                 MicrosoftNetwork_virtualNetworks_Arm_Location                                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_ResourceName                               = Get-Argument @virtualNetworkParameter -Name 'Arm_ResourceName'
-                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers                         = Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers                         = @(Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment)
 
                 MicrosoftKeyVault_vaults_Arm_ResourceName                                       = Get-Argument @keyVaultParameter -Name 'Arm_ResourceName'
                 MicrosoftKeyVault_vaults_Arm_Location                                           = Get-Argument @keyVaultParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftKeyVault_vaults_Arm_AdministratorObjectId                              = Get-Argument @keyVaultParameter -Name 'Arm_AdministratorObjectId' -ByEnvironment
-                MicrosoftKeyVault_vaults_NetworkAcls_IpRules                                    = Get-Argument @keyVaultParameter -Name 'NetworkAcls_IpRules' -ByEnvironment
+                MicrosoftKeyVault_vaults_NetworkAcls_IpRules                                    = @(Get-Argument @keyVaultParameter -Name 'NetworkAcls_IpRules' -ByEnvironment)
                 MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword = $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
                 MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword            = $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
                 MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword                              = $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
@@ -486,10 +484,10 @@ function Compress-Arguments
                 Cdph_BusinessUnitProgram                                        = $cdphBusinessUnitProgram
                 Cdph_Environment                                                = $ResourceDeployment.Cdph_Environment.ToLower()
 
-                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes   = Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_AddressSpace_AddressPrefixes   = @(Get-Argument @virtualNetworkParameter -Name 'AddressSpace' -ByEnvironment)
                 MicrosoftNetwork_virtualNetworks_Arm_Location                   = Get-Argument @virtualNetworkParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftNetwork_virtualNetworks_Arm_ResourceName               = Get-Argument @virtualNetworkParameter -Name 'Arm_ResourceName'
-                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers         = Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment
+                MicrosoftNetwork_virtualNetworks_DhcpOptions_DnsServers         = @(Get-Argument @virtualNetworkParameter -Name 'DnsServers' -ByEnvironment)
 
                 MicrosoftKeyVault_vaults_Arm_ResourceName                       = Get-Argument @keyVaultParameter -Name 'Arm_ResourceName'
 
@@ -504,7 +502,7 @@ function Compress-Arguments
                 MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName            = Get-Argument @mySqlParameter -Name 'Arm_ResourceName'
                 MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays  = Get-Argument @mySqlParameter -Name 'BackupRetentionDays' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name     = Get-Argument @mySqlParameter -Name 'DatabaseName' -ByEnvironment
-                MicrosoftDBforMySQL_flexibleServers_FirewallRules               = Get-Argument @mySqlParameter -Name 'FirewallRules' -ByEnvironment
+                MicrosoftDBforMySQL_flexibleServers_FirewallRules               = @(Get-Argument @mySqlParameter -Name 'FirewallRules' -ByEnvironment)
                 MicrosoftDBforMySQL_flexibleServers_Sku_Name                    = Get-Argument @mySqlParameter -Name 'Sku' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Sku_Tier                    = Get-Argument @mySqlParameter -Name 'Tier' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB       = Get-Argument @mySqlParameter -Name 'StorageGB' -ByEnvironment
@@ -559,7 +557,11 @@ function Initialize-CommonArguments
 
         [Parameter()]
         [string]
-        $Cdph_BusinessUnitProgram
+        $Cdph_BusinessUnitProgram,
+
+        [Parameter()]
+        [string]
+        $Cdph_Environment
     )
 
     Write-Information 'Overriding loaded parameters with arguments from the command line'
