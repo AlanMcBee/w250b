@@ -135,19 +135,6 @@
                 }
             }
         },
-        "MicrosoftKeyVault_vaults_SecureArguments": {
-            "metadata": {
-                "description": [
-                    "These values are not stored in the ARM template, but are instead stored in the Azure Key Vault. The values are retrieved from the Key Vault at runtime when the ARM template is deployed. They are initialized to null here, but will be populated by the PowerShell script at runtime."
-                ],
-                "secure": true
-            },
-            "value": {
-                "MicrosoftDBforMySQLAdministratorLoginPassword": null,
-                "ProjectREDCapCommunityPassword": null,
-                "SmtpUserPassword": null
-            }
-        },
         "MicrosoftStorage_storageAccounts_Arguments": {
             "metadata": {
                 "description": [

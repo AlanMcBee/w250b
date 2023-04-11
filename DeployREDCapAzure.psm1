@@ -203,15 +203,15 @@ function Deploy-AzureREDCap
 
         Initialize-CommonArguments `
             -ParametersEntry $mainParametersEntry `
-            -ResourceDeployment $resourceDeployment `
             -Cdph_BusinessUnit $Cdph_BusinessUnit `
-            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram
+            -Cdph_BusinessUnitProgram $Cdph_BusinessUnitProgram `
+            -Cdph_Environment $Cdph_Environment
 
         Initialize-VirtualNetworkArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
 
-        Initialize-KeyVaultResourceNameArguments `
+        Initialize-KeyVaultArguments `
             -ParametersEntry $mainParametersEntry `
             -ResourceDeployment $resourceDeployment
 
@@ -428,6 +428,7 @@ function Compress-Arguments
                 MicrosoftKeyVault_vaults_Arm_Location                                           = Get-Argument @keyVaultParameter -Name 'Arm_Location' -ByEnvironment
                 MicrosoftKeyVault_vaults_Arm_AdministratorObjectId                              = Get-Argument @keyVaultParameter -Name 'Arm_AdministratorObjectId' -ByEnvironment
                 MicrosoftKeyVault_vaults_NetworkAcls_IpRules                                    = @(Get-Argument @keyVaultParameter -Name 'NetworkAcls_IpRules' -ByEnvironment)
+
                 MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword = $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
                 MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword            = $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
                 MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword                              = $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
@@ -682,38 +683,6 @@ function Initialize-VirtualNetworkArguments
     $null = Test-Argument @parameterArguments `
         -Name 'AddressSpace' `
         -ByEnvironment
-}
-
-function Initialize-KeyVaultResourceNameArguments
-{
-    param (
-        [Parameter(Mandatory = $true)]
-        [hashtable]
-        $ParametersEntry,
-
-        [Parameter(Mandatory = $true)]
-        [ResourceDeployment]
-        $ResourceDeployment
-    )
-
-    $parameterArguments = @{
-        ParametersEntry    = $ParametersEntry
-        ResourceDeployment = $ResourceDeployment
-        ParameterName      = 'MicrosoftKeyVault_vaults_Arm_ResourceName'
-    }
-
-    $null = Test-Argument @parameterArguments
-
-    $keyVault_Arm_ResourceName = Get-CdphResourceName `
-        -ParametersEntry $ParametersEntry `
-        -ResourceDeployment $ResourceDeployment `
-        -Arm_ResourceProvider 'Microsoft.KeyVault/vaults'
-    Set-Argument @parameterArguments `
-        -Name 'Arm_ResourceName' `
-        -Value $keyVault_Arm_ResourceName
-
-    Remove-Argument @parameterArguments `
-        -Metadata
 }
 
 function Initialize-StorageAccountArguments
@@ -1161,12 +1130,12 @@ function Initialize-KeyVaultArguments
         [ResourceDeployment]
         $ResourceDeployment,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidatePattern('^(\d{1,3}\.){3}\d{1,3}$')]
         [string]
         $Cdph_ClientIPAddress,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [SecureArguments]
         $SecureArguments
     )
@@ -1215,7 +1184,7 @@ function Initialize-KeyVaultArguments
         -ByEnvironment
     if ($null -eq $networkAcls_IpRules)
     {
-        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+        if ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and -not [string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
         {
             Set-Argument @parameterArguments `
                 -Name 'NetworkAcls_IpRules' `
@@ -1223,7 +1192,7 @@ function Initialize-KeyVaultArguments
                 -ByEnvironment
         }
     }
-    elseif ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and ![string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
+    elseif ($PSBoundParameters.ContainsKey('Cdph_ClientIPAddress') -and -not [string]::IsNullOrWhiteSpace($Cdph_ClientIPAddress))
     {
         $combinedIpRules = [System.Collections.ArrayList]::new()
         $null = $combinedIpRules.Add([ordered]@{value = "$Cdph_ClientIPAddress/32"})
@@ -1240,24 +1209,6 @@ function Initialize-KeyVaultArguments
             -Value $combinedIpRulesArray `
             -ByEnvironment
     }
-
-    # Initialize the secure arguments
-
-    $parameterArguments['ParameterName'] = 'MicrosoftKeyVault_vaults_SecureArguments'
-
-    $null = Test-Argument @parameterArguments
-
-    Set-Argument @parameterArguments `
-        -Name 'MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword' `
-        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_MicrosoftDBforMySQL_AdministratorLoginPassword
-
-    Set-Argument @parameterArguments `
-        -Name 'MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword' `
-        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_ProjectREDCap_CommunityUserPassword
-
-    Set-Argument @parameterArguments `
-        -Name 'MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword' `
-        -Value $SecureArguments.MicrosoftKeyVault_vaults_secrets_Smtp_UserPassword
 }
 
 function Set-KeyVaultAppServiceAccessPolicy
