@@ -71,7 +71,7 @@ param MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays int
 
 param MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name string
 
-param MicrosoftDBforMySQL_flexibleServers_FirewallRules array
+param MicrosoftDBforMySQL_flexibleServers_FirewallRules object
 
 param MicrosoftDBforMySQL_flexibleServers_Sku_Name string
 
@@ -297,6 +297,9 @@ module MicrosoftWeb_certificates_Module 'redcapAzureDeployAppServiceCertificateM
     MicrosoftWeb_certificates_Arm_ResourceName: MicrosoftWeb_certificates_Arm_ResourceName
     MicrosoftWeb_certificates_Arm_Location: MicrosoftWeb_certificates_Arm_Location
   }
+  dependsOn: [
+    MicrosoftWeb_serverfarms_Module
+  ]
 }
 
 // Application Insights

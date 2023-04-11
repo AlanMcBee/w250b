@@ -503,7 +503,7 @@ function Compress-Arguments
                 MicrosoftDBforMySQL_flexibleServers_Arm_ResourceName            = Get-Argument @mySqlParameter -Name 'Arm_ResourceName'
                 MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays  = Get-Argument @mySqlParameter -Name 'BackupRetentionDays' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name     = Get-Argument @mySqlParameter -Name 'DatabaseName' -ByEnvironment
-                MicrosoftDBforMySQL_flexibleServers_FirewallRules               = @(Get-Argument @mySqlParameter -Name 'FirewallRules' -ByEnvironment)
+                MicrosoftDBforMySQL_flexibleServers_FirewallRules               = Get-Argument @mySqlParameter -Name 'FirewallRules' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Sku_Name                    = Get-Argument @mySqlParameter -Name 'Sku' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Sku_Tier                    = Get-Argument @mySqlParameter -Name 'Tier' -ByEnvironment
                 MicrosoftDBforMySQL_flexibleServers_Storage_StorageSizeGB       = Get-Argument @mySqlParameter -Name 'StorageGB' -ByEnvironment
@@ -741,13 +741,7 @@ function Initialize-MySQLArguments
 
         [Parameter(Mandatory = $true)]
         [ResourceDeployment]
-        $ResourceDeployment,
-
-        # Password for MySQL administrator account
-        # Recommended: Use Get-Secret to retrieve the password from a secure store.
-        [Parameter(Mandatory = $true)]
-        [securestring]
-        $MicrosoftDBforMySQL_flexibleServers_AdministratorLoginPassword
+        $ResourceDeployment
     )
 
     $parameterArguments = @{

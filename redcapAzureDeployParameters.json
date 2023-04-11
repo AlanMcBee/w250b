@@ -192,12 +192,14 @@
                         "Arm_Location": "eastus",
                         "DatabaseName": "redcap_db",
                         "AdministratorLoginName": "redcap_app",
-                        "FirewallRules": {
-                            "AllowAllAzureServicesAndResourcesWithinAzureIps": {
-                                "StartIpAddress": "0.0.0.0",
-                                "EndIpAddress": "0.0.0.0"
+                        "FirewallRules": [
+                            {
+                                "AllowAllAzureServicesAndResourcesWithinAzureIps": {
+                                    "StartIpAddress": "0.0.0.0",
+                                    "EndIpAddress": "0.0.0.0"
+                                }
                             }
-                        }
+                        ]
                     },
                     "dev": {
                         "Tier": "Burstable",

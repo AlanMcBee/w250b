@@ -27,7 +27,7 @@ param MicrosoftDBforMySQL_flexibleServers_Backup_BackupRetentionDays int
 
 param MicrosoftDBforMySQL_flexibleServers_Databases_RedCapDB_Name string
 
-param MicrosoftDBforMySQL_flexibleServers_FirewallRules array
+param MicrosoftDBforMySQL_flexibleServers_FirewallRules object
 
 param MicrosoftDBforMySQL_flexibleServers_Sku_Name string
 
@@ -82,7 +82,7 @@ resource databaseForMySql_FlexibleServer_Resource 'Microsoft.DBforMySQL/flexible
     version: '8.0.21'
   }
 
-  resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'firewallRules' = [for (firewallRule, index) in MicrosoftDBforMySQL_flexibleServers_FirewallRules: {
+  resource databaseForMySql_FlexibleServer_FirewallRule_Resource 'firewallRules' = [for (firewallRule, index) in items(MicrosoftDBforMySQL_flexibleServers_FirewallRules): {
     name: firewallRule.key
     properties: {
       startIpAddress: firewallRule.value.StartIpAddress
