@@ -1682,7 +1682,7 @@ function Deploy-ResourceGroup
             throw 'byEnvironment is a required parameter of MicrosoftResources_resourceGroups_Arguments.value. It must be specified in the redcapAzureDeploy.parameters.json file.'
         }
 
-        $cdphEnvironment = Get-HashtableValue $ResourceDeployment 'Cdph_Environment'
+        $cdphEnvironment = $ResourceDeployment.Cdph_Environment
 
         $resourceGroup_byEnvironment_thisEnvironment = Get-HashtableValue $resourceGroup_byEnvironment $cdphEnvironment
         $resourceGroup_byEnvironment_allEnvironments = Get-HashtableValue $resourceGroup_byEnvironment 'ALL'
@@ -1702,7 +1702,7 @@ function Deploy-ResourceGroup
         }
 
         Write-Information "Creating Resource Group $resourceGroupName in $resourceGroup_Arm_Location"
-        New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroup_Arm_Location
+        $null = New-AzResourceGroup -Name $resourceGroupName -Location $resourceGroup_Arm_Location
     }
     else
     {
