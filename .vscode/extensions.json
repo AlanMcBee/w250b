@@ -1,0 +1,18 @@
+{
+    "recommendations": [
+        "codrjatin.golden-era",
+        "janjoerke.align-by-regex",
+        "ms-azuretools.vscode-bicep",
+        "tylerleonhardt.vscode-inline-values-powershell",
+        "eamodio.gitlens",
+        "github.copilot",
+        "alefragnani.bookmarks",
+        "msazurermtools.azurerm-vscode-tools",
+        "pspester.pester-test",
+        "ms-vscode.powershell",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer",
+        "gruntfuggly.todo-tree",
+        "britesnow.vscode-toggle-quotes"
+    ]
+}
