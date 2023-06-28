@@ -9,10 +9,10 @@
         "alefragnani.bookmarks",
         "msazurermtools.azurerm-vscode-tools",
         "pspester.pester-test",
-        "ms-vscode.powershell",
         "ms-vscode.test-adapter-converter",
         "hbenl.vscode-test-explorer",
         "gruntfuggly.todo-tree",
-        "britesnow.vscode-toggle-quotes"
+        "britesnow.vscode-toggle-quotes",
+        "ms-vscode.powershell"
     ]
 }

@@ -1,4 +1,5 @@
 {
     "appService.defaultWebAppToDeploy": "/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/AppServices/subscriptions/3c71ec50-2b62-446f-a0c9-523aa590b223/resourceGroups/rg-250b-temp/providers/Microsoft.Web/sites/w250b-cert",
-    "appService.deploySubpath": "bin/Publish"
+    "appService.deploySubpath": "bin/Publish",
+    "workbench.colorTheme": "Golden Era"
 }
